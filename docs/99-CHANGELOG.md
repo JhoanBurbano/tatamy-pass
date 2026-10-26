@@ -37,6 +37,10 @@
 - `docs/86-APP-ESCRITORIO.md` (nuevo): instalar sin firma, asistente, ventana, HTTPS y certificado raíz, dónde quedan los datos, migrar desde Docker, compilar en la Mac (`npm run dist:mac -w apps/host-desktop`), firmar/notarizar (`CSC_LINK`, `APPLE_ID`…), actualizar, por qué no se recompila better-sqlite3, checklist de 12 puntos. `docs/90` §3 con opción A (app de escritorio) y opción B (Docker); `docs/80` §2 (variable nueva) y §12 (cómo probar la app); README y `CLAUDE.md` (mapa del monorepo).
 - JSDoc en todas las rutas del host (`apps/host/src/routes/*.ts`) y en los tipos de configuración de `packages/core/src/types.ts` (fuente de los documentos generados).
 
+### Corregido
+- e2e TC-072: la matriz rol × página incluye **Radio** (Administrador, Coordinador, Supervisor); `docs/80` §2.1 actualizado.
+- `npm run typecheck` de `e2e`: una sola versión de `playwright-core` (1.56.1) para `@playwright/test` y `@axe-core/playwright`.
+
 ## [0.2.0] — 2026-10-13
 
 ### Añadido

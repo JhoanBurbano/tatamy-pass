@@ -79,8 +79,8 @@ Entra con un usuario del seed. Cada rol ve solo sus páginas (el host aplica el 
 | `admin` | todas |
 | `coord` | todas menos Usuarios |
 | `print` | Credenciales, Inscripciones, Impresión, Nube |
-| `super` | Puertas en vivo, Credenciales, Inscripciones, Dispositivos, Alertas |
-| `audit` | todo en solo lectura (sin botones de acción) |
+| `super` | Puertas en vivo, Credenciales, Inscripciones, Dispositivos, Alertas, Radio |
+| `audit` | todo menos Radio, Evento y roles y Usuarios, en solo lectura (sin botones de acción) |
 
 Qué probar por página (todo con mensajes en español, confirmaciones en lo destructivo y estados vacíos; se usa bien en una tablet de 10"):
 

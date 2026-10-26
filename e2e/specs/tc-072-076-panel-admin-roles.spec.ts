@@ -10,17 +10,17 @@ import { adminGo, adminLogin, enrollScanner, forceSync, host, scan } from '../he
 import { ADMIN_URL } from '../ports.js';
 
 /** Misma matriz que apps/host-admin/src/App.tsx (PAGES) y docs/80 §2.1. */
-const PAGES = ['puertas', 'credenciales', 'inscripciones', 'impresion', 'dispositivos', 'alertas', 'evento', 'nube', 'auditoria', 'sistema', 'usuarios'] as const;
+const PAGES = ['puertas', 'credenciales', 'inscripciones', 'impresion', 'dispositivos', 'alertas', 'radio', 'evento', 'nube', 'auditoria', 'sistema', 'usuarios'] as const;
 const HEADINGS: Record<(typeof PAGES)[number], string> = {
   puertas: 'Puertas en vivo', credenciales: 'Credenciales', inscripciones: 'Inscripciones', impresion: 'Impresión', dispositivos: 'Dispositivos',
-  alertas: 'Alertas', evento: 'Evento y roles', nube: 'Nube', auditoria: 'Auditoría', sistema: 'Sistema', usuarios: 'Usuarios'
+  alertas: 'Alertas', radio: 'Radio', evento: 'Evento y roles', nube: 'Nube', auditoria: 'Auditoría', sistema: 'Sistema', usuarios: 'Usuarios'
 };
 const MATRIX: Record<string, (typeof PAGES)[number][]> = {
   admin: [...PAGES],
   coord: PAGES.filter((p) => p !== 'usuarios'),
   print: ['credenciales', 'inscripciones', 'impresion', 'nube'],
-  super: ['puertas', 'credenciales', 'inscripciones', 'dispositivos', 'alertas'],
-  audit: PAGES.filter((p) => p !== 'evento' && p !== 'usuarios')
+  super: ['puertas', 'credenciales', 'inscripciones', 'dispositivos', 'alertas', 'radio'],
+  audit: PAGES.filter((p) => p !== 'radio' && p !== 'evento' && p !== 'usuarios')
 };
 
 async function pageLoads(page: Page, id: (typeof PAGES)[number]) {
