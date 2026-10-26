@@ -1,0 +1,46 @@
+# Levanta el host detrás de Caddy con certificado de CA interna (HTTPS en LAN).
+# Uso: docker compose up --build   (desde apps/host; el build usa la raíz del monorepo)
+services:
+  host:
+    build:
+      context: ../..
+      dockerfile: apps/host/Dockerfile
+    environment:
+      TP_KEY_PASSPHRASE: ${TP_KEY_PASSPHRASE:?Define TP_KEY_PASSPHRASE en .env}
+      TP_EVENT_CONFIG: /app/apps/host/event.config.json
+      # Plantilla de la credencial impresa (docs/33); por defecto junto a la base de datos.
+      # TP_BADGE_TEMPLATE: /app/data/badge-template.json
+      TP_CLOUD_URL: ${TP_CLOUD_URL:-}
+      TP_CLOUD_KEY: ${TP_CLOUD_KEY:-}
+      TP_CLOUD_INTERVAL_MIN: ${TP_CLOUD_INTERVAL_MIN:-5}
+      TP_ROLE: ${TP_ROLE:-primary}
+      TP_PRIMARY_URL: ${TP_PRIMARY_URL:-}
+      TP_REPLICA_KEY: ${TP_REPLICA_KEY:-}
+      TP_RETENTION_DAYS: ${TP_RETENTION_DAYS:-90}
+    volumes:
+      - tatami-data:/data
+      - tatami-backups:/backups
+      - tatami-keys:/keys
+    restart: unless-stopped
+    expose:
+      - "8787"
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - host
+    restart: unless-stopped
+
+volumes:
+  tatami-data:
+  tatami-backups:
+  tatami-keys:
+  caddy-data:
+  caddy-config:

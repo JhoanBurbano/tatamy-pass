@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Así funciona Tatami Pass</title>
+<meta name="description" content="Demo interactiva y guiada de Tatami Pass: 16 escenarios paso a paso, de la inscripción al cierre del día, con pantallas simuladas del scanner, el formulario y el computador central.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* Layout: portada corta con tarjetas de escenario → reproductor (pantalla simulada + paso actual) → cobertura v1 → pie. Misma familia visual que tatami-pass-design.html. */
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#EEF2F8; --fg:#0F172A; --muted:#5B6B82; --line:#DDE3EC;
+  --blue:#1C4FD1; --blue-ink:#133A9C; --blue-soft:#E4EBFB;
+  --red:#E0323B; --red-soft:#FCE6E7; --green:#16A34A; --green-soft:#DEF7E6;
+  --amber:#D97706; --amber-soft:#FCEFD6; --lime:#C8F560; --lime-ink:#5B7A00;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 12px 32px -12px rgba(28,79,209,.18);
+  --shadow-lg:0 2px 4px rgba(15,23,42,.06),0 30px 60px -24px rgba(28,79,209,.30);
+  --font-display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:14px; --t:180ms;
+  --r-GEN:#64748B; --r-COMP:#1C4FD1; --r-COACH:#0F2A6B; --r-JUR:#111827; --r-VIP:#6D28D9; --r-SPON:#9CCB2A; --r-PRESS:#EA7A1C; --r-MED:#16A34A; --r-STAFF:#E0323B; --gold:#D4A72C;
+  --who-insc:#0F2A6B; --who-coord:#1C4FD1; --who-oper:#EA7A1C; --who-ctrl:#16A34A; --who-sup:#6D28D9; --who-admin:#111827; --who-aud:#64748B; --who-pub:#5B7A00; --who-sys:#D97706;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 4px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.7);
+  --who-admin:#9AA8BD; --who-insc:#7C9BEA; --who-pub:#B5E04A;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 4px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.7);
+  --who-admin:#9AA8BD; --who-insc:#7C9BEA; --who-pub:#B5E04A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.5vw,3rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;letter-spacing:-.015em}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}
+button{font-family:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+section.block{padding-block:48px}
+.eyebrow{font-family:var(--font-display);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.lead{color:var(--muted);max-width:62ch;font-size:1.05rem}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.belt{height:12px;background:repeating-linear-gradient(-55deg,var(--blue) 0 28px,var(--lime) 28px 36px,var(--red) 36px 64px,var(--surface) 64px 72px);opacity:.9}
+.belt.thin{height:6px}
+
+/* nav + progreso global */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:14px;height:60px;min-width:0}
+.nav .brand span.txt,.nav .btn .txt{display:inline}@media (max-width:600px){.nav .btn .txt{display:none}.nav .btn.sm{padding:0 10px}}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:-.01em;white-space:nowrap}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#4C7DF5);position:relative;overflow:hidden;box-shadow:0 4px 10px -4px rgba(28,79,209,.6);flex:none}
+.brand .mark::after{content:"";position:absolute;inset:-4px;background:linear-gradient(115deg,transparent 46%,var(--lime) 46%,var(--lime) 60%,transparent 60%)}
+.gprog{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:4px}
+.gprog .lbl{font-size:.72rem;color:var(--muted);display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+.gprog .lbl span{min-width:0}.gprog .lbl span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.gprog .lbl span:last-child{white-space:nowrap;flex:none}
+@media (max-width:600px){.gprog .lbl span:last-child{display:none}}
+.gprog .track{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.gprog .track i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--blue),#4C7DF5 60%,var(--lime));transition:width .35s cubic-bezier(.2,.7,.2,1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid transparent;font:600 .9rem var(--font-body);cursor:pointer;transition:transform var(--t),box-shadow var(--t),background var(--t),color var(--t),border-color var(--t);text-decoration:none;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 20px -8px rgba(28,79,209,.6)}
+.btn-primary:hover:not(:disabled){background:var(--blue-ink)}
+.btn-secondary{background:var(--surface);color:var(--fg);border-color:var(--line)}
+.btn-secondary:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.btn-lime{background:var(--lime);color:#0F172A}
+.btn-lime:hover{filter:brightness(.95)}
+.btn-ghost{background:transparent;color:var(--blue)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:.82rem;border-radius:10px}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* portada */
+.hero{position:relative;overflow:hidden;padding-block:56px 40px;background:
+  radial-gradient(900px 420px at 10% -10%,color-mix(in srgb,var(--blue) 18%,transparent),transparent 60%),
+  radial-gradient(700px 360px at 95% 10%,color-mix(in srgb,var(--lime) 35%,transparent),transparent 60%),var(--bg)}
+.hero::before{content:"";position:absolute;right:-20%;top:-40%;width:70%;height:200%;background:linear-gradient(115deg,transparent 48%,color-mix(in srgb,var(--blue) 10%,transparent) 48%,color-mix(in srgb,var(--blue) 10%,transparent) 52%,transparent 52%,transparent 58%,color-mix(in srgb,var(--red) 9%,transparent) 58%,color-mix(in srgb,var(--red) 9%,transparent) 61%,transparent 61%);pointer-events:none}
+.hero .wrap{position:relative;display:grid;gap:18px}
+.hero .claim{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.hero .how{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.hero .how span{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow)}
+.hero .how kbd{font:600 .75rem var(--font-mono);background:var(--surface-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+.scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:18px}
+.scen{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:14px 14px 12px;display:grid;gap:8px;cursor:pointer;color:inherit;box-shadow:var(--shadow);transition:transform var(--t),box-shadow var(--t),border-color var(--t);overflow:hidden}
+.scen::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--sc,var(--blue))}
+.scen:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--sc,var(--blue))}
+.scen[aria-current="true"]{border-color:var(--sc,var(--blue));box-shadow:0 0 0 3px color-mix(in srgb,var(--sc,var(--blue)) 25%,transparent),var(--shadow)}
+.scen .top{display:flex;align-items:center;gap:10px}
+.scen .letter{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font:800 1rem var(--font-display);background:color-mix(in srgb,var(--sc,var(--blue)) 14%,transparent);color:var(--sc,var(--blue));flex:none}
+.scen .fr{margin-left:auto;color:var(--muted);display:inline-flex;gap:4px;align-items:center;font-size:.72rem;font-weight:600}
+.scen .fr svg{width:16px;height:16px}
+.scen b{font-family:var(--font-display);font-size:.95rem;line-height:1.25;letter-spacing:-.01em}
+.scen small{color:var(--muted);font-size:.8rem;line-height:1.35}
+.scen .meta{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.scen .dots{display:flex;gap:3px;margin-left:auto}
+.scen .dots i{width:7px;height:7px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);transition:background var(--t)}
+.scen .dots i.v{background:var(--sc,var(--blue));border-color:transparent}
+.scen .done{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;opacity:0;transform:scale(.6);transition:opacity var(--t),transform var(--t)}
+.scen.complete .done{opacity:1;transform:scale(1)}
+.scen.complete .fr{visibility:hidden}
+
+/* reproductor */
+.player{padding-block:40px 56px}
+.player-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.player-head .ttl{display:grid;gap:6px;min-width:0;flex:1}
+.player-head .ttl h2{display:flex;align-items:center;gap:12px}.player-head .ttl h2>span:last-child{flex:1;min-width:0}
+.player-head .ttl .letter{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font:800 1.1rem var(--font-display);background:var(--sc,var(--blue));color:#fff;flex:none}
+.player-head .tools{display:flex;gap:8px;flex-wrap:wrap}
+.stage-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:24px;align-items:start}
+@media (max-width:900px){.stage-grid{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:44px 22px 22px;box-shadow:var(--shadow);min-height:420px;display:grid;place-items:center;overflow:hidden}
+.stage::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 50% 110%,color-mix(in srgb,var(--sc,var(--blue)) 14%,transparent),transparent 70%);pointer-events:none}
+.stage .fit{position:relative;width:100%;overflow:visible;margin:0 auto}
+.stage .fit>*{transform-origin:top left;position:absolute;left:0;top:0}
+.stage .fit.ph{max-width:340px}
+@media (max-width:600px){.stage{padding:40px 14px 16px}.stage .fit.ph{max-width:300px}}
+
+.stage .fit.br{max-width:100%}
+.stage .caption{position:absolute;left:14px;top:12px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;z-index:2}
+.stage .caption i{width:8px;height:8px;border-radius:50%;background:var(--sc,var(--blue))}
+.panel{display:grid;gap:14px;min-width:0}
+.step-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);display:grid;gap:14px;position:relative;overflow:hidden}
+.step-card .num{display:flex;align-items:center;gap:10px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600}
+.step-card .num b{font-family:var(--font-display);font-size:1.6rem;color:var(--sc,var(--blue));letter-spacing:-.02em;line-height:1}
+.step-card .num .bar{flex:1;height:5px;border-radius:999px;background:var(--surface-2);overflow:hidden;min-width:40px}
+.step-card .num .bar i{display:block;height:100%;background:var(--sc,var(--blue));border-radius:999px;transition:width .3s cubic-bezier(.2,.7,.2,1)}
+.step-card h3{font-size:1.2rem;letter-spacing:-.015em;line-height:1.25}
+.step-card .behind{display:grid;grid-template-columns:auto 1fr;gap:10px;background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.45;color:var(--fg)}
+.step-card .behind .lbl{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:3px;white-space:nowrap}
+.who{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;font-size:.78rem;font-weight:700;color:#fff;background:var(--wc,var(--blue));letter-spacing:.02em}
+.who i{width:8px;height:8px;border-radius:50%;background:#fff;opacity:.9}
+.who-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.step-swap{animation:stepin .25s cubic-bezier(.2,.7,.2,1) both}
+@keyframes stepin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.controls .btn{min-height:48px}
+.controls .wide{grid-column:1/-1}
+.controls .auto[aria-pressed="true"]{background:var(--lime);color:#0F172A;border-color:transparent}
+.autobar{height:3px;border-radius:999px;background:var(--surface-2);overflow:hidden;opacity:0;transition:opacity var(--t)}
+.autobar.on{opacity:1}
+.autobar i{display:block;height:100%;width:0;background:var(--lime-ink)}
+.autobar.on i{animation:autofill 3s linear forwards}
+@keyframes autofill{from{width:0}to{width:100%}}
+.result-card{background:linear-gradient(135deg,color-mix(in srgb,var(--green) 14%,var(--surface)),var(--surface));border:1.5px solid color-mix(in srgb,var(--green) 45%,var(--line));border-radius:var(--radius);padding:18px 20px;display:grid;gap:10px;animation:stepin .3s cubic-bezier(.2,.7,.2,1) both}
+.result-card .lbl{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:800;color:var(--green)}
+.result-card .lbl i{width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:14px;animation:pop .4s cubic-bezier(.2,.9,.3,1.3) both}
+.result-card p{font-size:.95rem;line-height:1.45}
+.result-card .btn{white-space:normal;text-align:left;justify-content:flex-start;line-height:1.3;padding-block:10px;height:auto}
+.step-list{display:flex;gap:6px;flex-wrap:wrap}
+.step-list button{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font:700 .78rem var(--font-display);cursor:pointer;transition:background var(--t),color var(--t),border-color var(--t)}
+.step-list button.v{border-color:color-mix(in srgb,var(--sc,var(--blue)) 50%,transparent);color:var(--sc,var(--blue))}
+.step-list button[aria-current="true"]{background:var(--sc,var(--blue));color:#fff;border-color:transparent}
+.kbd-hint{font-size:.75rem;color:var(--muted);text-align:center}
+.kbd-hint kbd{font:600 .72rem var(--font-mono);background:var(--surface-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px}
+
+/* presentación */
+html.present{overflow:hidden}
+html.present .nav,html.present .hero,html.present .belt,html.present #cobertura,html.present footer,html.present .player-head .ttl .sub,html.present .step-list,html.present .kbd-hint{display:none!important}
+html.present .player{position:fixed;inset:0;z-index:100;background:var(--bg);padding:0;overflow:auto}
+html.present .player .wrap{max-width:none;height:100%;display:grid;grid-template-rows:auto 1fr;padding:12px 16px}
+html.present .player-head{margin-bottom:8px}
+html.present .stage-grid{grid-template-columns:minmax(0,1fr) minmax(300px,420px);height:100%;align-items:stretch}
+html.present .stage{min-height:0;border-radius:24px}
+html.present .stage .fit.ph{max-width:390px}
+html.present .panel{align-content:center}
+html.present .step-card h3{font-size:1.5rem}
+html.present .step-card .behind{font-size:1rem}
+@media (max-width:900px){html.present .stage-grid{grid-template-columns:1fr;grid-template-rows:auto auto;align-items:start}html.present .stage{min-height:320px}}
+
+/* cobertura */
+.cov{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.cov{grid-template-columns:1fr}}
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.tbl-wrap table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:520px}
+.tbl-wrap th{text-align:left;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.tbl-wrap td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl-wrap tr:last-child td{border-bottom:0}
+.tbl-wrap td .ok{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700}
+.tbl-wrap td .ok i{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:11px;font-style:normal}
+.tbl-wrap td button{border:0;background:var(--blue-soft);color:var(--blue);font:700 .78rem var(--font-display);border-radius:8px;padding:4px 9px;cursor:pointer;margin-right:4px}
+.tbl-wrap td button:hover{background:var(--blue);color:#fff}
+.pend{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);display:grid;gap:12px}
+.pend ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pend li{display:flex;gap:12px;align-items:flex-start;font-size:.9rem;line-height:1.4}
+.pend li .tag{flex:none;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--amber-soft);color:var(--amber);border-radius:6px;padding:3px 8px;margin-top:2px;white-space:nowrap}
+.pend li .tag.v1{background:var(--green-soft);color:var(--green)}
+footer{padding:36px 0 56px;color:var(--muted);font-size:.85rem}
+footer .docs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+footer .docs span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-family:var(--font-mono);font-size:.74rem;color:var(--fg)}
+
+/* ===== MARCO DE TELÉFONO ===== */
+.phone{width:390px;height:844px;background:#0F172A;border-radius:48px;padding:12px;box-shadow:var(--shadow-lg),inset 0 0 0 2px #334155;position:relative}
+.phone .screen{width:100%;height:100%;border-radius:38px;background:#F6F8FB;color:#0F172A;overflow:hidden;position:relative;font-family:var(--font-body);display:flex;flex-direction:column;transition:background .25s ease,color .25s ease}
+.phone .notch{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:120px;height:34px;border-radius:20px;background:#0F172A;z-index:3}
+.phone .status{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 6px;font-size:14px;font-weight:600;flex:none}
+.phone .status .t{font-variant-numeric:tabular-nums}
+.phone .status .r{display:flex;gap:6px;align-items:center}
+.phone .status .r i{display:block;width:22px;height:11px;border:1.5px solid currentColor;border-radius:3px;position:relative}
+.phone .status .r i::after{content:"";position:absolute;inset:2px;right:30%;background:currentColor;border-radius:1px}
+.phone .app{flex:1;display:flex;flex-direction:column;padding:12px 20px 24px;gap:14px;min-height:0}
+.phone .app.swap{animation:appswap .22s cubic-bezier(.2,.7,.2,1) both}
+@keyframes appswap{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+.phone .bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.phone .bar .zone{font-family:var(--font-display);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.phone .bar .zone i{width:10px;height:10px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.2)}
+.phone .bar .zone i.off{background:#94A3B8;box-shadow:0 0 0 3px rgba(148,163,184,.25)}
+.phone .bar .pill{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:#E4EBFB;color:#1C4FD1;white-space:nowrap}
+.phone .bar .pill.off{background:#F1F5F9;color:#5B6B82}
+.phone .h{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.phone .p{color:#475569;font-size:15px;line-height:1.45}
+.phone .pbtn{min-height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:17px;border:0;font-family:var(--font-body);cursor:pointer;transition:transform var(--t),filter var(--t);padding:0 16px}
+.phone .pbtn:active{transform:scale(.98)}
+.phone .pbtn.pri{background:#1C4FD1;color:#fff;box-shadow:0 8px 20px -8px rgba(28,79,209,.7)}
+.phone .pbtn.sec{background:#fff;color:#0F172A;border:1.5px solid #DDE3EC}
+.phone .pbtn.lime{background:#C8F560;color:#0F172A}
+.phone .pbtn.hl{box-shadow:0 0 0 4px #C8F560}
+.phone .spacer{flex:1}
+.phone .stack{display:grid;gap:10px}
+.phone .foot-note{text-align:center;font-size:12px;color:#5B6B82}
+.phone .toast{background:#0F172A;color:#fff;border-radius:12px;padding:10px 14px;font-size:14px;display:flex;gap:10px;align-items:center;animation:appswap .25s both}
+.phone .toast i{font-style:normal;font-weight:800;color:#C8F560}
+.enrol-qr{width:200px;height:200px;margin:4px auto 0;border-radius:18px;background:#fff;display:grid;place-items:center;padding:12px;box-shadow:0 10px 30px -14px rgba(28,79,209,.5)}
+.enrol-qr svg{width:100%;height:100%}
+.cam-frame{margin:4px auto 0;width:250px;height:250px;position:relative;border-radius:22px;background:linear-gradient(135deg,#1E293B,#0F172A);display:grid;place-items:center;overflow:hidden;flex:none}
+.cam-frame::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.08),transparent 55%)}
+.cam-frame .corner{position:absolute;width:40px;height:40px;border:4px solid #C8F560}
+.cam-frame .c1{top:14px;left:14px;border-right:0;border-bottom:0;border-radius:10px 0 0 0}
+.cam-frame .c2{top:14px;right:14px;border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+.cam-frame .c3{bottom:14px;left:14px;border-right:0;border-top:0;border-radius:0 0 0 10px}
+.cam-frame .c4{bottom:14px;right:14px;border-left:0;border-top:0;border-radius:0 0 10px 0}
+.cam-frame .laser{position:absolute;left:20px;right:20px;height:3px;background:linear-gradient(90deg,transparent,#C8F560,transparent);top:30%;animation:laser 1.6s ease-in-out infinite alternate;box-shadow:0 0 14px #C8F560}
+@keyframes laser{to{top:70%}}
+.cam-frame .qrin{width:150px;height:150px;opacity:.6;filter:invert(1) brightness(1.2);transition:opacity .2s}
+.cam-frame .qrin svg{width:100%;height:100%}
+.cam-frame.damaged .qrin{opacity:.35;filter:invert(1) blur(1.2px) contrast(.6)}
+.cam-frame .scratch{position:absolute;left:30%;top:25%;width:60%;height:4px;background:#fff;transform:rotate(-28deg);opacity:.8;box-shadow:0 10px 0 -1px #fff,-12px 24px 0 -1px #fff}
+.cam-frame .scratch{display:none}.cam-frame.damaged .scratch{display:block}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-top:8px}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid #1C4FD1;transition:background var(--t)}
+.pin-dots i.on{background:#1C4FD1}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.keypad span{height:62px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.08);font:600 24px var(--font-display);color:#0F172A;display:grid;place-items:center}
+.keypad span.soft{background:transparent;box-shadow:none;font-size:15px;font-family:var(--font-body);color:#5B6B82}
+.zlist{display:grid;gap:10px}
+.zlist div{display:flex;align-items:center;gap:12px;min-height:60px;padding:0 14px;background:#fff;border:1.5px solid #DDE3EC;border-radius:14px;transition:border-color var(--t),background var(--t)}
+.zlist div.sel{border-color:#1C4FD1;background:#E4EBFB}
+.zlist .zi{width:38px;height:38px;border-radius:10px;background:#F6F8FB;display:grid;place-items:center;flex:none}
+.zlist .zi svg{width:22px;height:22px}
+.zlist div.sel .zi{background:#1C4FD1;color:#fff}
+.zlist b{display:block;font-size:15px}
+.zlist small{color:#5B6B82;font-size:12px}
+.zlist .radio{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid #CBD5E1;flex:none}
+.zlist div.sel .radio{border:7px solid #1C4FD1}
+.phone .screen.ok{background:#16A34A;color:#fff}
+.phone .screen.no{background:#E0323B;color:#fff}
+.phone .screen.warn{background:#F59E0B;color:#0F172A}
+.res{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-top:2px;flex:1;min-height:0}
+.res .big{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.22);font-family:var(--font-display);font-weight:800;font-size:66px;line-height:1;animation:pop .4s cubic-bezier(.2,.9,.3,1.3) both;flex:none}
+.screen.warn .res .big{background:rgba(15,23,42,.12)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.res .verdict{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.res .why{font-size:16px;line-height:1.4;opacity:.95;max-width:310px}
+.res .what{font-size:15px;line-height:1.4;background:rgba(255,255,255,.18);padding:10px 14px;border-radius:12px;max-width:320px}
+.screen.warn .res .what{background:rgba(15,23,42,.1)}
+.person{display:flex;gap:14px;align-items:center;background:rgba(255,255,255,.16);border-radius:16px;padding:12px;width:100%;text-align:left}
+.person .ph{width:68px;height:84px;border-radius:10px;background:#E6ECF5;display:grid;place-items:center;flex:none;overflow:hidden;position:relative;transition:box-shadow var(--t)}
+.person .ph svg{width:48px;height:48px;color:#94A3B8}
+.person.focus .ph{box-shadow:0 0 0 4px #C8F560}
+.person b{display:block;font-family:var(--font-display);font-size:19px;line-height:1.1}
+.person .rl{display:inline-block;margin-top:5px;background:#fff;color:#1C4FD1;font-size:11px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:6px}
+.person .zt{margin-top:5px;font-size:13px;opacity:.95;font-variant-numeric:tabular-nums}
+.res-actions{width:100%;display:grid;gap:10px;margin-top:auto}
+.res-actions .pbtn{background:rgba(255,255,255,.95);color:#0F172A}
+.res-actions .pbtn.ghost{background:transparent;color:inherit;border:2px solid rgba(255,255,255,.5)}
+.screen.warn .res-actions .pbtn.ghost{border-color:rgba(15,23,42,.3)}
+.pend-card{background:#fff;border-radius:16px;padding:16px;display:grid;gap:8px;border:1.5px solid #DDE3EC}
+.pend-card .n{font-family:var(--font-display);font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;transition:color var(--t)}
+.pend-card .n small{font-size:15px;font-weight:600;color:#5B6B82;margin-left:6px;font-family:var(--font-body)}
+.pend-card .n.zero{color:#16A34A}
+.pend-card .st{display:flex;align-items:center;gap:8px;color:#5B6B82;font-size:14px}
+.pend-card .st i{width:9px;height:9px;border-radius:50%;background:#94A3B8}
+.pend-card .st i.on{background:#16A34A}
+.pend-card .st i.sync{background:#1C4FD1;animation:pulse 1.2s infinite}
+.plist{display:grid;gap:8px}
+.plist div{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:12px 14px;font-size:14px;border:1px solid #E6EBF2}
+.plist div b{font-family:var(--font-mono);font-weight:500;font-size:13px}
+.plist div span{color:#5B6B82;font-variant-numeric:tabular-nums}
+.plist div .ok{color:#16A34A;font-weight:700}
+.dq{display:grid;gap:12px;place-items:center;text-align:center}
+.dq .qrbox{width:230px;height:230px;background:#fff;border-radius:22px;padding:14px;box-shadow:0 14px 36px -16px rgba(28,79,209,.5);position:relative}
+.dq .qrbox svg{width:100%;height:100%;display:block}
+.dq .qrbox.old{filter:grayscale(1);opacity:.7}
+.ring{position:relative;width:76px;height:76px}
+.ring svg{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring .bgc{stroke:#DDE3EC}
+.ring .fgc{stroke:#1C4FD1;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:20px;font-variant-numeric:tabular-nums}
+.dcard{background:linear-gradient(135deg,#64748B,#475569);color:#fff;border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;width:100%;text-align:left}
+.dcard .ph{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none}
+.dcard .ph svg{width:28px;height:28px}
+.dcard b{display:block;font-family:var(--font-display);font-size:17px}
+.dcard small{opacity:.9;font-size:12px}
+.dcard .code{margin-left:auto;font-family:var(--font-mono);font-size:12px;text-align:right;line-height:1.3}
+.chat{display:grid;gap:10px;align-content:start}
+.chat .bub{max-width:82%;border-radius:16px;padding:10px 12px;font-size:14px;line-height:1.35;background:#fff;border:1px solid #DDE3EC}
+.chat .bub.me{margin-left:auto;background:#DEF7E6;border-color:#BBE8C8;border-bottom-right-radius:4px}
+.chat .bub.them{border-bottom-left-radius:4px}
+.chat .bub small{display:block;color:#5B6B82;font-size:11px;margin-top:4px;text-align:right}
+.chat .shot{width:150px;height:150px;border-radius:10px;background:#fff;padding:6px;border:1px solid #DDE3EC}
+.chat .shot svg{width:100%;height:100%}
+.inp{height:56px;border:2px solid #DDE3EC;border-radius:14px;background:#fff;display:flex;align-items:center;padding:0 14px;font:600 20px var(--font-mono);letter-spacing:.04em;gap:2px}
+.inp.focus{border-color:#1C4FD1;box-shadow:0 0 0 4px rgba(28,79,209,.15)}
+.inp .ph{color:#94A3B8;font-weight:500}
+.inp .caret{width:2px;height:26px;background:#1C4FD1;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.inp .chk{margin-left:auto;color:#16A34A;font-weight:800;font-family:var(--font-body);font-size:14px}
+.mlist{display:grid;gap:8px}
+.mlist div{min-height:52px;border-radius:12px;background:#fff;border:1.5px solid #DDE3EC;display:flex;align-items:center;padding:0 14px;font-size:15px;font-weight:600;gap:10px}
+.mlist div.sel{border-color:#1C4FD1;background:#E4EBFB;color:#1C4FD1}
+.mlist div i{width:18px;height:18px;border-radius:50%;border:2px solid #CBD5E1;flex:none}
+.mlist div.sel i{border:6px solid #1C4FD1}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum div{background:#fff;border:1.5px solid #DDE3EC;border-radius:14px;padding:12px 14px}
+.sum b{display:block;font-family:var(--font-display);font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sum small{color:#5B6B82;font-size:12px}
+.sum div.warn b{color:#D97706}
+.err-card{background:#fff;border:2px solid #E0323B;border-radius:16px;padding:14px;display:grid;gap:6px}
+.err-card b{font-family:var(--font-display);font-size:18px;color:#E0323B}
+.err-card span{font-size:14px;color:#475569}
+
+/* ===== MARCO DE NAVEGADOR (960 × 640) ===== */
+.browser{width:960px;height:640px;background:#fff;color:#0F172A;border-radius:14px;box-shadow:var(--shadow-lg);overflow:hidden;border:1px solid #DDE3EC;font-family:var(--font-body);display:flex;flex-direction:column;font-size:14px;line-height:1.45}
+.browser .top{height:40px;background:#EEF2F8;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid #DDE3EC;flex:none}
+.browser .top i{width:11px;height:11px;border-radius:50%;background:#CBD5E1}
+.browser .top .url{margin-left:12px;flex:1;max-width:440px;height:26px;background:#fff;border-radius:8px;font-size:12px;color:#5B6B82;display:flex;align-items:center;padding:0 12px;font-family:var(--font-mono);white-space:nowrap;overflow:hidden}
+.browser .top .url b{color:#16A34A;margin-right:6px}
+.browser .body{flex:1;min-height:0;position:relative;overflow:hidden;background:#F6F8FB}
+.browser .body>.view{position:absolute;inset:0;display:flex;flex-direction:column}
+.browser .body>.view.swap{animation:appswap .22s cubic-bezier(.2,.7,.2,1) both}
+.browser .hlbox{box-shadow:0 0 0 3px #C8F560;border-radius:12px}
+/* formulario de inscripción */
+.reg{display:grid;grid-template-columns:1fr 300px;flex:1;min-height:0}
+.reg .form{padding:26px 30px;display:grid;gap:14px;align-content:start;overflow:hidden}
+.reg .side{background:#fff;border-left:1px solid #DDE3EC;padding:24px 22px;display:grid;gap:14px;align-content:start}
+.reg h3{font-size:1.35rem;letter-spacing:-.02em;font-family:var(--font-display)}
+.reg .sub{color:#5B6B82;font-size:13px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:5px}
+.field label{font-size:12.5px;font-weight:600;color:#334155}
+.field .in{height:42px;border:1.5px solid #DDE3EC;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:14px;background:#fff;gap:8px;transition:border-color var(--t),box-shadow var(--t)}
+.field .in.focus{border-color:#1C4FD1;box-shadow:0 0 0 3px rgba(28,79,209,.18)}
+.field .in.auto{background:#EEF2F8;color:#334155;justify-content:space-between}
+.field .in.auto b{font-family:var(--font-display);color:#1C4FD1}
+.field .in .ph{color:#94A3B8}
+.field .help{font-size:12px;color:#5B6B82}
+.field .in.err{border-color:#E0323B;box-shadow:0 0 0 3px rgba(224,50,59,.15)}
+.field .help.err{color:#E0323B;font-weight:600}
+.notice{border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;font-size:13.5px;line-height:1.4;animation:appswap .25s both}
+.notice i{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-family:var(--font-display);font-style:normal}
+.notice.full{background:#FCEFD6;color:#7C3A00}.notice.full i{background:#F59E0B;color:#fff}
+.notice.info{background:#E4EBFB;color:#133A9C}.notice.info i{background:#1C4FD1;color:#fff}
+.notice.ok{background:#DEF7E6;color:#14532D}.notice.ok i{background:#16A34A;color:#fff}
+.notice.bad{background:#FCE6E7;color:#991B1B}.notice.bad i{background:#E0323B;color:#fff}
+.notice .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.notice .acts span{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:8px;font-weight:700;font-size:12.5px;background:#fff;color:#0F172A;border:1px solid rgba(15,23,42,.12)}
+.notice .acts span.pri{background:#1C4FD1;color:#fff;border-color:transparent}
+.consent{background:#fff;border:1.5px solid #DDE3EC;border-radius:12px;padding:12px 14px;display:grid;gap:10px}
+.consent .chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.4}
+.consent .chk i{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid #CBD5E1;background:#fff;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;font-style:normal;transition:background var(--t)}
+.consent .chk i.on{border-color:#1C4FD1;background:#1C4FD1}
+.quota{display:grid;gap:8px}
+.quota .row{display:flex;justify-content:space-between;font-size:13px;font-variant-numeric:tabular-nums}
+.quota .track{height:8px;background:#DDE3EC;border-radius:999px;overflow:hidden}
+.quota .track i{display:block;height:100%;border-radius:999px;background:#1C4FD1;transition:width .4s}
+.quota .track i.full{background:#E0323B}
+.btn-mock{height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;gap:8px;padding:0 16px;white-space:nowrap}
+.btn-mock.pri{background:#1C4FD1;color:#fff}
+.btn-mock.lime{background:#C8F560;color:#0F172A}
+.btn-mock.sec{background:#fff;color:#0F172A;border:1.5px solid #DDE3EC}
+.btn-mock.dis{background:#E2E8F0;color:#94A3B8}
+.btn-mock.danger{background:#E0323B;color:#fff}
+.btn-mock.sm{height:34px;font-size:12.5px;padding:0 12px;border-radius:9px}
+.stpill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.stpill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.stpill.info{background:#E4EBFB;color:#1C4FD1}.stpill.ok{background:#DEF7E6;color:#15803D}.stpill.warn{background:#FCEFD6;color:#B45309}.stpill.bad{background:#FCE6E7;color:#B91C1C}.stpill.off{background:#EEF2F8;color:#5B6B82}
+/* página centrada (confirmación, correo) */
+.center{flex:1;display:grid;place-items:center;padding:24px}
+.ccard{background:#fff;border:1px solid #DDE3EC;border-radius:16px;padding:28px 30px;max-width:520px;width:100%;display:grid;gap:14px;box-shadow:0 20px 40px -24px rgba(28,79,209,.3)}
+.ccard .ico{width:52px;height:52px;border-radius:50%;background:#DEF7E6;color:#16A34A;display:grid;place-items:center;font:800 26px var(--font-display);animation:pop .4s cubic-bezier(.2,.9,.3,1.3) both}
+.ccard h3{font-family:var(--font-display);font-size:1.3rem;letter-spacing:-.02em}
+.ccard p{color:#334155;font-size:14px}
+.mail{flex:1;display:grid;grid-template-columns:220px 1fr;min-height:0}
+.mail .list{background:#fff;border-right:1px solid #DDE3EC;padding:14px;display:grid;gap:6px;align-content:start}
+.mail .list div{padding:10px 12px;border-radius:10px;font-size:12.5px;display:grid;gap:2px}
+.mail .list div.on{background:#E4EBFB}
+.mail .list b{font-size:13px}
+.mail .list small{color:#5B6B82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mail .read{padding:24px 30px;display:grid;gap:14px;align-content:start}
+.mail .read h3{font-family:var(--font-display);font-size:1.2rem}
+.mail .from{display:flex;gap:10px;align-items:center;font-size:13px;color:#5B6B82}
+.mail .from i{width:34px;height:34px;border-radius:50%;background:#1C4FD1;color:#fff;display:grid;place-items:center;font:800 14px var(--font-display);font-style:normal}
+.mail .bodytxt{background:#fff;border:1px solid #DDE3EC;border-radius:12px;padding:20px 22px;font-size:14px;line-height:1.55;display:grid;gap:12px}
+/* importador */
+.imp{flex:1;padding:22px 28px;display:grid;gap:16px;align-content:start;overflow:hidden}
+.wiz{display:flex;gap:6px;align-items:center;font-size:12.5px;color:#5B6B82}
+.wiz span{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:#fff;border:1px solid #DDE3EC}
+.wiz span.on{background:#1C4FD1;color:#fff;border-color:transparent;font-weight:700}
+.wiz span.done{color:#16A34A;border-color:#BBE8C8;font-weight:600}
+.drop{border:2px dashed #CBD5E1;border-radius:16px;background:#fff;padding:36px;display:grid;place-items:center;gap:8px;text-align:center;color:#5B6B82}
+.drop b{color:#0F172A;font-family:var(--font-display);font-size:1.05rem}
+.drop .file{display:inline-flex;gap:10px;align-items:center;background:#E4EBFB;color:#133A9C;border-radius:10px;padding:8px 14px;font-weight:600;font-size:13px;animation:appswap .25s both}
+.maptbl{background:#fff;border:1px solid #DDE3EC;border-radius:12px;overflow:hidden}
+.maptbl .r{display:grid;grid-template-columns:1.1fr 1.4fr 1fr;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid #EEF2F8;font-size:13px}
+.maptbl .r:last-child{border-bottom:0}
+.maptbl .r.hd{background:#F6F8FB;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#5B6B82;font-weight:700}
+.maptbl .sel{height:32px;border:1.5px solid #DDE3EC;border-radius:8px;display:flex;align-items:center;padding:0 10px;justify-content:space-between;background:#fff}
+.maptbl .sel.bad{border-color:#E0323B;color:#B91C1C}
+.maptbl .sel.ok{border-color:#16A34A}
+.maptbl .ex{color:#5B6B82;font-family:var(--font-mono);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:#fff;border:1px solid #DDE3EC;border-radius:14px;padding:14px 16px;display:grid;gap:3px}
+.kpi span{font-size:11px;color:#5B6B82;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.kpi b{font-family:var(--font-display);font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi small{font-size:12px;color:#5B6B82}
+.kpi.warn b{color:#D97706}.kpi.bad b{color:#E0323B}.kpi.ok b{color:#16A34A}.kpi.hl{box-shadow:0 0 0 3px #C8F560}
+/* ===== RADIO · voz por la red local (Tatami Radio) ===== */
+/* Estados del PTT: escuchando azul · hablando lima con borde · ocupado ámbar · emergencia rojo. Pantallas del teléfono con colores fijos, como el resto del scanner. */
+.rd-tabs{display:flex;gap:6px}
+.rd-tabs span{flex:1;min-width:0;height:36px;border-radius:10px;background:#fff;border:1.5px solid #DDE3EC;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+.rd-tabs span.on{background:#1C4FD1;color:#fff;border-color:#1C4FD1}
+.rd-tabs span.em{color:#B91C1C;border-color:#F3C4C6}
+.rd-tabs span.em.on{background:#E0323B;border-color:#E0323B;color:#fff}
+.rd-tabs span i{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.8;flex:none}
+.rd-peers{display:flex;flex-wrap:wrap;gap:6px}
+.rd-peers span{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid #DDE3EC;font-size:12px;font-weight:600;color:#334155;white-space:nowrap}
+.rd-peers span i{width:8px;height:8px;border-radius:50%;background:#16A34A;flex:none}
+.rd-peers span.me{border-color:#1C4FD1;color:#1C4FD1}
+.rd-peers span.talk{background:#C8F560;border-color:#5B7A00;color:#0F172A}
+.rd-peers span.talk i{background:#5B7A00}
+.rd-peers span.off{color:#94A3B8}.rd-peers span.off i{background:#CBD5E1}
+.rd-state{text-align:center;display:grid;gap:4px}
+.rd-state b{font-family:var(--font-display);font-size:22px;letter-spacing:-.02em;line-height:1.15}
+.rd-state span{font-size:14px;color:#475569}
+.ptt{width:196px;height:196px;border-radius:50%;margin:0 auto;display:grid;place-items:center;align-content:center;text-align:center;font-family:var(--font-display);font-weight:800;font-size:18px;line-height:1.15;border:0;cursor:pointer;position:relative;color:#fff;transition:transform var(--t),box-shadow var(--t);user-select:none;padding:0;flex:none}
+.ptt small{display:block;font:600 12px var(--font-body);opacity:.85;margin-top:4px;padding:0 18px;line-height:1.25}
+.ptt svg{width:40px;height:40px;margin-bottom:6px}
+.ptt.listen{background:#1C4FD1;box-shadow:0 14px 34px -12px rgba(28,79,209,.7)}
+.ptt.talk{background:#C8F560;color:#0F172A;border:6px solid #5B7A00;box-shadow:0 0 0 10px rgba(200,245,96,.35),0 14px 34px -12px rgba(91,122,0,.6);transform:scale(1.03)}
+.ptt.talk small{opacity:.75}
+.ptt.busy{background:#D97706;box-shadow:0 14px 34px -12px rgba(217,119,6,.6)}
+.ptt.emerg{background:#E0323B;box-shadow:0 0 0 10px rgba(224,50,59,.18),0 14px 34px -12px rgba(224,50,59,.7)}
+.ptt .ring{position:absolute;inset:-16px;border-radius:50%;border:3px solid #5B7A00;opacity:.5;animation:ptt-ring 1.2s ease-out infinite;pointer-events:none}
+@keyframes ptt-ring{from{transform:scale(.92);opacity:.6}to{transform:scale(1.12);opacity:0}}
+.wave{display:flex;gap:4px;align-items:center;justify-content:center;height:36px}
+.wave i{width:5px;border-radius:3px;background:#5B7A00;height:10px;animation:wave .9s ease-in-out infinite}
+.wave.amber i{background:#D97706}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.48s}.wave i:nth-child(6){animation-delay:.6s}.wave i:nth-child(7){animation-delay:.72s}
+@keyframes wave{0%,100%{height:8px}50%{height:32px}}
+.rd-log{display:grid;gap:6px}
+.rd-log div{display:flex;justify-content:space-between;gap:8px;background:#fff;border:1px solid #E6EBF2;border-radius:10px;padding:8px 12px;font-size:12.5px;color:#334155;min-width:0}
+.rd-log div b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rd-log div span{color:#5B6B82;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rd-log div.em{border-color:#F3C4C6;background:#FCE6E7;color:#991B1B}
+.rd-queue{background:#FCEFD6;color:#7C3A00;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.35;display:flex;gap:10px;align-items:center}
+.rd-queue i{font-style:normal;font-weight:800;width:24px;height:24px;border-radius:7px;background:#D97706;color:#fff;display:grid;place-items:center;flex:none}
+.rd-queue.off{background:#EEF2F8;color:#334155}.rd-queue.off i{background:#64748B}
+/* orden recibida (pantalla completa) */
+.phone .screen.emerg{background:#E0323B;color:#fff}
+.phone .screen.order{background:#1C4FD1;color:#fff}
+.ord{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;flex:1;min-height:0;padding-top:4px}
+.ord .lbl{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.ord .big{width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;animation:pop .4s cubic-bezier(.2,.9,.3,1.3) both;flex:none}
+.ord .big svg{width:48px;height:48px}
+.ord .verdict{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.ord .why{font-size:16px;opacity:.95;max-width:300px;line-height:1.4}
+.ord .cues{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ord .cues span{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.ord .cues span svg{width:14px;height:14px}
+/* panel Radio del host */
+.rd-ch{display:grid;gap:8px}
+.rd-ch .c{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:12px;align-items:center;background:#fff;border:1px solid #DDE3EC;border-radius:12px;padding:10px 14px;font-size:13px}
+.rd-ch .c.on{border-color:#5B7A00;box-shadow:0 0 0 2px #C8F560}
+.rd-ch .c.em{border-color:#F3C4C6}
+.rd-ch .c b{font-family:var(--font-display);display:grid;grid-template-columns:auto 1fr;align-items:center;gap:1px 8px;min-width:0}
+.rd-ch .c b i{width:10px;height:10px;border-radius:3px;background:#1C4FD1;flex:none}
+.rd-ch .c.em b i{background:#E0323B}
+.rd-ch .c small{grid-column:2;display:block;color:#5B6B82;font-size:11.5px;font-family:var(--font-body);font-weight:500}
+.rd-ch .c .rd-who{display:flex;align-items:center;gap:8px;min-width:0;color:#334155}
+.rd-ch .c .rd-who .wave{height:20px}.rd-ch .c .rd-who .wave i{width:3px;animation-duration:.8s}
+.rd-ch .c .rd-who .wave i{height:6px}
+@keyframes wave-sm{0%,100%{height:5px}50%{height:18px}}
+.rd-ch .c .rd-who .wave i{animation-name:wave-sm}
+.rd-ord{display:grid;gap:8px}
+.rd-ord .sel{height:38px;border:1.5px solid #DDE3EC;border-radius:10px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:13px;background:#fff;font-weight:600}
+.rd-ord .sel.focus{border-color:#1C4FD1;box-shadow:0 0 0 3px rgba(28,79,209,.18)}
+.rd-ord .chips{display:flex;flex-wrap:wrap;gap:6px}
+.rd-ord .chips span{height:30px;padding:0 10px;border-radius:999px;border:1.5px solid #DDE3EC;background:#fff;display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:#334155;white-space:nowrap}
+.rd-ord .chips span.on{background:#1C4FD1;border-color:#1C4FD1;color:#fff}
+.rd-ord .chips span.em{color:#B91C1C;border-color:#F3C4C6}
+.rd-ack{display:grid;gap:6px}
+.rd-ack div{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:12.5px;padding:8px 10px;border-radius:10px;background:#F6F8FB;border:1px solid #EEF2F8}
+.rd-ack div i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px;color:#fff;background:#16A34A;flex:none}
+.rd-ack div.wait{background:#FCEFD6;border-color:#F6DFB5;color:#7C3A00}.rd-ack div.wait i{background:#D97706}
+.rd-ack div.em i{background:#E0323B}
+.rd-ack div span{white-space:nowrap;color:#5B6B82;font-variant-numeric:tabular-nums}
+.rd-ack div b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phone .pbtn.emg{background:#fff;color:#B91C1C;border:2px solid #E0323B;min-height:48px;font-size:15px}
+.host .rd-note{background:#EEF2F8;border:1px solid #DDE3EC;color:#334155;border-radius:12px;padding:8px 12px;font-size:12.5px;display:flex;gap:10px;align-items:center}
+.host .rd-note i{font-style:normal;font-weight:800;width:24px;height:24px;border-radius:7px;background:#64748B;color:#fff;display:grid;place-items:center;flex:none}
+.host .rd-note.warn{background:#FCEFD6;border-color:#F6DFB5;color:#7C3A00}.host .rd-note.warn i{background:#D97706}
+.host .rd-note.lime{background:#F3FFD6;border-color:#C8F560;color:#334155}.host .rd-note.lime i{background:#5B7A00}
+/* host */
+.host .rd-ch{gap:6px}.host .rd-ch .c{padding:6px 12px;grid-template-columns:210px minmax(0,1fr) auto;font-size:12.5px}.host .rd-ch .c b{display:flex;align-items:baseline;gap:6px;font-size:13px}.host .rd-ch .c small{display:inline;font-size:11px}
+.host{flex:1;display:grid;grid-template-columns:200px 1fr;min-height:0}
+.host .sb{background:#0F172A;color:#CBD5E1;padding:18px 14px;display:flex;flex-direction:column;gap:4px}
+.host .sb .brand{color:#fff;margin-bottom:10px;font-size:15px}
+.host .sb .brand .mark{width:24px;height:24px;border-radius:7px}
+.host .sb span{color:#CBD5E1;font-size:13px;font-weight:500;padding:8px 10px;border-radius:9px;display:flex;align-items:center;gap:10px}
+.host .sb span.on{background:#1C4FD1;color:#fff;font-weight:600}
+.host .sb span .bdg{margin-left:auto;background:#E0323B;color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px}
+.host .sb .st{margin-top:auto;font-size:11px;color:#94A3B8;line-height:1.5;padding-top:14px;border-top:1px solid #1E293B}
+.host .sb .st b{color:#fff;font-weight:600}
+.host .main{padding:20px 24px;display:grid;gap:16px;align-content:start;overflow:hidden;position:relative}
+.host .hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.host .hd h3{font-size:19px;letter-spacing:-.02em;font-family:var(--font-display)}
+.host .hd .live{display:inline-flex;align-items:center;gap:8px;background:#DEF7E6;color:#14532D;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600}
+.host .hd .live i{width:8px;height:8px;border-radius:50%;background:#16A34A;animation:pulse 1.6s infinite}
+.host .hd .live.off{background:#FCEFD6;color:#7C3A00}.host .hd .live.off i{background:#D97706}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}60%{box-shadow:0 0 0 8px rgba(22,163,74,0)}}
+.host .hd .acts{display:flex;gap:8px}
+.tbl{background:#fff;border:1px solid #DDE3EC;border-radius:12px;overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{white-space:nowrap;text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:#5B6B82;padding:9px 10px;background:#F6F8FB;border-bottom:1px solid #DDE3EC;font-weight:700}
+.tbl td{white-space:nowrap;padding:9px 10px;border-bottom:1px solid #EEF2F8;vertical-align:middle;font-variant-numeric:tabular-nums}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.hl td{background:#FBFFE9}
+.tbl tr.dim td{opacity:.5}
+.tbl .door{font-weight:700;display:flex;align-items:center;gap:8px}
+.tbl .door i{width:9px;height:9px;border-radius:50%;background:#16A34A;flex:none}
+.tbl .door i.warn{background:#D97706}.tbl .door i.off{background:#94A3B8}
+.tbl .mono{font-family:var(--font-mono);font-size:11.5px}
+.spark{display:inline-flex;gap:2px;align-items:flex-end;height:20px;margin-right:8px;vertical-align:middle}
+.spark i{width:3px;background:#1C4FD1;border-radius:2px;opacity:.85}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.tag.ok{background:#DEF7E6;color:#14532D}.tag.warn{background:#FCEFD6;color:#7C3A00}.tag.bad{background:#FCE6E7;color:#991B1B}.tag.off{background:#EEF2F8;color:#5B6B82}.tag.info{background:#E4EBFB;color:#133A9C}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px;align-items:start}
+.scard{background:#fff;border:1px solid #DDE3EC;border-radius:12px;padding:14px 16px;display:grid;gap:9px}
+.scard h4{font-size:13px;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-display)}
+.line-item{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 0;border-bottom:1px solid #EEF2F8;font-variant-numeric:tabular-nums}
+.line-item:last-child{border-bottom:0}
+.line-item .ok{color:#16A34A;font-weight:700}.line-item .warn{color:#D97706;font-weight:700}.line-item .bad{color:#E0323B;font-weight:700}
+.alert-item{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.35;padding:9px 10px;border-radius:10px;background:#FCEFD6;color:#7C3A00;animation:appswap .3s both}
+.alert-item.bad{background:#FCE6E7;color:#991B1B}
+.alert-item.ok{background:#DEF7E6;color:#14532D}
+.alert-item.info{background:#E4EBFB;color:#133A9C}
+.alert-item b{font-family:var(--font-mono);font-weight:500}
+.alert-item i{flex:none;width:20px;height:20px;border-radius:6px;background:#D97706;color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;font-style:normal}
+.alert-item.bad i{background:#E0323B}.alert-item.ok i{background:#16A34A}.alert-item.info i{background:#1C4FD1}
+.host .toast{position:absolute;right:20px;bottom:18px;background:#0F172A;color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);animation:appswap .25s both;max-width:420px}
+.host .toast i{font-style:normal;font-weight:800;color:#C8F560}
+.dim-ov{position:absolute;inset:0;background:rgba(15,23,42,.45);display:grid;place-items:center;padding:20px;z-index:5;animation:fade .2s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.dlg{background:#fff;border-radius:16px;padding:22px 24px;max-width:440px;width:100%;display:grid;gap:12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);animation:pop .25s cubic-bezier(.2,.9,.3,1.2) both}
+.dlg h4{font-family:var(--font-display);font-size:16px;letter-spacing:-.01em}
+.dlg p{font-size:13.5px;color:#334155;line-height:1.45}
+.dlg .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.dlg .in{height:40px;border:1.5px solid #DDE3EC;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:14px;gap:6px}
+.dlg .in.focus{border-color:#1C4FD1;box-shadow:0 0 0 3px rgba(28,79,209,.18)}
+.audit{display:grid;gap:6px}
+.audit .row{display:grid;grid-template-columns:52px 54px 1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:8px 12px;font-size:12.5px}
+.audit .row.hl{border-color:#C8F560;box-shadow:0 0 0 2px #C8F560}
+.audit .row .seq{font-family:var(--font-mono);color:#5B6B82;font-size:11.5px}
+.audit .row .hash{font-family:var(--font-mono);font-size:10.5px;color:#94A3B8}
+.audit .row .hash b{color:#16A34A;font-weight:600}
+.chain{display:flex;align-items:center;gap:0;margin:4px 0 0}
+.chain i{width:26px;height:10px;border-radius:999px;background:#16A34A;opacity:.85}
+.chain i+i{margin-left:-3px}
+.enrol-big{display:grid;grid-template-columns:240px 1fr;gap:22px;align-items:center;background:#fff;border:1px solid #DDE3EC;border-radius:14px;padding:20px}
+.enrol-big .qr{width:220px;height:220px;background:#fff;border:1px solid #DDE3EC;border-radius:12px;padding:10px}
+.enrol-big .qr svg{width:100%;height:100%}
+.enrol-big h4{font-family:var(--font-display);font-size:17px}
+.enrol-big .cd{font-family:var(--font-mono);font-size:30px;font-weight:700;color:#1C4FD1;font-variant-numeric:tabular-nums}
+.enrol-big .meta{display:grid;gap:4px;font-size:13px;color:#334155}
+.timeline{display:grid;gap:0;background:#fff;border:1px solid #DDE3EC;border-radius:12px;overflow:hidden}
+.timeline .tl{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:10px 14px;border-bottom:1px solid #EEF2F8;align-items:start;font-size:12.5px;transition:background var(--t)}
+.timeline .tl:last-child{border-bottom:0}
+.timeline .tl .m{font-family:var(--font-display);font-weight:800;font-size:14px;color:#5B6B82}
+.timeline .tl.on{background:#FBFFE9}.timeline .tl.on .m{color:#1C4FD1}
+.timeline .tl.past .m{color:#16A34A}
+.timeline .tl .who{height:22px;font-size:10.5px;padding:0 8px;margin-right:4px;vertical-align:middle}
+.timeline .tl .lines{display:grid;gap:4px}
+.ups{display:grid;gap:8px}
+.ups .bar{height:14px;border-radius:999px;background:#E2E8F0;overflow:hidden;position:relative}
+.ups .bar i{display:block;height:100%;border-radius:999px;background:#16A34A;transition:width .5s}
+.ups .bar i.warn{background:#D97706}.ups .bar i.bad{background:#E0323B}
+.ups .lbl{display:flex;justify-content:space-between;font-size:12px;color:#5B6B82;font-variant-numeric:tabular-nums}
+.ups .lbl b{color:#0F172A;font-family:var(--font-display);font-size:18px}
+.prt{flex:1;display:grid;grid-template-columns:1fr 280px;min-height:0}
+.prt .sheet{background:#CBD5E1;display:grid;place-items:center;padding:20px;overflow:hidden}
+.prt .sheet .pg{background:#fff;padding:8mm;box-shadow:0 20px 40px -20px rgba(0,0,0,.5);zoom:.6;display:flex;gap:6mm;flex:none}
+.prt .sheet .pg .nb{box-shadow:none;border:.2mm solid #CBD5E1;border-radius:0;flex:none}
+.prt .side{background:#fff;border-left:1px solid #DDE3EC;padding:20px;display:grid;gap:12px;align-content:start}
+.prt .side h4{font-family:var(--font-display);font-size:15px}
+/* credencial física (misma que el diseño) */
+/* ===== Credencial "Nacional 2026" (plantilla configurable) · unidades en mm, escala real ===== */
+/* La credencial es un objeto impreso: sus colores son fijos (papel blanco) en ambos temas; la plantilla los recibe como variables. */
+.nb{--p:#0F2A6B;--a:#E6007E;--g:#C9A227;--gr:#C7CCD6;--ink:#0F2A6B;--role:#E6007E;--role-ink:#fff;--tower:#DCE6F5;
+  width:100mm;height:150mm;background:#fff;color:var(--ink);border-radius:4mm;position:relative;overflow:hidden;box-shadow:var(--shadow-lg,0 2px 4px rgba(15,23,42,.06),0 30px 60px -24px rgba(15,23,42,.3));
+  font-family:"Inter",ui-sans-serif,system-ui,sans-serif;line-height:1.15;box-sizing:border-box}
+.nb *{box-sizing:border-box}
+.nb .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.nb .tower{position:absolute;right:0;top:0;width:36mm;height:34mm;color:var(--tower);pointer-events:none}
+.nb .inner{position:absolute;inset:0;padding:5mm 5mm 4.5mm;display:flex;flex-direction:column}
+/* cabecera */
+.nb .hdr{display:flex;align-items:flex-start;gap:1.6mm;height:16mm}
+.nb .ed{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:17mm;line-height:.82;letter-spacing:-.01em;color:var(--p);
+  background:repeating-linear-gradient(180deg,var(--p) 0 1.6mm,transparent 1.6mm 1.95mm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.4mm}
+.nb .ttl{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;text-transform:uppercase;color:var(--p);font-size:6.1mm;line-height:.9;letter-spacing:-.01em;display:flex;flex-direction:column}
+.nb .ttl small{font-size:2.5mm;font-weight:700;letter-spacing:.1em;margin-top:.9mm;line-height:1}
+.nb .yr{align-self:stretch;display:flex;align-items:center;gap:1.4mm;padding-left:1.4mm;border-left:.35mm solid var(--g);font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:5.2mm;line-height:.92;color:var(--a);letter-spacing:.02em;margin-top:.6mm}
+.nb .yr span{display:block}
+.nb .city{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:5mm;letter-spacing:.32em;color:var(--p);text-align:center;margin-top:1.2mm;line-height:1}
+.nb .dates{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:2.7mm;letter-spacing:.2em;color:var(--p);text-align:center;margin-top:1mm;line-height:1;padding-bottom:1.3mm;border-bottom:.3mm solid var(--g)}
+.nb.nb-back .hdr{height:14mm}
+.nb.nb-back .ed{font-size:14mm}
+.nb.nb-back .ttl{font-size:5.4mm}
+.nb.nb-back .city{font-size:4.2mm;margin-top:.8mm}
+/* identidad */
+.nb .idrow{display:flex;gap:2.5mm;margin-top:3mm;align-items:stretch}
+.nb .photo{width:30mm;height:41mm;flex:none;border-radius:1.6mm;border:.4mm solid #D4DBE6;background:linear-gradient(180deg,#E9EEF6,#D5DDEA);display:grid;place-items:center;overflow:hidden}
+.nb .photo svg{width:20mm;height:20mm;color:#94A3B8}
+.nb .fields{flex:1;min-width:0;display:grid;gap:1.6mm;align-content:stretch}
+.nb .f{border:.3mm solid #D9DEE8;border-radius:1.3mm;padding:1mm 2mm .9mm;min-width:0;display:flex;flex-direction:column;justify-content:center;background:rgba(255,255,255,.92)}
+.nb .f b{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.2mm;letter-spacing:.14em;text-transform:uppercase;color:var(--p);font-weight:700;line-height:1}
+.nb .f.ac b{color:var(--a)}
+.nb .f span{display:block;font-size:3.3mm;font-weight:600;color:#111827;line-height:1.15;margin-top:.5mm;overflow-wrap:anywhere}
+.nb .f.long span{font-size:2.9mm}
+/* banda de rol */
+.nb .band{margin-top:3mm;height:12mm;border-radius:1.4mm;background:var(--role);color:var(--role-ink);display:flex;align-items:center;gap:2.5mm;padding:0 3mm;position:relative;overflow:hidden}
+.nb .band svg{width:7.5mm;height:7.5mm;flex:none}
+.nb .band span{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:8.6mm;letter-spacing:.02em;text-transform:uppercase;line-height:1;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb .band.sm span{font-size:6.4mm}
+/* tarjetas de acceso + QR */
+.nb .acc{display:flex;gap:2mm;margin-top:3mm}
+.nb .acc .col{flex:1;min-width:0;display:grid;gap:2mm;align-content:stretch}
+.nb .c{border:.3mm solid #D9DEE8;border-radius:1.4mm;padding:1.8mm 2mm;display:flex;gap:2mm;align-items:center;background:rgba(255,255,255,.92);min-width:0}
+.nb .c svg{width:5.5mm;height:5.5mm;flex:none;color:var(--a)}
+.nb .c b{display:block;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.6mm;letter-spacing:.1em;text-transform:uppercase;color:var(--a);font-weight:700;line-height:1}
+.nb .c span{display:block;font-size:2.9mm;color:#111827;line-height:1.2;margin-top:.5mm;font-weight:500;white-space:pre-line}
+.nb .c .id{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:3.9mm;letter-spacing:.01em;color:var(--p);margin-top:.6mm;white-space:nowrap}
+.nb .qrc{width:31mm;flex:none;border:.3mm solid #D9DEE8;border-radius:1.4mm;background:#fff;padding:1.2mm;display:grid;place-items:center}
+.nb .qrc svg{width:100%;height:auto;display:block}
+/* pie de logos */
+.nb .foot{margin-top:auto;padding-top:1.6mm;border-top:.3mm solid var(--g);display:flex;align-items:center;justify-content:space-between;gap:1.2mm}
+.nb .lg{flex:1;min-width:0;height:10mm;border:.25mm dashed #B6BFCD;border-radius:1mm;display:grid;place-items:center;text-align:center;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:1.95mm;line-height:1.05;letter-spacing:.04em;text-transform:uppercase;color:#64748B;padding:0 .8mm;overflow:hidden}
+.nb .lg.w{flex:1.25}
+/* reverso */
+.nb .info{margin-top:2.4mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:2mm 2.4mm;background:rgba(255,255,255,.92)}
+.nb .info h5{margin:0;display:flex;align-items:center;gap:2mm;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:4.2mm;letter-spacing:.1em;text-transform:uppercase;color:var(--p);font-weight:800;line-height:1}
+.nb .info h5 i{width:5mm;height:5mm;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-style:normal;font-family:"Barlow Condensed","Sora",sans-serif;font-size:3.6mm;font-weight:800;flex:none}
+.nb .info ul{list-style:none;margin:2mm 0 0;padding:0;display:grid;gap:1.6mm}
+.nb .info li{display:flex;gap:2mm;align-items:flex-start;font-size:2.75mm;color:#111827;line-height:1.25;font-weight:500}
+.nb .info li svg{width:4mm;height:4mm;flex:none;color:var(--p);margin-top:.1mm}
+.nb .two{display:flex;gap:2mm;margin-top:2.5mm}
+.nb .two .c{flex:1;align-items:flex-start}
+.nb .two .c svg{margin-top:.4mm}
+.nb .two .c span{font-size:2.8mm}
+.nb .spon{margin-top:2.5mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:1.6mm 2.4mm 2mm;background:rgba(255,255,255,.92)}
+.nb .spon b{display:flex;align-items:center;gap:1.5mm;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.9mm;letter-spacing:.12em;text-transform:uppercase;color:var(--a);font-weight:800;line-height:1}
+.nb .spon b svg{width:3.4mm;height:3.4mm;color:var(--p)}
+.nb .spon .row{display:flex;gap:1.5mm;margin-top:1.4mm}
+.nb .spon .lg{height:11mm;font-size:2.2mm}
+.nb .bar{margin-top:2.5mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:1.4mm 2mm 1mm;background:#fff;text-align:center}
+.nb .bar svg{display:block;width:100%;height:9mm}
+.nb .bar span{display:block;font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:3.1mm;color:#111827;letter-spacing:.06em;margin-top:.6mm}
+/* vistas */
+.nb-pair{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.nb-pair>div{flex:1 1 230px;min-width:0;max-width:378px}
+.nb-side{display:grid;gap:4px;text-align:center;font-size:.8rem;color:var(--muted)}
+/* ===== fin credencial ===== */
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+@media (max-width:600px){.player-head .tools .btn span.txt{display:none}.player-head .tools .btn{padding:0 12px}}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Progreso">
+  <div class="wrap">
+    <a class="brand" href="#inicio" style="color:inherit;text-decoration:none"><span class="mark"></span>Tatami Pass</a>
+    <div class="gprog" aria-live="polite"><div class="lbl"><span id="gp-label">Demo guiada · 16 escenarios</span><span id="gp-count">0 %</span></div><div class="track"><i id="gp-bar"></i></div></div>
+    <button class="btn btn-secondary sm" type="button" id="btn-present-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="txt">Presentación</span></button>
+  </div>
+</nav>
+
+<header class="hero" id="inicio">
+  <div class="wrap">
+    <div class="eyebrow">Demo guiada · Campeonato Nacional de Taekwondo ITF 2026</div>
+    <h1>Así funciona Tatami Pass</h1>
+    <p class="claim">Elige un escenario y recórrelo paso a paso. A la izquierda ves la pantalla tal como la verá cada persona; a la derecha, qué pasa y quién actúa. Todo lo que ves aquí es una simulación con datos de ejemplo.</p>
+    <div class="how">
+      <span><kbd>←</kbd><kbd>→</kbd> para avanzar</span>
+      <span>Reproducir automático: 3 s por paso</span>
+      <span>Modo Presentación para proyector</span>
+    </div>
+    <div class="scen-grid" id="scen-grid" role="list" aria-label="Escenarios"></div>
+  </div>
+</header>
+<div class="belt"></div>
+
+<section class="player" id="demo" aria-live="polite">
+  <div class="wrap">
+    <div class="player-head">
+      <div class="ttl">
+        <div class="eyebrow" id="ph-eyebrow">Escenario A</div>
+        <h2><span class="letter" id="ph-letter">A</span><span id="ph-title">Inscripción de un competidor</span></h2>
+        <p class="muted sub" id="ph-sub"></p>
+      </div>
+      <div class="tools">
+        <button class="btn btn-secondary" type="button" id="btn-prev-scen" title="Escenario anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg><span class="txt">Escenario anterior</span></button>
+        <button class="btn btn-secondary" type="button" id="btn-next-scen" title="Siguiente escenario"><span class="txt">Siguiente escenario</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="btn btn-secondary" type="button" id="btn-present"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="txt" id="present-txt">Presentación</span></button>
+      </div>
+    </div>
+    <div class="stage-grid">
+      <div class="stage" id="stage">
+        <div class="caption" id="stage-cap"><i></i>Scanner · celular</div>
+        <div class="fit ph" id="fit-phone" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen" id="ph-screen"><div class="status"><span class="t" id="ph-time">9:41</span><span class="r"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 10h2V7H1zm4 0h2V4H5zm4 0h2V2H9zm4 0h2V0h-2z" fill="currentColor"/></svg><i></i></span></div><div class="app" id="ph-app"></div></div></div></div>
+        <div class="fit br" id="fit-browser" data-w="960" data-h="640" hidden><div class="browser"><div class="top"><i></i><i></i><i></i><div class="url"><b>https://</b><span id="br-url">inscripcion.tatamipass.co/nac2026</span></div></div><div class="body" id="br-body"></div></div></div>
+      </div>
+      <div class="panel">
+        <div class="step-card" id="step-card">
+          <div class="num"><b id="st-num">1</b><span id="st-of">de 6</span><div class="bar"><i id="st-bar"></i></div></div>
+          <h3 id="st-title"></h3>
+          <div class="behind"><span class="lbl">Por detrás</span><span id="st-behind"></span></div>
+          <div class="who-row">Quién actúa <span class="who" id="st-who"><i></i>Inscriptor</span></div>
+        </div>
+        <div id="result-slot"></div>
+        <div class="controls">
+          <button class="btn btn-secondary" type="button" id="btn-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button>
+          <button class="btn btn-primary" type="button" id="btn-next">Siguiente<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button class="btn btn-secondary wide auto" type="button" id="btn-auto" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg><span id="auto-txt">Reproducir automático</span></button>
+          <div class="autobar wide" id="autobar"><i></i></div>
+        </div>
+        <div class="step-list" id="step-list" aria-label="Ir al paso"></div>
+        <p class="kbd-hint"><kbd>←</kbd> <kbd>→</kbd> cambian de paso · <kbd>Esc</kbd> sale de Presentación</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<section class="block" id="cobertura">
+  <div class="wrap">
+    <div class="eyebrow">Alcance</div>
+    <h2 style="margin-top:8px">Qué cubre y qué no (v1)</h2>
+    <p class="lead" style="margin-top:10px">Cada caso cubierto se puede ver en un escenario de esta demo. Lo que queda para la siguiente fase está marcado con honestidad.</p>
+    <div class="cov" style="margin-top:24px">
+      <div class="tbl-wrap"><table id="cov-table"><thead><tr><th>Caso</th><th>Cómo lo resuelve</th><th>Escenario</th></tr></thead><tbody></tbody></table></div>
+      <div class="pend">
+        <h3>Pendientes · próxima fase</h3>
+        <ul>
+          <li><span class="tag">Próxima fase</span><span><b>Host standby automático.</b> Hoy el equipo de respaldo se promueve con un comando y una confirmación (escenario K). La promoción sola, sin intervención, viene después.</span></li>
+          <li><span class="tag v1">En v1 · manual + periódico</span><span><b>Novedades de la nube al host.</b> El host trae novedades cada 5 min o cuando el Coordinador toca "Traer ahora" (escenario O). La sincronización continua en ambos sentidos queda para después.</span></li>
+          <li><span class="tag">Próxima fase</span><span><b>Panel admin web completo.</b> En v1 el panel del host cubre inscripciones, credenciales, dispositivos, alertas, auditoría y reportes. La configuración fina de roles y zonas se hace por archivo del evento.</span></li>
+          <li><span class="tag">Próxima fase</span><span><b>Cifrado por campo.</b> El disco del host va cifrado completo. El cifrado de cada dato sensible por separado (documento, fecha de nacimiento) con clave por evento queda para la siguiente fase.</span></li>
+          <li><span class="tag v1">Fuera de v1</span><span>Pagos de inscripción, llaves y resultados, reconocimiento facial, app nativa y otros idiomas. Lo dice el contrato desde el inicio.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><span class="mark"></span>Tatami Pass</div>
+    <p style="margin-top:10px">Esta demo es coherente con los documentos del proyecto. Si algo aquí y algo allá no coinciden, manda el contrato.</p>
+    <div class="docs"><span>00 · Decisiones</span><span>10 · PRD</span><span>20 · RF y pruebas</span><span>30 · Arquitectura</span><span>40 · Seguridad ISO 27001</span><span>50 · Operación</span><span>60 · Manuales por rol</span><span>70 · UX writing</span><span>80 · Cómo probar</span></div>
+  </div>
+</footer>
+
+<script>
+/* ===== TPBadge: plantilla de credencial "Nacional 2026" (anverso + reverso), configurable en vivo. Misma idea que packages/core/src/badge-template.ts: la plantilla recibe un objeto de configuración y datos; nada está fijo en el dibujo. ===== */
+window.TPBadge = (function(){
+  'use strict';
+  var DEFAULT = {
+    name:'Nacional 2026', primary:'#0F2A6B', accent:'#E6007E', gold:'#C9A227', tower:'#DCE6F5',
+    edition:'21', eventName:'CAMPEONATO NACIONAL', eventSub:'TAEKWON-DO ITF', year:'2026', city:'POPAYÁN', dates:'14 AL 16 DE NOVIEMBRE DE 2026',
+    showDoc:true, showEps:true, showEmergency:true, showTower:true,
+    logos:['ITF','Federación Colombiana ITF','Alcaldía de Popayán','Secretaría de Deporte y Recreación'],
+    sponsors:['Patrocinador 1','Patrocinador 2','Patrocinador 3','Patrocinador 4'],
+    info:['Uso personal e intransferible.','Válida únicamente durante el evento.','Presentar esta acreditación para el ingreso a las sedes.','Prohibida su reproducción total o parcial.','En caso de pérdida, reportar de inmediato al comité organizador.'],
+    bandText:{}, accessText:{}
+  };
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var S = function(d, extra){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(extra||'')+'>'+d+'</svg>'; };
+  var ICON = {
+    COMP: S('<circle cx="15" cy="4" r="2"/><path d="M13 7l-4 4 2 4-3 6M13 7l3 4 5-1M9 11l-5-1M11 15l5 2"/>'),
+    COACH: S('<circle cx="9" cy="15" r="5"/><path d="M12 11l9-5v4l-7 3M9 15h.01"/>'),
+    JUR: S('<path d="M4 20h9M9 8l7 7M13 4l7 7-3 3-7-7zM3 14l7-7"/>'),
+    VIP: S('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'),
+    SPON: S('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>'),
+    PRESS: S('<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>'),
+    MED: S('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+    STAFF: S('<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>'),
+    GEN: S('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    ACOMP: S('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20a5 5 0 0 1 6.5-4.8"/>')
+  };
+  var INFO_ICONS = [
+    S('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    S('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+    S('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.5"/><path d="M14 10h4M14 14h4"/>'),
+    S('<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'),
+    S('<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/>')
+  ];
+  var LOCK = S('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/>');
+  var HASH = S('<path d="M5 9h14M5 15h14M10 4l-2 16M16 4l-2 16"/>');
+  var PHONE = S('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>');
+  var PLUS = S('<circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/><path d="M12 8v8M8 12h8" stroke="#fff"/>');
+  var STAR = S('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z" fill="currentColor"/>');
+  var SIL = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>';
+
+  /* franjas diagonales (navy / magenta / gris) · viewBox en mm */
+  function deco(){
+    var L = function(x1,y1,x2,y2,c,w,o){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+w+'"'+(o?' opacity="'+o+'"':'')+'/>'; };
+    return '<svg class="deco" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+      L(10,-4,-14,44,'var(--gr)',7,.45)+L(19,-4,-5,44,'var(--p)',2.4)+L(24,-4,0,44,'var(--a)',1.6)+L(31,-4,7,44,'var(--gr)',3,.35)+
+      L(36,-4,12,44,'var(--gr)',1.2,.4)+
+      L(26,52,-14,132,'var(--gr)',5,.22)+
+      L(112,86,66,178,'var(--gr)',7,.4)+L(118,92,74,180,'var(--p)',2.6)+L(123,96,79,184,'var(--a)',1.8)+L(129,100,87,184,'var(--gr)',3,.35)+
+      '</svg>';
+  }
+  /* silueta propia de la torre de la catedral de Popayán (simplificada) */
+  function tower(){
+    return '<svg class="tower" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMaxYMin meet">'+
+      '<g fill="currentColor"><path d="M34 60V30h26v30z"/><path d="M19 60V22h16v38z"/><path d="M21 22V14h12v8z"/><path d="M22 14a5 5 0 0 1 10 0z"/><path d="M26 9h2v5h-2z"/></g>'+
+      '<path d="M27 3v6M25 5h4" stroke="currentColor" stroke-width="1" fill="none"/>'+
+      '<g fill="#fff"><path d="M24.5 32a2.5 2.5 0 0 1 5 0v8h-5z"/><path d="M24.5 46a2.5 2.5 0 0 1 5 0v8h-5z"/><path d="M25.5 16a1.5 1.5 0 0 1 3 0v4h-3z"/><path d="M40 40a3 3 0 0 1 6 0v8h-6z"/><path d="M50 40a3 3 0 0 1 6 0v8h-6z"/><rect x="19" y="26" width="16" height=".9"/><rect x="19" y="42" width="16" height=".9"/><rect x="34" y="34" width="26" height=".9"/></g>'+
+      '</svg>';
+  }
+  function qrSvg(text){
+    if (typeof qrcode === 'undefined'){ return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#fff"/><text x="50" y="52" font-size="7" text-anchor="middle" fill="#64748B">QR</text></svg>'; }
+    var q = qrcode(0,'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), m = 1, size = n+m*2, d='';
+    for (var r=0;r<n;r++) for (var c=0;c<n;c++) if (q.isDark(r,c)) d += 'M'+(c+m)+' '+(r+m)+'h1v1h-1z';
+    return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código QR firmado"><rect width="'+size+'" height="'+size+'" fill="#fff"/><path d="'+d+'" fill="#111827"/></svg>';
+  }
+  /* Code 128, juego B: tabla de anchos (barra, espacio, barra, ...) por símbolo; 103 = inicio B, 106 = parada */
+  var C128 = ('212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 114131 311141 411131 211412 211214 211232 2331112').split(' ');
+  function code128B(text){
+    var vals = [104], sum = 104;
+    for (var i=0;i<text.length;i++){ var v = text.charCodeAt(i)-32; if (v<0||v>95) v = 0; vals.push(v); sum += v*(i+1); }
+    vals.push(sum%103); vals.push(106);
+    var widths = []; vals.forEach(function(v){ C128[v].split('').forEach(function(w){ widths.push(+w); }); });
+    return widths;
+  }
+  function barcodeSvg(text, height){
+    var w = code128B(text), total = w.reduce(function(a,b){return a+b;},0), quiet = 10, x = quiet, d='';
+    for (var i=0;i<w.length;i++){ if (i%2===0) d += 'M'+x+' 0h'+w[i]+'v'+(height||40)+'h-'+w[i]+'z'; x += w[i]; }
+    return '<svg viewBox="0 0 '+(total+quiet*2)+' '+(height||40)+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código de barras '+esc(text)+'"><path d="'+d+'" fill="#111827"/></svg>';
+  }
+  function splitYear(y){ y = String(y); var h = Math.ceil(y.length/2); return '<span>'+esc(y.slice(0,h))+'</span><span>'+esc(y.slice(h))+'</span>'; }
+  function header(cfg){
+    var t = String(cfg.eventName||'').split(/\s+/);
+    return '<div class="hdr"><div class="ed">'+esc(cfg.edition)+'</div><div class="ttl">'+t.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'<small>'+esc(cfg.eventSub)+'</small></div><div class="yr"><div>'+splitYear(cfg.year)+'</div></div></div>'+
+      '<div class="city">'+esc(cfg.city)+'</div><div class="dates">'+esc(cfg.dates)+'</div>';
+  }
+  function footer(cfg){
+    return '<div class="foot">'+(cfg.logos||[]).map(function(l,i){ return '<div class="lg'+(i===0||i===3?' w':'')+'">'+esc(l)+'</div>'; }).join('')+'</div>';
+  }
+  function accessFor(cfg, role){
+    if (cfg.accessText && cfg.accessText[role.code]) return cfg.accessText[role.code];
+    return role.access || 'Zonas autorizadas';
+  }
+  function front(cfg, role, p, token){
+    var band = (cfg.bandText && cfg.bandText[role.code]) || role.name;
+    var fields = '<div class="f"><b>Nombre completo</b><span>'+esc(p.name)+'</span></div>'+
+      (cfg.showDoc ? '<div class="f"><b>Documento</b><span>'+esc(p.doc||'—')+'</span></div>' : '')+
+      '<div class="f long"><b>Academia</b><span>'+esc(p.club)+'</span></div>'+
+      '<div class="f ac"><b>Delegación</b><span>'+esc(p.delegation||'—')+'</span></div>';
+    return deco()+(cfg.showTower!==false?tower():'')+'<div class="inner">'+header(cfg)+
+      '<div class="idrow"><div class="photo">'+SIL+'</div><div class="fields">'+fields+'</div></div>'+
+      '<div class="band'+(band.length>11?' sm':'')+'">'+(ICON[role.code]||ICON.GEN)+'<span>'+esc(band)+'</span></div>'+
+      '<div class="acc"><div class="col">'+
+        '<div class="c">'+LOCK+'<div style="min-width:0"><b>Acceso:</b><span>'+esc(accessFor(cfg,role))+'</span></div></div>'+
+        '<div class="c">'+HASH+'<div style="min-width:0"><b>Acreditación No.</b><div class="id">'+esc(p.id)+'</div></div></div>'+
+      '</div><div class="qrc">'+qrSvg(token)+'</div></div>'+
+      footer(cfg)+'</div>';
+  }
+  function back(cfg, role, p){
+    var info = (cfg.info||[]).map(function(t,i){ return '<li>'+(INFO_ICONS[i]||INFO_ICONS[0])+'<span>'+esc(t)+'</span></li>'; }).join('');
+    var two = '';
+    if (cfg.showEmergency) two += '<div class="c">'+PHONE+'<div style="min-width:0"><b>Contacto de emergencia</b><span>'+esc(p.emergency&&p.emergency.name||'—')+'<br>'+esc(p.emergency&&p.emergency.phone||'')+'</span></div></div>';
+    if (cfg.showEps) two += '<div class="c">'+PLUS+'<div style="min-width:0"><b>EPS</b><span>'+esc(p.eps&&p.eps.name||'—')+'<br>'+esc(p.eps&&p.eps.regime||'')+'</span></div></div>';
+    return deco()+(cfg.showTower!==false?tower():'')+'<div class="inner">'+header(cfg)+
+      '<div class="info"><h5><i>i</i>Información importante</h5><ul>'+info+'</ul></div>'+
+      (two?'<div class="two">'+two+'</div>':'')+
+      '<div class="spon"><b>'+STAR+'Patrocinadores</b><div class="row">'+(cfg.sponsors||[]).map(function(s){return '<div class="lg">'+esc(s)+'</div>';}).join('')+'</div></div>'+
+      '<div class="bar">'+barcodeSvg(p.id, 40)+'<span>'+esc(p.id)+'</span></div>'+
+      footer(cfg)+'</div>';
+  }
+  function applyVars(el, cfg, role){
+    el.style.setProperty('--p', cfg.primary); el.style.setProperty('--a', cfg.accent); el.style.setProperty('--g', cfg.gold||DEFAULT.gold); el.style.setProperty('--tower', cfg.tower||DEFAULT.tower);
+    el.style.setProperty('--role', role.code==='COMP' ? cfg.accent : role.color); el.style.setProperty('--role-ink', role.text||'#fff');
+  }
+  function varsStyle(cfg, role){
+    return '--p:'+cfg.primary+';--a:'+cfg.accent+';--g:'+(cfg.gold||DEFAULT.gold)+';--tower:'+(cfg.tower||DEFAULT.tower)+';--role:'+(role.code==='COMP'?cfg.accent:role.color)+';--role-ink:'+(role.text||'#fff');
+  }
+  function render(el, side, cfg, role, p, token){
+    el.classList.add('nb'); el.classList.toggle('nb-back', side==='back'); applyVars(el, cfg, role);
+    el.innerHTML = side==='back' ? back(cfg, role, p) : front(cfg, role, p, token);
+  }
+  return { DEFAULT:DEFAULT, clone:clone, ICON:ICON, render:render, varsStyle:varsStyle, front:front, back:back, applyVars:applyVars, barcodeSvg:barcodeSvg, code128B:code128B, qrSvg:qrSvg };
+})();
+</script>
+<script>
+(function(){
+'use strict';
+// ---------- utilidades ----------
+var SIL = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>';
+var ZONES = {
+  G:{name:'Gradería',svg:'<path d="M5 11h14v6H5zM7 17v3M17 17v3M6 11V7h12v4"/>'},
+  W:{name:'Calentam.',svg:'<circle cx="15" cy="4.5" r="2"/><path d="M8 21l3-7 3 2v5M5 13l4-3 3 1 3 4 4 2M11 9l3-2"/>'},
+  T:{name:'Tatamis',svg:'<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 12h16M12 4v16"/>'},
+  P:{name:'Pesaje',svg:'<path d="M12 4v16M4 20h16M6 7l-3 6h6zM18 7l-3 6h6zM6 7h12"/>'},
+  J:{name:'Jueces',svg:'<path d="M4 20h10M9 7l6 6M13 3l6 6-3 3-6-6zM3 15l6-6"/>'},
+  V:{name:'Palco',svg:'<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'},
+  H:{name:'Hospital.',svg:'<path d="M5 8h11v6a5 5 0 0 1-10 0zM16 9h2a2 2 0 0 1 0 4h-2M4 21h14"/>'},
+  M:{name:'Prensa',svg:'<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>'},
+  S:{name:'Stands',svg:'<path d="M3 20h18M12 4L4 20M12 4l8 16M12 4V2M7 14h10"/>'}
+};
+var ALLZ = ['G','W','T','P','J','V','H','M','S'];
+function zsvg(z){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ZONES[z].svg+'</svg>'; }
+function b64url(str){ var bytes=new TextEncoder().encode(str),bin=''; for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]); return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function fakeSig(seed){ var h=2166136261,out=new Uint8Array(64); for(var i=0;i<64;i++){ for(var j=0;j<seed.length;j++){ h^=seed.charCodeAt(j); h=Math.imul(h,16777619)>>>0; } h^=i*131; h=Math.imul(h,16777619)>>>0; out[i]=h&255; } var bin=''; for(var k=0;k<64;k++) bin+=String.fromCharCode(out[k]); return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function tokenFor(p){ var pl=b64url(JSON.stringify(p)); return 'TP1.'+pl+'.'+fakeSig(pl); }
+function credToken(num, role, zones, n, extra){ var p={v:1,e:'nac2026',c:num,r:role,z:zones,f:'2026-11-20',t:'2026-11-22',n:n||1,k:'k1'}; if(extra) for(var k in extra) p[k]=extra[k]; return tokenFor(p); }
+// QR real con qrcode-generator; si la librería no cargó, patrón determinista con marcas de posición para que la demo siga viéndose bien.
+function qrSvg(text, margin){
+  margin = margin==null?1:margin; var n, dark;
+  if (typeof qrcode !== 'undefined'){ var q=qrcode(0,'M'); q.addData(text); q.make(); n=q.getModuleCount(); dark=function(r,c){return q.isDark(r,c);}; }
+  else {
+    n=33; var h=2166136261; for(var j=0;j<text.length;j++){ h^=text.charCodeAt(j); h=Math.imul(h,16777619)>>>0; }
+    var seed=h; var rnd=function(){ seed=(Math.imul(seed,1103515245)+12345)>>>0; return seed; };
+    var cells=[]; for(var r=0;r<n;r++){ cells[r]=[]; for(var c=0;c<n;c++) cells[r][c]=(rnd()>>>16)&1; }
+    var finder=function(r0,c0){ for(var r=0;r<7;r++) for(var c=0;c<7;c++){ var edge=r===0||r===6||c===0||c===6, core=r>=2&&r<=4&&c>=2&&c<=4; cells[r0+r][c0+c]=(edge||core)?1:0; } for(var k=-1;k<8;k++){ if(r0+k>=0&&r0+k<n){ if(c0-1>=0) cells[r0+k][c0-1]=0; if(c0+7<n) cells[r0+k][c0+7]=0; } if(c0+k>=0&&c0+k<n){ if(r0-1>=0) cells[r0-1][c0+k]=0; if(r0+7<n) cells[r0+7][c0+k]=0; } } };
+    finder(0,0); finder(0,n-7); finder(n-7,0);
+    dark=function(r,c){return cells[r][c]===1;};
+  }
+  var size=n+margin*2, d='';
+  for(var r=0;r<n;r++) for(var c=0;c<n;c++) if(dark(r,c)) d+='M'+(c+margin)+' '+(r+margin)+'h1v1h-1z';
+  return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código QR"><rect width="'+size+'" height="'+size+'" fill="#fff"/><path d="'+d+'" fill="#0F172A"/></svg>';
+}
+var qrCache={}; function qr(text,margin){ var k=text+'|'+margin; return qrCache[k]||(qrCache[k]=qrSvg(text,margin)); }
+
+// ---------- personas de ejemplo ----------
+var P = {
+  juan:{name:'Juan Pérez',first:'Juan',role:'COMP',roleName:'Competidor',club:'Academia Caucana de Taekwondo',delegation:'Popayán - Cauca',doc:'1.061.234.567',emergency:{name:'María Fernanda Pérez',phone:'+57 310 234 5678'},eps:{name:'EPS Sura',regime:'Régimen contributivo'},access:'Área de competencia\nZonas autorizadas',id:'TP-2026-00123-C',num:'00123',zones:['G','W','T','P'],n:3,color:'#E6007E'},
+  laura:{name:'Laura Gómez',first:'Laura',role:'GEN',roleName:'General',club:'Público general',id:'TP-2026-00502-8',num:'00502',zones:['G'],n:1,color:'#64748B'},
+  maria:{name:'María Ruiz',first:'María',role:'COACH',roleName:'Coach',club:'Academia Caucana de Taekwondo · Popayán',id:'TP-2026-00064-8',num:'00064',zones:['G','W','T'],n:1,color:'#0F2A6B'},
+  camilo:{name:'Camilo Ortiz',first:'Camilo',role:'COACH',roleName:'Coach',club:'Academia Internacional de Taekwondo ITF · Cali',id:'TP-2026-00071-M',num:'00071',zones:['G','W','T'],n:1,color:'#0F2A6B'},
+  carlos:{name:'Carlos Andrade',first:'Carlos',role:'JUR',roleName:'Jurado',club:'Árbitro internacional · Antioquia',id:'TP-2026-00019-3',num:'00019',zones:['G','W','T','J'],n:1,color:'#111827',gold:true}
+};
+
+// ---------- pantallas del teléfono ----------
+function phBar(s){
+  var on = s.online!==false;
+  return '<div class="bar"><div class="zone"><i class="'+(on?'':'off')+'"></i>'+(s.zone||'Tatamis · Puerta 3')+'</div><div class="pill '+(on?'':'off')+'">'+(on?'● Conectado':'○ Sin conexión')+'</div></div>';
+}
+function personCard(p, line, focus){
+  return '<div class="person'+(focus?' focus':'')+'"><div class="ph" aria-label="Foto de '+p.name+'">'+SIL+'</div><div><b>'+p.name+'</b><span class="rl" style="color:'+p.color+'">'+p.roleName.toUpperCase()+'</span><div class="zt">'+p.club+'</div>'+(line?'<div class="zt">'+line+'</div>':'')+'</div></div>';
+}
+var PH = {
+  enrol:function(s){
+    return '<div class="h">Enrola este dispositivo</div><p class="p">Apunta al código que muestra el supervisor en el computador central. Vale por 10 minutos.</p>'+
+      '<div class="cam-frame"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><span class="laser"></span><div class="qrin">'+qr(s.token,0)+'</div></div>'+
+      (s.toast?'<div class="toast"><i>✓</i>'+s.toast+'</div>':'<p class="foot-note">Instala el certificado si es la primera vez.</p>')+
+      '<div class="spacer"></div><div class="stack"><button class="pbtn sec" type="button">Escribir el código a mano</button></div>';
+  },
+  pin:function(s){
+    var dots=''; for(var i=0;i<6;i++) dots+='<i class="'+(i<(s.dots||0)?'on':'')+'"></i>';
+    return '<div class="h">Escribe tu PIN</div><p class="p">Dispositivo <b>'+(s.device||'Puerta 3 · Tablet B')+'</b>. Tu turno dura 12 horas.</p><div class="pin-dots">'+dots+'</div><div class="spacer"></div>'+
+      '<div class="keypad"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span class="soft">Olvidé mi PIN</span><span>0</span><span class="soft">Borrar</span></div>';
+  },
+  zone:function(s){
+    var opts=[['T','Tatamis','Puerta 3 · competidores, coaches, jurado'],['W','Área de calentamiento','Puerta 2'],['G','Gradería','Puertas 1, 4 y 5']];
+    return '<div class="h">¿En qué zona estás?</div><p class="p">Solo validarás accesos a esta zona. El supervisor puede cambiarla después.</p><div class="zlist">'+opts.map(function(o){ return '<div class="'+(s.sel===o[0]?'sel':'')+'"><span class="zi">'+zsvg(o[0])+'</span><span><b>'+o[1]+'</b><small>'+o[2]+'</small></span><span class="radio"></span></div>'; }).join('')+'</div><div class="spacer"></div><button class="pbtn pri'+(s.sel?' hl':'')+'" type="button">Empezar a escanear</button>';
+  },
+  enrolok:function(s){
+    return '<div class="res" style="justify-content:center;color:#0F172A"><div class="big" style="background:#DEF7E6;color:#16A34A">✓</div><div class="verdict">Listo</div><p class="why" style="color:#475569">Este scanner es <b>'+(s.zone||'Puerta 3 · Tatamis')+'</b>.</p><p class="what" style="background:#fff;border:1.5px solid #DDE3EC;color:#334155">'+(s.note||'Recibí la lista de credenciales del evento: 1.986 personas. Ya puedo validar sin red.')+'</p></div><div class="stack"><button class="pbtn pri" type="button">Empezar a escanear</button></div>';
+  },
+  cam:function(s){
+    var p=s.person||P.juan, tok=credToken(p.num,p.role,p.zones,p.n);
+    return phBar(s)+'<div class="cam-frame'+(s.damaged?' damaged':'')+'"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><span class="laser"></span><span class="scratch"></span><div class="qrin">'+qr(tok,0)+'</div></div>'+
+      (s.error?'<div class="err-card"><b>No pude leer el código</b><span>Acércalo, evita reflejos o usa Ingreso manual.</span></div>':'<p class="p" style="text-align:center">'+(s.hint||'Apunta al QR de la credencial.')+'</p>')+
+      '<div class="spacer"></div><div class="stack"><button class="pbtn sec" type="button">Escribir el ID corto</button><button class="pbtn sec'+(s.error?' hl':'')+'" type="button">Ingreso manual con motivo</button></div>'+
+      '<p class="foot-note">'+(s.foot||'Hoy: 214 ingresos · 0 pendientes')+'</p>';
+  },
+  result:function(s){
+    var icon = s.kind==='ok'?'✓':s.kind==='no'?'✕':'!';
+    var html='<div class="res"><div class="big">'+icon+'</div><div class="verdict">'+s.title+'</div>';
+    if (s.person) html+=personCard(s.person, s.line, s.focusPhoto);
+    if (s.body) html+='<p class="why">'+s.body+'</p>';
+    if (s.action) html+='<p class="what">'+s.action+'</p>';
+    html+='</div><div class="res-actions">'+(s.buttons||['Siguiente']).map(function(b,i){ return '<button class="pbtn'+(i>0?' ghost':'')+'" type="button">'+b+'</button>'; }).join('')+'</div>';
+    if (s.foot) html+='<p class="foot-note" style="color:inherit;opacity:.8">'+s.foot+'</p>';
+    return (s.hideBar?'':'<div class="bar" style="opacity:.9"><div class="zone" style="color:inherit"><i class="'+(s.online===false?'off':'')+'" style="'+(s.online===false?'':'background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)')+'"></i>'+(s.zone||'Tatamis · Puerta 3')+'</div><div class="pill" style="background:rgba(255,255,255,.22);color:inherit">'+(s.online===false?'○ Sin conexión':s.time||'')+'</div></div>')+html;
+  },
+  pending:function(s){
+    var items=(s.items||[]).map(function(it){ return '<div><b>'+it[0]+'</b><span class="'+(it[2]?'ok':'')+'">'+it[1]+'</span></div>'; }).join('');
+    return phBar(s)+'<div class="pend-card"><div class="n'+(s.n===0?' zero':'')+'">'+s.n+'<small>pendientes por enviar</small></div><div class="st"><i class="'+(s.syncing?'sync':s.online===false?'':'on')+'"></i>'+(s.status||(s.online===false?'Sin conexión · sigue escaneando':'Conectado'))+'</div></div>'+
+      (s.note?'<p class="p">'+s.note+'</p>':'')+'<div class="plist">'+items+'</div><div class="spacer"></div><button class="pbtn pri" type="button">Volver a escanear</button>';
+  },
+  digital:function(s){
+    var p=P.laura, tok=credToken(p.num,p.role,p.zones,p.n,{exp:1763643600+(s.gen||0)*60,d:'2026-11-20'});
+    var left=s.left==null?42:s.left;
+    return '<div class="bar"><div class="zone"><i></i>Entrada General</div><div class="pill">Día 1 · vie 20</div></div><div class="dq"><div class="qrbox'+(s.old?' old':'')+'">'+qr(tok,0)+'</div>'+
+      '<div class="ring"><svg width="76" height="76"><circle class="bgc" cx="38" cy="38" r="32"></circle><circle class="fgc" cx="38" cy="38" r="32" stroke-dasharray="201" stroke-dashoffset="'+(201*(1-left/60))+'"></circle></svg><b>'+left+'</b></div>'+
+      '<p class="p">Nuevo código en <b>'+left+'</b> s. Sube el brillo al mostrarlo.</p>'+
+      '<div class="dcard"><div class="ph">'+SIL+'</div><div><b>Laura Gómez</b><small>GENERAL · Gradería</small></div><div class="code">TP-2026<br>00502-8</div></div></div>'+
+      '<div class="spacer"></div><button class="pbtn sec" type="button">Ver mi entrada en texto</button><p class="foot-note">Si no tienes señal, igual funciona.</p>';
+  },
+  chat:function(s){
+    var p=P.laura, tok=credToken(p.num,p.role,p.zones,p.n,{exp:1763643600,d:'2026-11-20'});
+    return '<div class="bar"><div class="zone"><span class="zi" style="width:34px;height:34px;border-radius:50%;background:#E4EBFB;display:grid;place-items:center;color:#1C4FD1;font-size:14px;font-weight:800">D</span>Dani</div><div class="pill off">en línea</div></div>'+
+      '<div class="chat"><div class="bub them">¿Me pasas tu entrada? Llego tarde y no quiero hacer fila.<small>9:52</small></div>'+
+      '<div class="bub me"><div class="shot">'+qr(tok,0)+'</div>Toma, pantallazo de mi credencial.<small>9:53 ✓✓</small></div>'+
+      '<div class="bub them">Gracias, voy entrando por Puerta 1.<small>'+(s.t2||'9:58')+'</small></div></div>'+
+      '<div class="spacer"></div><p class="foot-note">El código del pantallazo venció a las 9:54.</p>';
+  },
+  manual:function(s){
+    var motivos=['Código dañado','No trae credencial, verificado con documento','Credencial sin imprimir todavía','Otro (escribe)'];
+    var id=s.id||'';
+    return phBar(s)+'<div class="h">Ingreso manual</div><p class="p">Escribe el ID corto que está impreso en la credencial.</p>'+
+      '<div class="inp'+(s.stage==='id'?' focus':'')+'">'+(id?'<span>'+id+'</span>':'<span class="ph">TP-2026-00000-0</span>')+(s.stage==='id'?'<span class="caret"></span>':'')+(s.valid?'<span class="chk">✓ Carlos Andrade</span>':'')+'</div>'+
+      '<p class="p" style="font-size:13px">Motivo</p><div class="mlist">'+motivos.map(function(m){ return '<div class="'+(s.motivo===m?'sel':'')+'"><i></i>'+m+'</div>'; }).join('')+'</div>'+
+      '<div class="spacer"></div><button class="pbtn pri'+(s.motivo?' hl':'')+'" type="button">Registrar ingreso manual</button>';
+  },
+  radio:function(s){
+    var MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>';
+    var CLK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    var me=s.me||'Puerta 3', st=s.state||'listen', talker=s.talker||'', ch=s.channel||'Puertas', nohost=s.host===false;
+    var peers=s.peers||['Puerta 1','Puerta 2','Puerta 3','Puerta 4','Puerta 5','Supervisor'];
+    var up=peers.length-1;
+    var chips=peers.map(function(n){ var c=n===me?'me':''; if(st==='talk'&&n===me) c='talk'; if(st==='busy'&&n===talker) c='talk'; if(s.offPeers&&s.offPeers.indexOf(n)>=0) c='off'; return '<span class="'+c+'"><i></i>'+n+(n===me?' (tú)':'')+'</span>'; }).join('');
+    var tabs=['Puertas','Supervisores','Acreditación','Emergencia'].map(function(t){ return '<span class="'+(t===ch?'on ':'')+(t==='Emergencia'?'em':'')+'">'+(t===ch?'<i></i>':'')+t+'</span>'; }).join('');
+    var head = nohost ? 'Sin host · reconectando · '+up+' equipos conectados' : 'Conectada · '+peers.length+' en el canal';
+    var state, btn, wave='';
+    if (st==='talk'){ state='<div class="rd-state"><b>Estás hablando</b><span>'+head+'</span></div>'; wave='<div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'; btn='<button class="ptt talk" type="button"><span class="ring"></span>'+MIC+(nohost?'Hablando (sin host)<small>Te oyen '+up+' equipos que ya estaban</small>':'Hablando<small>Suelta para terminar</small>')+'</button>'; }
+    else if (st==='busy'){ state='<div class="rd-state"><b>'+talker+' hablando</b><span>'+head+'</span></div>'; wave='<div class="wave amber"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'; btn='<button class="ptt busy" type="button">'+CLK+(s.queued?'Ocupado<small>'+talker+' está hablando · sigue pulsando y te toca</small>':talker+' hablando<small>Mantén pulsado para pedir la palabra</small>')+'</button>'; }
+    else { state='<div class="rd-state"><b>Nadie habla ahora</b><span>'+head+'</span></div>'; btn='<button class="ptt listen'+(s.hl?' hl':'')+'" type="button">'+MIC+(nohost?'Escuchando (sin host)<small>Sin host: hablas solo con '+up+' equipos ya conectados</small>':'Escuchando<small>Mantén pulsado para hablar</small>')+'</button>'; }
+    var bar='<div class="bar"><div class="zone"><i class="'+(nohost?'off':'')+'"></i>Radio · '+ch+'</div><div class="pill'+(nohost?' off':'')+'">'+(nohost?'○ Sin host':'● '+me)+'</div></div>';
+    var foot = s.note ? '<div class="rd-queue'+(s.noteKind?' '+s.noteKind:'')+'"><i>'+(s.noteIcon||'i')+'</i>'+s.note+'</div>' : (s.log ? '<div class="rd-log">'+s.log.map(function(l){ return '<div class="'+(l[2]||'')+'"><b>'+l[0]+'</b><span>'+l[1]+'</span></div>'; }).join('')+'</div>' : '<button class="pbtn emg" type="button">Emergencia · mantén pulsado</button>');
+    return bar+'<div class="rd-tabs">'+tabs+'</div><div class="rd-peers">'+chips+'</div><div class="spacer"></div>'+state+wave+btn+'<div class="spacer"></div>'+foot;
+  },
+  order:function(s){
+    var em=s.channel==='Emergencia';
+    var SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+    var VIB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3h8l1 4-1 14H8L7 7zM3 8v8M21 8v8"/></svg>';
+    var TON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>';
+    var ICO=em?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17.5v.5"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h12M12 6l6 6-6 6"/></svg>';
+    var body = s.acked
+      ? '<div class="ord"><div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg></div><div class="lbl">'+s.title+'</div><div class="verdict">recibido ✓</div><p class="why">'+(s.from||'Supervisor')+' · '+(s.time||'')+'. El supervisor ya lo ve en el panel.</p></div><div class="res-actions"><button class="pbtn" type="button">Cerrar</button></div>'
+      : '<div class="ord"><div class="big">'+ICO+'</div><div class="lbl">'+(em?'Orden · Emergencia':'Orden')+'</div><div class="verdict">'+s.title+'</div><p class="why">'+(s.from||'Supervisor')+' · '+(s.time||'')+(s.body?'. '+s.body:'')+'</p><div class="cues"><span>'+SPK+'Se leyó: "'+(em?'Emergencia. ':'Orden: ')+s.title+'"</span><span>'+VIB+(em?'Vibración larga':'Vibró')+'</span><span>'+TON+(em?'Sirena de dos tonos':'Tono de orden')+'</span></div></div><div class="res-actions"><button class="pbtn'+(s.hl?' hl':'')+'" type="button">Recibido</button><button class="pbtn ghost" type="button">Cerrar</button></div><p class="foot-note" style="color:rgba(255,255,255,.85)">El supervisor ve tu Recibido en el panel.</p>';
+    return '<div class="bar" style="opacity:.9"><div class="zone" style="color:inherit"><i style="background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)"></i>Radio · '+(s.channel||'Puertas')+'</div><div class="pill" style="background:rgba(255,255,255,.22);color:inherit">'+(em?'Interrumpe todo':'● '+(s.me||'Puerta 2'))+'</div></div>'+body;
+  },
+  shift:function(s){
+    return '<div class="h">Turno terminado</div><p class="p">'+(s.device||'Puerta 3 · Tablet B')+' · 8:00 a 18:12</p>'+
+      '<div class="sum"><div><b>'+(s.n||'612')+'</b><small>escaneos</small></div><div><b>'+(s.r||'9')+'</b><small>rechazos</small></div><div><b>'+(s.m||'3')+'</b><small>ingresos manuales</small></div><div class="'+(s.p?'warn':'')+'"><b>'+(s.p||'0')+'</b><small>pendientes</small></div></div>'+
+      (s.p?'<div class="toast"><i>!</i>Acércate al router un minuto antes de entregar.</div>':'<div class="toast"><i>✓</i>Nada pendiente. Todo enviado.</div>')+
+      '<div class="spacer"></div><button class="pbtn pri" type="button">Entregar el scanner</button><button class="pbtn sec" type="button">Reportar incidencia</button>';
+  }
+};
+
+// ---------- pantallas del navegador ----------
+function field(label, val, opts){
+  opts=opts||{}; var cls='in'+(opts.focus?' focus':'')+(opts.err?' err':'')+(opts.auto?' auto':'');
+  var inner = val? (opts.auto?'<span>'+val+'</span><b>'+opts.autoVal+'</b>':'<span>'+val+'</span>') : '<span class="ph">'+(opts.ph||'')+'</span>';
+  return '<div class="field"><label>'+label+'</label><div class="'+cls+'">'+inner+'</div>'+(opts.help?'<div class="help'+(opts.err?' err':'')+'">'+opts.help+'</div>':'')+'</div>';
+}
+function notice(kind, icon, text, acts){
+  return '<div class="notice '+kind+'"><i>'+icon+'</i><div>'+text+(acts?'<div class="acts">'+acts.map(function(a,i){return '<span class="'+(i===0?'pri':'')+'">'+a+'</span>';}).join('')+'</div>':'')+'</div></div>';
+}
+function quota(label, used, max){
+  var full=used>=max; return '<div class="quota"><div class="row"><span>'+label+'</span><b>'+used+' / '+max+'</b></div><div class="track"><i class="'+(full?'full':'')+'" style="width:'+Math.min(100,used/max*100)+'%"></i></div></div>';
+}
+var BR = {
+  reg:function(s){
+    var f=s.f||{};
+    var form='<h3>Inscribir a un participante</h3><p class="sub">Club <b>'+(s.club||'Academia Caucana de Taekwondo · Popayán')+'</b> · Campeonato Nacional ITF 2026 · Popayán, 20 al 22 de noviembre</p>';
+    form+='<div class="f-row">'+field('Nombre y apellidos', f.name, {focus:s.focus==='name',ph:'Como en el documento'})+field('Documento', f.doc, {ph:'Sin puntos ni espacios'})+'</div>';
+    form+='<div class="f-row">'+field('Fecha de nacimiento', f.dob, {focus:s.focus==='dob',ph:'día / mes / año',help:f.dob&&s.age!=null?'Tendrá '+s.age+' años el 20 de noviembre.':''})+field('Categoría de edad', f.cat, {auto:!!s.catAuto,autoVal:s.catAuto||'',focus:s.focus==='cat',err:!!s.catErr,ph:'Se calcula con la fecha'})+'</div>';
+    form+='<div class="f-row">'+field('Rol', f.role||'Competidor')+field('Peso / modalidad', f.mod, {ph:'Ej.: −45 kg · combate'})+'</div>';
+    if (s.catErr) form+=notice('bad','✕','La fecha de nacimiento no corresponde a <b>Juvenil</b>. Para el 20 de noviembre, Sofía tendrá 12 años: la categoría es <b>Infantil B (10–13)</b>.',['Usar Infantil B']);
+    if (s.minor) form+=notice('info','i','Sofía es menor de edad. Necesitamos el nombre y documento de su padre, madre o acudiente, y su autorización.')+
+      '<div class="f-row">'+field('Nombre del acudiente', s.minor.name, {focus:!s.minor.name})+field('Documento del acudiente', s.minor.doc, {ph:'Sin puntos ni espacios'})+'</div>';
+    if (s.comp){ var c=s.comp, lim=c.max==null?null:c.max, full=lim!=null&&c.list.length>=lim;
+      form+='<div class="consent'+(c.hl?' hlbox':'')+'" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b style="font-family:var(--font-display);font-size:14px">Acompañantes</b><span class="stpill '+(full?'warn':'info')+'"><i></i>'+(lim==null?c.list.length+' · sin límite':c.list.length+' de '+lim)+'</span></div>'+
+        (c.list.length?c.list.map(function(a){ return '<div class="f-row"><div class="field"><div class="in"><span>'+a[0]+'</span></div></div><div class="field"><div class="in"><span>'+a[1]+'</span></div></div></div>'; }).join(''):'<p style="font-size:12.5px;color:#5B6B82">Todavía no hay acompañantes. Reciben credencial digital para Gradería.</p>')+
+        '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="btn-mock sm '+(full?'dis':'sec')+'">Agregar acompañante</div>'+(full?'<span style="font-size:12.5px;color:#B45309;font-weight:600">Este participante ya tiene '+lim+' acompañantes, el máximo permitido.</span>':'')+'</div></div>'; }
+    if (s.quotaFull) form+=notice('full','!','Cupo lleno en <b>Adulto masculino −71 kg</b>. Puedes dejar a Andrés en lista de espera: te avisamos por correo si se abre un lugar.',['Entrar a lista de espera','Ahora no']);
+    if (s.consent) form+='<div class="consent">'+(s.minor?'<div class="chk"><i class="'+(s.consent.minor?'on':'')+'">✓</i><span>Soy el padre, madre o acudiente de Sofía y autorizo su inscripción y el tratamiento de sus datos.</span></div>':'')+'<div class="chk"><i class="'+(s.consent.priv?'on':'')+'">✓</i><span>He leído el aviso de privacidad y autorizo el tratamiento de mis datos (y de los del menor que inscribo, si aplica) para el campeonato.</span></div></div>';
+    form+='<div style="display:flex;gap:10px;margin-top:4px"><div class="btn-mock '+(s.canSend?'pri':'dis')+(s.sendHl?' hlbox':'')+'">Enviar inscripción</div><div class="btn-mock sec">Guardar borrador</div></div>';
+    var side='<h4 style="font-family:var(--font-display);font-size:14px">Cupos del evento</h4>'+quota('Infantil B · femenino', s.q1||41, 60)+quota('Adulto masculino −71 kg', s.q2||118, 120)+quota('Cupo total del evento', s.q3||1412, 2000)+
+      '<div class="notice info" style="font-size:12.5px"><i>i</i>La edad se calcula al 20 de noviembre de 2026, primer día del evento.</div>'+
+      (s.sideStatus?'<div class="scard"><h4>Estado</h4><span class="stpill '+s.sideStatus[0]+'"><i></i>'+s.sideStatus[1]+'</span></div>':'');
+    return '<div class="reg"><div class="form">'+form+'</div><div class="side">'+side+'</div></div>';
+  },
+  confirm:function(s){
+    return '<div class="center"><div class="ccard"><div class="ico">'+(s.icon||'✓')+'</div><h3>'+s.title+'</h3><p>'+s.body+'</p>'+(s.status?'<span class="stpill '+s.status[0]+'" style="justify-self:start"><i></i>'+s.status[1]+'</span>':'')+(s.extra||'')+'</div></div>';
+  },
+  mail:function(s){
+    var list=[['Tatami Pass','Buenas noticias: se abrió un lugar para Andrés'],['Tatami Pass','Inscripción recibida: Sofía Martínez'],['Liga Caucana','Horarios de pesaje · viernes'],['SportData','Exportación lista: nac2026.csv']];
+    return '<div class="mail"><div class="list">'+list.map(function(m,i){ return '<div class="'+(i===(s.sel||0)?'on':'')+'"><b>'+m[0]+'</b><small>'+m[1]+'</small></div>'; }).join('')+'</div>'+
+      '<div class="read"><h3>'+s.subject+'</h3><div class="from"><i>TP</i><span><b>Tatami Pass</b> &lt;no-responder@tatamipass.co&gt; · para '+(s.to||'inscripciones@clubhalcones.co')+'</span></div><div class="bodytxt">'+s.body+'</div></div></div>';
+  },
+  imp:function(s){
+    var steps=['Subir archivo','Mapear columnas','Vista previa','Listo'], cur=s.stage||0;
+    var wiz='<div class="wiz">'+steps.map(function(t,i){ return '<span class="'+(i===cur?'on':i<cur?'done':'')+'">'+(i<cur?'✓ ':(i+1)+' · ')+t+'</span>'; }).join('')+'</div>';
+    var body='';
+    if (cur===0) body='<div class="drop"><b>Arrastra aquí la exportación de SportData</b><span>CSV o XLSX. Nada se guarda hasta que confirmes.</span>'+(s.file?'<span class="file">📄 '+s.file+'</span>':'<div class="btn-mock sec sm" style="margin-top:4px">Elegir archivo</div>')+'</div>';
+    if (cur===1){
+      var rows=[['Nombre completo','Competidor','Juan Pérez','ok'],['Club','Club','Academia Caucana de Taekwondo','ok'],['Fecha de nacimiento', s.dobMapped?'Fecha nac.':'— sin asignar —','2008-03-14', s.dobMapped?'ok':'bad'],['Documento','Doc ID','1061234567','ok'],['Categoría','Categoria','Juvenil −62 kg','ok'],['Sexo','Genero','M','ok']];
+      body='<div class="maptbl"><div class="r hd"><span>Dato en Tatami Pass</span><span>Columna del archivo</span><span>Ejemplo</span></div>'+rows.map(function(r){ return '<div class="r"><span><b>'+r[0]+'</b></span><span class="sel '+r[3]+'">'+r[1]+'<span>▾</span></span><span class="ex">'+r[2]+'</span></div>'; }).join('')+'</div>'+
+        (s.dobMapped?notice('ok','✓','Todas las columnas obligatorias están asignadas. La deduplicación usa nombre + fecha de nacimiento + club.'):notice('bad','✕','Falta asignar la columna de <b>fecha de nacimiento</b>. Elige cuál columna del archivo corresponde.'))+
+        '<div style="display:flex;gap:10px"><div class="btn-mock '+(s.dobMapped?'pri':'dis')+'">Ver vista previa</div><div class="btn-mock sec">Atrás</div></div>';
+    }
+    if (cur===2){
+      var k=s.k||{c:398,u:11,s:3,t:412};
+      body='<div class="kpis"><div class="kpi ok"><span>Se crean</span><b>'+k.c+'</b><small>personas nuevas</small></div><div class="kpi"><span>Se actualizan</span><b>'+k.u+'</b><small>ya existían</small></div><div class="kpi warn"><span>Se omiten</span><b>'+k.s+'</b><small>'+(k.sWhy||'duplicadas en el archivo')+'</small></div><div class="kpi"><span>Filas leídas</span><b>'+k.t+'</b><small>sportdata_nac2026.csv</small></div></div>'+
+        notice('info','i','Vamos a crear '+k.c+' personas, actualizar '+k.u+' y omitir '+k.s+'. Revisa el mapeo antes de confirmar.')+
+        (s.dups?'<div class="tbl"><table><thead><tr><th>Fila</th><th>Nombre</th><th>Fecha nac.</th><th>Club</th><th>Qué pasa</th></tr></thead><tbody>'+s.dups.map(function(d){ return '<tr class="'+(d[4].indexOf('Omit')===0?'dim':'')+'"><td class="mono">'+d[0]+'</td><td>'+d[1]+'</td><td class="mono">'+d[2]+'</td><td>'+d[3]+'</td><td><span class="tag '+(d[4].indexOf('Omit')===0?'warn':d[4].indexOf('Actual')===0?'info':'ok')+'">'+d[4]+'</span></td></tr>'; }).join('')+'</tbody></table></div>':'')+
+        '<div style="display:flex;gap:10px"><div class="btn-mock pri hlbox">Confirmar importación</div><div class="btn-mock sec">Atrás</div></div>';
+    }
+    if (cur===3){
+      var k2=s.k||{c:398,u:11,s:3};
+      body='<div class="center" style="padding:10px"><div class="ccard"><div class="ico">✓</div><h3>Importación terminada</h3><p>'+k2.c+' creadas, '+k2.u+' actualizadas, '+k2.s+' omitidas. Todas con rol <b>Competidor</b> y estado <b>Inscrito · en revisión</b>.</p><p style="font-size:12.5px;color:#5B6B82">Puedes repetir la importación cuando SportData cambie: actualiza, no duplica.</p></div></div>';
+    }
+    return '<div class="imp"><div class="hd" style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-family:var(--font-display);font-size:19px">Importar desde SportData</h3><span class="stpill info"><i></i>'+(s.chip||'Evento nac2026')+'</span></div>'+wiz+body+'</div>';
+  },
+  host:function(s){
+    var nav=[['insc','Inscripciones'],['cred','Credenciales'],['print','Impresión'],['dev','Dispositivos'],['radio','Radio'],['alert','Alertas'],['audit','Auditoría'],['rep','Reportes'],['health','Salud del sistema']];
+    var sb='<div class="brand"><span class="mark"></span>Tatami Pass</div>'+nav.map(function(n){ return '<span class="'+(n[0]===s.nav?'on':'')+'">'+n[1]+(s.badge&&s.badge[0]===n[0]?'<span class="bdg">'+s.badge[1]+'</span>':'')+'</span>'; }).join('')+
+      '<div class="st"><b>'+(s.hostName||'Host principal · Coliseo')+'</b><br>'+(s.st||'12 dispositivos conectados · 0 pendientes<br>Último backup hace 3 min')+'</div>';
+    var main=HOSTPAGES[s.page](s);
+    var hd='<div class="hd"><h3>'+s.title+'</h3><span class="live '+(s.liveOff?'off':'')+'"><i></i>'+(s.live||'Todo en orden')+'</span></div>';
+    var extra=(s.toast?'<div class="toast"><i>'+(s.toastIcon||'✓')+'</i>'+s.toast+'</div>':'')+(s.dialog?'<div class="dim-ov"><div class="dlg"><h4>'+s.dialog.title+'</h4><p>'+s.dialog.body+'</p>'+(s.dialog.input?'<div class="in focus">'+s.dialog.input+'<span class="caret" style="width:2px;height:18px;background:#1C4FD1;display:inline-block"></span></div>':'')+'<div class="acts">'+s.dialog.buttons.map(function(b,i){ return '<div class="btn-mock sm '+(i===0?'sec':s.dialog.danger?'danger':'pri')+'">'+b+'</div>'; }).join('')+'</div></div></div>':'');
+    return '<div class="host"><div class="sb">'+sb+'</div><div class="main">'+hd+main+extra+'</div></div>';
+  },
+  print:function(s){
+    var p=s.person||P.juan, tok=credToken(p.num,p.role,p.zones,p.n);
+    var cfg=TPBadge.DEFAULT, role={code:p.role,name:p.roleName,color:p.color,text:'#fff',access:p.access||'Zonas autorizadas'};
+    var person={name:p.name,doc:p.doc||'—',club:p.club,delegation:p.delegation||'—',id:p.id,emergency:p.emergency||{name:'—',phone:''},eps:p.eps||{name:'—',regime:''}};
+    var st=TPBadge.varsStyle(cfg,role);
+    var cred='<div class="nb" style="'+st+'">'+TPBadge.front(cfg,role,person,tok)+'</div><div class="nb nb-back" style="'+st+'">'+TPBadge.back(cfg,role,person)+'</div>';
+    return '<div class="prt"><div class="sheet"><div class="pg">'+cred+'</div></div><div class="side"><h4>'+(s.title||'Vista previa · lote 3')+'</h4>'+
+      '<div class="line-item"><span>Credenciales</span><b>'+(s.n||46)+'</b></div><div class="line-item"><span>Páginas A4</span><b>'+(s.pages||23)+'</b></div><div class="line-item"><span>Tamaño</span><b>100 × 150 mm · 2 caras</b></div><div class="line-item"><span>Plantilla</span><b>Nacional 2026</b></div><div class="line-item"><span>QR</span><b>firmado · 31 mm</b></div><div class="line-item"><span>Estado</span><span class="tag ok">PDF listo</span></div>'+
+      '<p style="font-size:12.5px;color:#5B6B82">Anverso: foto, datos, banda por rol, acceso, No. de acreditación y QR firmado. Reverso: información importante, emergencia, EPS, patrocinadores y código de barras con el mismo ID. El diseño se edita en Impresión › Diseño de la credencial.</p>'+
+      '<div class="btn-mock pri">Descargar PDF</div><div class="btn-mock sec">Marcar como impreso</div></div></div>';
+  }
+};
+function tbl(cols, rows){
+  return '<div class="tbl"><table><thead><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){ var cls=r.hl?'hl':r.dim?'dim':''; return '<tr class="'+cls+'">'+r.c.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>'; }).join('')+'</tbody></table></div>';
+}
+function pill(k,t){ return '<span class="stpill '+k+'"><i></i>'+t+'</span>'; }
+function spark(a){ var m=Math.max.apply(null,a)||1; return '<span class="spark">'+a.map(function(v){return '<i style="height:'+Math.max(3,Math.round(v/m*20))+'px"></i>';}).join('')+'</span>'; }
+var HOSTPAGES = {
+  insc:function(s){
+    var rows=[
+      {c:['Sofía Martínez','Academia Caucana de Taekwondo · Popayán','Competidor','Infantil B',pill('info','Inscrito · en revisión')]},
+      {c:['Pedro Lasso','Academia Internacional de Taekwondo ITF · Cali','Competidor','Adulto −71 kg',pill(s.rejected?'bad':'warn',s.rejected?'No aprobada · documento ilegible':'Validado · falta documento')],hl:s.hlRow==='pedro'},
+      {c:['Andrés Rojas','Academia Internacional de Taekwondo ITF · Cali','Competidor','Adulto −71 kg',pill(s.andres?s.andres[0]:'off',s.andres?s.andres[1]:'En lista de espera · puesto 1')],hl:s.hlRow==='andres'},
+      {c:['Valentina Ocampo','Telepacífico · Cali','Prensa','—',pill('ok','Aprobado · credencial en preparación')]},
+      {c:['María Ruiz','Academia Caucana de Taekwondo · Popayán','Coach','—',pill('ok','Credencial entregada')]}
+    ];
+    return '<div class="kpis"><div class="kpi"><span>Inscritas</span><b>1.412</b><small>de 2.000 de cupo</small></div><div class="kpi warn"><span>Por aprobar</span><b>'+(s.k1||'37')+'</b><small>validadas</small></div><div class="kpi"><span>Lista de espera</span><b>'+(s.k2||'3')+'</b><small>en 2 categorías</small></div><div class="kpi ok"><span>Aprobadas</span><b>1.286</b><small>listas para emitir</small></div></div>'+
+      tbl(['Persona','Club','Rol','Categoría','Estado'],rows)+(s.actions?'<div style="display:flex;gap:8px">'+s.actions.map(function(a,i){return '<div class="btn-mock sm '+(i===0?'pri hlbox':'sec')+'">'+a+'</div>';}).join('')+'</div>':'');
+  },
+  cred:function(s){
+    var rows=s.rows||[
+      {c:['<span class="mono">TP-2026-00123-C</span>','Juan Pérez','Competidor','v3',pill('ok','Emitida')]},
+      {c:['<span class="mono">TP-2026-00064-8</span>','María Ruiz','Coach','v1',pill('ok','Entregada')]},
+      {c:['<span class="mono">TP-2026-00019-3</span>','Carlos Andrade','Jurado','v1',pill('info','Impresa')]},
+      {c:['<span class="mono">—</span>','Sofía Martínez','Competidor','—',pill('warn','Aprobada · sin credencial')]},
+      {c:['<span class="mono">—</span>','Lucía Prado','Competidor','—',pill('bad','Sin foto')]}
+    ];
+    return '<div class="kpis"><div class="kpi'+(s.hlk==='apr'?' hl':'')+'"><span>Aprobadas sin credencial</span><b>'+(s.k||['48','1.238','1.190','1.102'])[0]+'</b><small>listas para emitir</small></div><div class="kpi'+(s.hlk==='emi'?' hl':'')+'"><span>Emitidas</span><b>'+(s.k||['48','1.238','1.190','1.102'])[1]+'</b><small>QR firmado</small></div><div class="kpi'+(s.hlk==='imp'?' hl':'')+'"><span>Impresas</span><b>'+(s.k||['48','1.238','1.190','1.102'])[2]+'</b><small>en PDF</small></div><div class="kpi ok'+(s.hlk==='ent'?' hl':'')+'"><span>Entregadas</span><b>'+(s.k||['48','1.238','1.190','1.102'])[3]+'</b><small>en mesa de acreditación</small></div></div>'+
+      (s.search?'<div class="field"><div class="in focus" style="max-width:360px"><span>'+s.search+'</span></div></div>':'')+tbl(['ID corto','Persona','Rol','Versión','Estado'],rows)+
+      (s.actions?'<div style="display:flex;gap:8px">'+s.actions.map(function(a,i){return '<div class="btn-mock sm '+(i===0?'pri hlbox':'sec')+'">'+a+'</div>';}).join('')+'</div>':'')+
+      (s.tokenPeek?'<div class="scard"><h4>Qué va dentro del QR de Juan Pérez</h4><div class="mono" style="font-size:10.5px;word-break:break-all;color:#5B6B82;line-height:1.5"><span style="color:#1C4FD1">TP1</span>.'+credToken('00123','COMP',['G','W','T','P'],3).slice(4,120)+'… <span style="color:#16A34A">firma Ed25519</span></div><p style="font-size:12px;color:#5B6B82">La clave privada vive solo en este computador. Los scanners tienen la pública: pueden verificar, no fabricar.</p></div>':'');
+  },
+  print:function(s){
+    return '<div class="kpis"><div class="kpi"><span>Lote</span><b>3</b><small>jueves 19 nov</small></div><div class="kpi"><span>Credenciales</span><b>46</b><small>2 pendientes sin foto</small></div><div class="kpi"><span>Páginas</span><b>23</b><small>A4 · 2 por hoja</small></div><div class="kpi ok"><span>Tiempo</span><b>'+(s.secs||'4 s')+'</b><small>generar PDF</small></div></div>'+
+      notice('ok','✓','PDF listo: 46 credenciales, 23 páginas.',['Descargar','Marcar como impreso'])+
+      tbl(['Lote','Fecha','Credenciales','Impreso por','Estado'],[{c:['3','19/11 · 14:02','46','Operador · Nadia C.',pill('ok','PDF listo')],hl:true},{c:['2','18/11 · 16:40','512','Operador · Nadia C.',pill('ok','Impreso')]},{c:['1','17/11 · 10:15','680','Operador · Luis M.',pill('ok','Impreso')]}]);
+  },
+  dev:function(s){
+    if (s.enrol){
+      var tok=tokenFor({v:1,e:'nac2026',typ:'enrol',dev:'tab-b',role:'control',z:'T',exp:'2026-11-20T08:12:00-05:00'});
+      return '<div class="enrol-big"><div class="qr">'+qr(tok,0)+'</div><div><h4>Escanea con el celular. Vence en '+(s.cd||'9:48')+'.</h4><div class="cd">'+(s.cd||'9:48')+'</div><div class="meta"><span>Rol: <b>Control de entradas</b></span><span>Zona sugerida: <b>Tatamis · Puerta 3</b></span><span>Uso único · incluye el certificado de la red</span></div></div></div>'+
+        notice('info','i','Cada código sirve para un solo dispositivo. Cuando el celular lo lea, aparecerá abajo como conectado.');
+    }
+    var rows=[
+      {c:['<span class="door"><i></i>Puerta 1 · Tablet A</span>','Gradería · Entrada','hace 2 s','742','0',pill('ok','OK')]},
+      {c:['<span class="door"><i></i>Puerta 2 · Celular C</span>','Calentamiento','hace 4 s','188','0',pill('ok','OK')]},
+      {c:['<span class="door"><i class="'+(s.p3?'warn':'')+'"></i>Puerta 3 · Tablet B</span>','Tatamis · Entrada',s.p3?s.p3[0]:'hace 1 s',s.p3?s.p3[1]:'214',s.p3?s.p3[2]:'0',s.p3?pill(s.p3[3],s.p3[4]):pill('ok','OK')],hl:!!s.hl3},
+      {c:['<span class="door"><i></i>Puerta 4 · Celular D</span>','Gradería · Entrada','hace 3 s','301','0',pill('ok','OK')]},
+      {c:['<span class="door"><i class="'+(s.p6?'off':'')+'"></i>Puerta 6 · Celular F</span>','Pesaje',s.p6?s.p6[0]:'hace 2 s',s.p6?s.p6[1]:'93',s.p6?s.p6[2]:'0',s.p6?pill(s.p6[3],s.p6[4]):pill('ok','OK')],hl:!!s.hl6}
+    ];
+    return '<div class="kpis"><div class="kpi ok"><span>Conectados</span><b>'+(s.k||['8','0','0','3 min'])[0]+'</b><small>de 8 scanners</small></div><div class="kpi '+((s.k||[])[1]&&(s.k||[])[1]!=='0'?'warn':'')+'"><span>Sin reportar</span><b>'+(s.k||['8','0','0','3 min'])[1]+'</b><small>más de 1 min</small></div><div class="kpi"><span>Pendientes</span><b>'+(s.k||['8','0','0','3 min'])[2]+'</b><small>por recibir</small></div><div class="kpi"><span>Último backup</span><b>'+(s.k||['8','0','0','3 min'])[3]+'</b><small>USB cifrado</small></div></div>'+
+      tbl(['Dispositivo','Zona','Último reporte','Escaneos hoy','Pendientes','Estado'],rows)+(s.note?notice('ok','✓',s.note):'');
+  },
+  alert:function(s){
+    var items=s.items||[];
+    return '<div class="two"><div class="scard"><h4>Alertas activas <span class="tag bad">'+items.length+'</span></h4>'+(items.length?items.map(function(a){ return '<div class="alert-item '+a[0]+'"><i>'+a[1]+'</i><span>'+a[2]+'</span></div>'; }).join(''):'<p style="font-size:13px;color:#5B6B82">Sin alertas activas.</p>')+
+      (s.actions?'<div style="display:flex;gap:8px;margin-top:4px">'+s.actions.map(function(a,i){return '<div class="btn-mock sm '+(i===0?'danger hlbox':'sec')+'">'+a+'</div>';}).join('')+'</div>':'')+'</div>'+
+      '<div class="scard"><h4>Credencial <span class="mono" style="font-size:11px">'+(s.cid||'TP-2026-00071-M')+'</span></h4><div class="line-item"><span>Persona</span><b>'+(s.cname||'Camilo Ortiz')+'</b></div><div class="line-item"><span>Rol</span><b>'+(s.crole||'Coach · Academia Internacional')+'</b></div><div class="line-item"><span>Versión</span><b>'+(s.cver||'v1')+'</b></div><div class="line-item"><span>Hoy</span><span>'+(s.cuse||'Puerta 1 10:02 · Puerta 4 10:03')+'</span></div><div class="line-item"><span>Estado</span>'+pill(s.cst?s.cst[0]:'ok', s.cst?s.cst[1]:'Vigente')+'</div></div></div>';
+  },
+  audit:function(s){
+    var rows=s.rows||[
+      ['5.812','18:12','Turno terminado · Puerta 3 · Tablet B · 612 escaneos','a91f…3c'],
+      ['5.811','18:11','Salida · Tatamis · TP-2026-00123-C · Juan Pérez','7b02…e4'],
+      ['5.810','18:09','Ingreso · Gradería · TP-2026-00502-8 · Laura Gómez','c4d8…10']
+    ];
+    return '<div class="two"><div><div class="audit">'+rows.map(function(r,i){ return '<div class="row'+(r[4]?' hl':'')+'"><span class="seq">#'+r[0]+'</span><span class="mono">'+r[1]+'</span><span>'+r[2]+'</span><span class="hash">↳ <b>'+r[3]+'</b></span></div>'; }).join('')+'</div>'+
+      (s.filter?'<p style="font-size:12px;color:#5B6B82;margin-top:8px">Filtro: '+s.filter+'</p>':'')+'</div>'+
+      '<div class="scard"><h4>Integridad del registro</h4>'+(s.verified?'<div class="alert-item ok"><i>✓</i><span>Registro íntegro hasta el número '+(s.upto||'5.812')+'.</span></div>':'<div class="alert-item info"><i>…</i><span>Verificando la cadena de hashes…</span></div>')+
+      '<div class="chain">'+'<i></i>'.repeat(9)+'</div><p style="font-size:12px;color:#5B6B82">Cada registro guarda el hash del anterior. Si alguien cambia uno, todos los siguientes dejan de cuadrar.</p><div class="btn-mock sec sm">Verificar de nuevo</div><div class="btn-mock sec sm">Descargar con contraseña</div></div></div>';
+  },
+  rep:function(s){
+    var doors=[['Puerta 1','Gradería',[3,5,6,4,7,6,5],'742','3','0'],['Puerta 2','Calentamiento',[2,2,3,4,3,2,3],'188','1','0'],['Puerta 3','Tatamis',[4,3,5,6,4,5,4],'612','9','3'],['Puerta 4','Gradería',[2,4,5,3,2,4,3],'301','2','0'],['Puerta 5','Palco · Hosp.',[1,0,1,2,1,1,1],'46','0','0'],['Puerta 6','Pesaje',[2,1,0,0,0,0,0],'93','0','1'],['Puerta 7','Prensa',[0,1,0,1,1,0,1],'22','0','0']];
+    return '<div class="kpis"><div class="kpi"><span>Ingresos hoy</span><b>2.004</b><small>1.593 personas distintas</small></div><div class="kpi"><span>Rechazos</span><b>15</b><small>0,7 %</small></div><div class="kpi warn"><span>Ingresos manuales</span><b>4</b><small>todos con motivo</small></div><div class="kpi ok"><span>Pendientes</span><b>0</b><small>todo recibido</small></div></div>'+
+      tbl(['Puerta','Zona','Ritmo (por 10 min)','Ingresos','Rechazos','Manuales'],doors.map(function(d){ return {c:['<span class="door"><i></i>'+d[0]+'</span>',d[1],spark(d[2]),d[3],d[4],d[5]]}; }))+
+      (s.purge?notice('info','i','Los datos personales de este evento se borran de forma definitiva el <b>20 de febrero de 2027</b> (90 días después). Antes de esa fecha puedes descargar el reporte sin datos personales.'):'');
+  },
+  cloud:function(s){
+    var off=!!s.off;
+    return '<div class="kpis"><div class="kpi'+(off?' warn':'')+'"><span>Nube</span><b>'+(off?'Sin conexión':'Conectada')+'</b><small>'+(off?'hotspot 4G caído':'hotspot 4G · 2,1 MB/s')+'</small></div><div class="kpi"><span>Última actualización</span><b>hace '+(s.ago||'4')+' min</b><small>se actualiza cada 5 min</small></div><div class="kpi ok"><span>Puertas</span><b>8 / 8</b><small>'+(off?'siguen funcionando':'conectadas · 0 pendientes')+'</small></div><div class="kpi"><span>Inscripciones en el host</span><b>'+(s.n||'1.412')+'</b><small>'+(s.nsub||'igual que en la nube')+'</small></div></div>'+
+      (off?notice('full','!','Sin conexión a la nube · se reintenta en 5 min · las puertas siguen funcionando.'):notice('info','i','Última actualización desde la nube hace '+(s.ago||'4')+' min · se actualiza cada 5 min. Puedes traer las novedades ahora si acaban de aprobar algo en línea.',['Traer ahora']))+
+      (s.log?'<div class="scard"><h4>Novedades traídas</h4>'+s.log.map(function(l){ return '<div class="line-item"><span>'+l[0]+'</span><span class="'+(l[2]||'')+'">'+l[1]+'</span></div>'; }).join('')+'</div>':'')+
+      tbl(['Hora','Qué llegó de la nube','Resultado'],(s.rows||[{c:['9:36','Comprobación periódica','Sin cambios']},{c:['9:31','Comprobación periódica','Sin cambios']},{c:['9:26','2 inscripciones aprobadas en línea','2 credenciales emitidas']}]).map(function(r){ return {c:[r.c[0],r.c[1],pill(r.c[2]==='Sin cambios'?'off':r.c[2].indexOf('Sin conexión')===0?'warn':'ok',r.c[2])],hl:r.hl}; }));
+  },
+  radio:function(s){
+    var talker=s.talker||null, ch=s.talkCh||'Puertas', off=!!s.off;
+    var peers=['Puerta 1','Puerta 2','Puerta 3','Puerta 4','Puerta 5','Supervisor','Mesa 1','Mesa 2'];
+    var presence='<div class="rd-peers">'+peers.map(function(n){ return '<span class="'+(n===talker?'talk':'')+'"><i></i>'+n+'</span>'; }).join('')+'</div>';
+    var chans=[['Puertas','6 equipos'],['Supervisores','3 equipos'],['Acreditación','2 equipos'],['Emergencia','11 equipos · interrumpe todo']];
+    var chrows='<div class="rd-ch">'+chans.map(function(c){ var on=talker&&c[0]===ch; return '<div class="c'+(on?' on':'')+(c[0]==='Emergencia'?' em':'')+'"><b><i></i>'+c[0]+'<small>'+c[1]+'</small></b><div class="rd-who">'+(on?'<div class="wave"><i></i><i></i><i></i><i></i><i></i></div><span><b style="font-family:var(--font-body)">'+talker+'</b> hablando'+(s.waiting?' · en espera: '+s.waiting:'')+'</span>':(off?'Sin señalización':'Nadie habla'))+'</div><span class="tag '+(on?'ok':'off')+'">'+(on?'en uso':off?'?':'libre')+'</span></div>'; }).join('')+'</div>';
+    var kpis='<div class="kpis"><div class="kpi'+(off?' warn':'')+'"><span>Radio</span><b style="font-size:20px">'+(off?'Sin señalización':'En vivo')+'</b><small>'+(off?'el host no responde':'4 canales · host OK')+'</small></div><div class="kpi"><span>Equipos conectados</span><b>'+(s.n||'11')+'</b><small>'+(off?'seguían conectados':'de 12 enrolados')+'</small></div><div class="kpi"><span>Hablando</span><b style="font-size:20px">'+(talker||'Nadie')+'</b><small>'+(talker?'en '+ch:'todos los canales libres')+'</small></div><div class="kpi'+(s.pending?' warn':' ok')+'"><span>Órdenes sin acuse</span><b>'+(s.pending||0)+'</b><small>'+(s.pendingSub||'todas confirmadas')+'</small></div></div>';
+    var orderCard='<div class="scard"><h4>Enviar orden</h4><div class="rd-ord"><div class="sel'+(s.orderTo?' focus':'')+'">'+(s.orderTo||'Elige…')+'<span style="color:#5B6B82">▾</span></div><div class="chips">'+['Abrir Puerta {n}','Cerrar Puerta {n}','Pausar ingreso','Reanudar ingreso','Supervisor a Puerta {n}','Evacuación'].map(function(o){ return '<span class="'+(o===s.order?'on':o==='Evacuación'?'em':'')+'">'+o+'</span>'; }).join('')+'</div><div class="btn-mock '+(s.orderTo&&s.order&&!s.sent?'pri hlbox':'dis')+'" style="height:38px;font-size:13px">Enviar orden</div></div></div>';
+    var acks=(s.acks||[]).map(function(a){ return '<div class="'+a[0]+'"><i>'+(a[0]==='wait'?'…':'✓')+'</i><b>'+a[1]+'</b><span>'+a[2]+'</span></div>'; }).join('');
+    var ackCard='<div class="scard"><h4>Órdenes enviadas</h4>'+(acks?'<div class="rd-ack">'+acks+'</div>':'<p style="font-size:12.5px;color:#5B6B82">Todavía no hay órdenes. Elige una del catálogo y envíala a un canal o a una puerta.</p>')+'</div>';
+    var note = s.note ? '<div class="rd-note '+(s.noteKind||'')+'"><i>'+(s.noteIcon||'i')+'</i><span>'+s.note+'</span></div>' : '';
+    var hist=tbl(['Hora','Canal','Qué pasó','Acuse'],(s.rows||[]).map(function(r){ return {c:[r[0],r[1],r[2],r[3]||'—'],hl:!!r[4]}; }));
+    return kpis+note+'<div class="two"><div style="display:grid;gap:12px;min-width:0">'+chrows+hist+'</div><div class="side-cards" style="display:grid;gap:12px">'+orderCard+ackCard+(acks?'':'<div class="scard"><h4>Quién está <span class="tag '+(off?'warn':'ok')+'">'+(off?'última conocida':'11 de 12')+'</span></h4>'+presence+'</div>')+'</div></div>';
+  },
+  health:function(s){
+    var pct=s.ups==null?100:s.ups, cls=pct<20?'bad':pct<50?'warn':'';
+    var tl=[
+      ['Min 0','sys','La luz se va. La UPS toma host, router y switch sin un parpadeo. <span class="who" style="--wc:var(--who-sup)">Supervisor</span> avisa por radio: "seguimos normal".'],
+      ['Min 0','ctrl','Los scanners siguen con batería y power bank. <span class="who" style="--wc:var(--who-ctrl)">Control</span> no hace nada distinto.'],
+      ['Min 5','sys','Copia de seguridad automática al USB cifrado, como cada 5 min. <span class="who" style="--wc:var(--who-oper)">Operador</span> confirma que el portátil de respaldo está al día.'],
+      ['Min 15','sup','La luz no vuelve. <span class="who" style="--wc:var(--who-sup)">Supervisor</span> promueve el portátil de respaldo con un comando. Los scanners se reconectan solos.'],
+      ['Min 45','sys','La UPS se agota. Ya nada depende de ella. <span class="who" style="--wc:var(--who-aud)">Auditor</span> verifica: 0 escaneos perdidos.']
+    ];
+    var cur=s.minute==null?0:s.minute;
+    return '<div class="two"><div class="timeline">'+tl.map(function(t,i){ var m=parseInt(t[0].slice(4),10); return '<div class="tl '+(i===cur?'on':i<cur?'past':'')+'"><span class="m">'+t[0]+'</span><div class="lines"><span>'+t[2]+'</span></div></div>'; }).join('')+'</div>'+
+      '<div class="scard"><h4>'+(s.upsTitle||'UPS · host principal')+'</h4><div class="ups"><div class="lbl"><span>Batería</span><b>'+pct+' %</b></div><div class="bar"><i class="'+cls+'" style="width:'+pct+'%"></i></div><div class="lbl"><span>Autonomía</span><span>'+(s.upsLeft||'45 min')+'</span></div></div>'+
+      '<div class="line-item"><span>Red eléctrica</span><span class="bad">Sin energía</span></div><div class="line-item"><span>Router + switch</span><span class="ok">En UPS</span></div><div class="line-item"><span>Equipo de respaldo</span><span class="'+(s.standby?s.standby[0]:'ok')+'">'+(s.standby?s.standby[1]:'Portátil · al día')+'</span></div><div class="line-item"><span>Última copia</span><span class="ok">'+(s.backup||'hace 1 min')+'</span></div><div class="line-item"><span>Escaneos perdidos</span><span class="ok">0</span></div>'+
+      (s.backups?'<h4 style="margin-top:4px">Copias en USB cifrado</h4>'+s.backups.map(function(b){ return '<div class="line-item"><span class="mono">'+b[0]+'</span><span class="'+(b[2]||'')+'">'+b[1]+'</span></div>'; }).join(''):'')+'</div></div>';
+  }
+};
+
+// ---------- quién actúa ----------
+var WHO = {
+  insc:['Inscriptor del club','--who-insc'], coord:['Coordinador de acreditación','--who-coord'], oper:['Operador de impresión','--who-oper'],
+  ctrl:['Control de entradas','--who-ctrl'], sup:['Supervisor de puerta','--who-sup'], admin:['Administrador','--who-admin'],
+  aud:['Auditor','--who-aud'], pub:['Participante / público','--who-pub'], sys:['El sistema, solo','--who-sys']
+};
+function ph(view, state){ return {type:'phone', view:view, s:state||{}}; }
+function br(view, state, url){ return {type:'browser', view:view, s:state||{}, url:url}; }
+var HOSTURL='host.tatamipass.co/panel', CLOUD='inscripcion.tatamipass.co/nac2026';
+var DUPS=[['207','Juan Pérez','2008-03-14','Academia Caucana de Taekwondo','Actualiza · ya existía'],['318','Mateo Cifuentes','2011-07-02','Academia Caucana de Taekwondo','Omite · repetido en fila 96'],['319','Mateo Cifuentes','2011-07-02','Academia Caucana de Taekwondo','Omite · repetido en fila 96'],['401','Daniela Mosquera','2004-11-30','Academia Internacional de Taekwondo ITF','Crea']];
+
+// ---------- escenarios ----------
+var SCEN = [
+{id:'A', color:'#1C4FD1', title:'Inscripción de un competidor', sub:'El club inscribe a una niña de 12 años. La categoría se calcula sola y el acudiente autoriza.', frame:'browser',
+ steps:[
+  {t:'El inscriptor de la Academia Caucana de Taekwondo abre el formulario del campeonato', b:'El formulario vive en internet. Cada club entra con su cuenta y solo ve a su propia gente.', who:'insc', scr:br('reg',{focus:'name',f:{}})},
+  {t:'Escribe los datos de Sofía Martínez y su fecha de nacimiento', b:'Con la fecha de nacimiento, el sistema calcula la edad que tendrá el 20 de noviembre, primer día del evento: 12 años.', who:'insc', scr:br('reg',{focus:'dob',age:12,f:{name:'Sofía Martínez',doc:'1061987654',dob:'14 / 03 / 2014',cat:'Categoría sugerida',mod:'−40 kg · combate'},catAuto:'Infantil B (10–13)'})},
+  {t:'Agrega a los acompañantes de Sofía: su mamá y su abuelo', b:'El límite de acompañantes por participante y el aforo total se configuran en el evento, y pueden dejarse sin límite. Cada acompañante recibe credencial digital de rol Acompañante, zona Gradería.', who:'insc', scr:br('reg',{age:12,f:{name:'Sofía Martínez',doc:'1061987654',dob:'14 / 03 / 2014',cat:'Infantil B (10–13)',mod:'−40 kg · combate'},catAuto:'Infantil B (10–13)',comp:{max:2,hl:true,list:[['Claudia Martínez','34567890'],['Jorge Martínez','10234567']]},q1:41})},
+  {t:'Intenta ponerla en Juvenil: el formulario la frena y explica', b:'La categoría se comprueba contra la edad real del evento. No hay forma de inscribir a alguien en una categoría que no le corresponde.', who:'insc', scr:br('reg',{focus:'cat',age:12,catErr:true,f:{name:'Sofía Martínez',doc:'1061987654',dob:'14 / 03 / 2014',cat:'Juvenil (14–17)',mod:'−40 kg · combate'}})},
+  {t:'Como es menor, pide nombre y documento del acudiente', b:'Los datos de un menor necesitan la autorización de su padre, madre o acudiente (Ley 1581 de 2012). Queda guardada junto a la inscripción.', who:'insc', scr:br('reg',{age:12,f:{name:'Sofía Martínez',doc:'1061987654',dob:'14 / 03 / 2014',cat:'Infantil B (10–13)',mod:'−40 kg · combate'},catAuto:'Infantil B (10–13)',minor:{name:'',doc:''}})},
+  {t:'Marca las dos autorizaciones y envía', b:'Se guarda la inscripción como "Inscrito · en revisión" y se reserva un lugar del cupo de Infantil B.', who:'insc', scr:br('reg',{age:12,f:{name:'Sofía Martínez',doc:'1061987654',dob:'14 / 03 / 2014',cat:'Infantil B (10–13)',mod:'−40 kg · combate'},catAuto:'Infantil B (10–13)',minor:{name:'Claudia Martínez',doc:'34567890'},consent:{minor:true,priv:true},canSend:true,sendHl:true,q1:42})},
+  {t:'Inscripción recibida', b:'Sale un correo al inscriptor. El Coordinador verá la inscripción en su lista para aprobarla.', who:'sys', scr:br('confirm',{title:'Inscripción recibida',body:'Te enviamos un correo a inscripciones@clubtigres.co. El Coordinador la revisará y te avisaremos cuando esté aprobada.',status:['info','Inscrito · en revisión']})}
+ ], result:'Sofía quedó inscrita en la categoría correcta para su edad, con la autorización de su acudiente y un lugar reservado en el cupo. Nadie tuvo que revisar la edad a mano.'},
+
+{id:'B', color:'#EA7A1C', title:'Cupo lleno y lista de espera', sub:'Una categoría se llena. Se abre un lugar días después y el sistema avisa solo.', frame:'browser',
+ steps:[
+  {t:'El Academia Internacional de Taekwondo ITF intenta inscribir a Andrés Rojas en Adulto −71 kg', b:'Antes de aceptar, el formulario revisa tres cupos: el total del evento, el del rol y el de la categoría.', who:'insc', scr:br('reg',{club:'Academia Internacional de Taekwondo ITF · Cali',age:24,f:{name:'Andrés Rojas',doc:'1144556677',dob:'05 / 08 / 2002',cat:'Adulto (18–35)',mod:'−71 kg · combate'},catAuto:'Adulto (18–35)',q2:120,consent:{priv:true}})},
+  {t:'Cupo lleno. El formulario ofrece la lista de espera', b:'No se pierde lo escrito. Entrar a la lista no gasta cupo: solo guarda el turno.', who:'insc', scr:br('reg',{club:'Academia Internacional de Taekwondo ITF · Cali',age:24,f:{name:'Andrés Rojas',doc:'1144556677',dob:'05 / 08 / 2002',cat:'Adulto (18–35)',mod:'−71 kg · combate'},catAuto:'Adulto (18–35)',q2:120,quotaFull:true,consent:{priv:true}})},
+  {t:'Andrés queda en lista de espera, puesto 1', b:'El sistema guarda el orden de llegada. Si se abre un lugar, el primero de la lista pasa a revisión del Coordinador.', who:'sys', scr:br('confirm',{icon:'1',title:'Andrés está en lista de espera, puesto 1',body:'Te escribimos a inscripciones@clubhalcones.co si se abre un lugar. No tienes que hacer nada más.',status:['warn','En lista de espera · puesto 1']})},
+  {t:'Días después, el Coordinador rechaza una inscripción incompleta en esa categoría', b:'Pedro Lasso nunca envió un documento legible. Al rechazarla, el lugar vuelve al cupo de Adulto −71 kg.', who:'coord', scr:br('host',{nav:'insc',page:'insc',title:'Inscripciones',rejected:true,hlRow:'pedro',toast:'Inscripción de Pedro Lasso marcada como no aprobada. Se liberó 1 lugar en Adulto −71 kg.',toastIcon:'!'},HOSTURL)},
+  {t:'El sistema avisa al primero de la lista por correo', b:'La inscripción de Andrés cambia sola a "Validado · pendiente de aprobación". El inscriptor no tuvo que estar pendiente.', who:'sys', scr:br('mail',{subject:'Buenas noticias: se abrió un lugar para Andrés',body:'<p>Hola, Academia Internacional.</p><p>Se abrió un lugar para <b>Andrés Rojas</b> en <b>Competidor · Adulto −71 kg</b>. Su inscripción pasó a revisión del Coordinador.</p><p>No tienes que hacer nada. Te avisamos cuando esté aprobada.</p><p style="color:#5B6B82;font-size:12.5px">Tatami Pass · Campeonato Nacional de Taekwondo ITF 2026</p>'},'correo.clubhalcones.co')},
+  {t:'El Coordinador aprueba la inscripción de Andrés', b:'Ya validada por cupo y edad, solo falta el visto bueno. Con la aprobación, Andrés entra a la fila de emisión de credenciales.', who:'coord', scr:br('host',{nav:'insc',page:'insc',title:'Inscripciones',rejected:true,hlRow:'andres',andres:['ok','Aprobado · credencial en preparación'],k1:'36',k2:'2',toast:'Guardado.'},HOSTURL)}
+ ], result:'Nadie se inscribió por encima del cupo, el lugar liberado fue para el primero en la fila y el club se enteró por correo sin tener que preguntar.'},
+
+{id:'C', color:'#6D28D9', title:'Importar competidores desde SportData', sub:'Un CSV de 412 filas entra sin duplicados. Reimportar actualiza, no repite.', frame:'browser',
+ steps:[
+  {t:'El Coordinador exporta el CSV de SportData y lo sube', b:'SportData sigue siendo quien maneja llaves y resultados. Tatami Pass solo toma la lista de competidores.', who:'coord', scr:br('imp',{stage:0,file:'sportdata_nac2026.csv · 412 filas · 38 KB'},CLOUD+'/importar')},
+  {t:'Mapea las columnas: el sistema sugiere, el Coordinador confirma', b:'Los nombres de columna de SportData cambian de versión en versión. Por eso se asignan a mano una vez y se recuerdan.', who:'coord', scr:br('imp',{stage:1,dobMapped:false},CLOUD+'/importar')},
+  {t:'Asigna la columna que faltaba: fecha de nacimiento', b:'Sin fecha de nacimiento no hay forma de calcular la categoría ni de detectar duplicados. Por eso es obligatoria.', who:'coord', scr:br('imp',{stage:1,dobMapped:true},CLOUD+'/importar')},
+  {t:'Vista previa: 398 nuevas, 11 ya existían, 3 repetidas', b:'Una persona es la misma si coinciden nombre, fecha de nacimiento y club. Las repetidas dentro del archivo se omiten.', who:'coord', scr:br('imp',{stage:2,dups:DUPS},CLOUD+'/importar')},
+  {t:'Confirma: se crean y actualizan, nadie se duplica', b:'Todas entran con rol Competidor y estado "Inscrito · en revisión". Las que ya existían solo se actualizan.', who:'sys', scr:br('imp',{stage:3},CLOUD+'/importar')},
+  {t:'Una semana después cambian 5 pesos en SportData. Reimporta el mismo archivo', b:'La importación es repetible: 0 nuevas, 5 actualizadas, 407 sin cambios. La misma persona nunca aparece dos veces.', who:'coord', scr:br('imp',{stage:2,chip:'Reimportación · 26 oct',k:{c:0,u:5,s:407,t:412,sWhy:'sin cambios'},dups:[['44','Juan Pérez','2008-03-14','Academia Caucana de Taekwondo','Actualiza · peso −62 → −68 kg'],['96','Mateo Cifuentes','2011-07-02','Academia Caucana de Taekwondo','Actualiza · peso −45 → −48 kg'],['207','Sara Villota','2009-01-20','Academia Caucana de Taekwondo','Sin cambios']]},CLOUD+'/importar')}
+ ], result:'412 filas entraron como 409 personas, con categoría calculada y sin duplicados. Cuando SportData cambie, se vuelve a importar y nada se repite.'},
+
+{id:'D', color:'#16A34A', title:'Emisión e impresión de credenciales', sub:'Del "aprobado" a la credencial en la mano: firmar, imprimir y entregar.', frame:'browser',
+ steps:[
+  {t:'El Coordinador ve 48 aprobadas sin credencial y emite el lote', b:'Emitir asigna el ID corto (con dígito de control) y arma el contenido del QR: evento, persona, rol, zonas, días y versión.', who:'coord', scr:br('host',{nav:'cred',page:'cred',title:'Credenciales',hlk:'apr',actions:['Emitir 48 credenciales','Filtrar']},HOSTURL)},
+  {t:'Cada QR se firma con la clave privada del evento', b:'La clave privada vive solo en el computador de emisión. Los scanners tienen la pública: pueden verificar, no fabricar. 2 quedan pendientes por falta de foto.', who:'sys', scr:br('host',{nav:'cred',page:'cred',title:'Credenciales',hlk:'emi',k:['2','1.284','1.190','1.102'],tokenPeek:true,toast:'46 credenciales emitidas. 2 quedaron pendientes: sin foto.'},HOSTURL)},
+  {t:'El operador de impresión genera el PDF del lote', b:'Un lote de 500 credenciales sale en menos de un minuto. Van 2 por hoja A4, listas para cortar.', who:'oper', scr:br('host',{nav:'print',page:'print',title:'Impresión',toast:'PDF listo: 46 credenciales, 23 páginas.'},HOSTURL)},
+  {t:'Así sale cada credencial: 100 × 150 mm a dos caras, con QR real y No. de acreditación', b:'Plantilla Nacional 2026: cabecera del evento, foto, datos, banda de color por rol, acceso, QR firmado y, al dorso, emergencia, EPS, patrocinadores y código de barras. Es una plantilla: colores, textos y qué datos se imprimen se cambian desde el panel.', who:'oper', scr:br('print',{},HOSTURL+'/impresion/lote-3')},
+  {t:'En la mesa de acreditación, el operador escanea y marca cada credencial como entregada', b:'La entrega también se escanea. Así se sabe qué credenciales ya están en manos de su dueño.', who:'oper', scr:ph('result',{kind:'ok',title:'Entregada a Juan',person:P.juan,body:'Competidor · Academia Caucana de Taekwondo. Marcada como entregada.',zone:'Acreditación · Mesa 2',time:'15:40',buttons:['Siguiente','No es la persona']})},
+  {t:'El panel muestra el avance: emitidas, impresas, entregadas', b:'Cada credencial pasa por los mismos estados en orden. Con un vistazo se sabe cuántas faltan por entregar.', who:'coord', scr:br('host',{nav:'cred',page:'cred',title:'Credenciales',hlk:'ent',k:['2','1.284','1.236','1.103'],rows:[{c:['<span class="mono">TP-2026-00123-C</span>','Juan Pérez','Competidor','v3',pill('ok','Entregada')],hl:true},{c:['<span class="mono">TP-2026-00064-8</span>','María Ruiz','Coach','v1',pill('ok','Entregada')]},{c:['<span class="mono">TP-2026-00019-3</span>','Carlos Andrade','Jurado','v1',pill('info','Impresa')]},{c:['<span class="mono">TP-2026-01301-A</span>','Sofía Martínez','Competidor','v1',pill('info','Impresa')]},{c:['<span class="mono">—</span>','Lucía Prado','Competidor','—',pill('bad','Sin foto')]}]},HOSTURL)}
+ ], result:'46 credenciales firmadas, impresas y entregadas con trazabilidad completa. Las 2 sin foto quedaron visibles como pendientes, no perdidas.'},
+
+{id:'E', color:'#0F2A6B', title:'Montaje del día: enrolar un scanner', sub:'Un celular cualquiera se convierte en el scanner de Puerta 3 en dos minutos.', frame:'browser',
+ steps:[
+  {t:'El supervisor abre "Dispositivos" en el computador central y pide un código de enrolamiento', b:'El código es de un solo uso y vence en 10 minutos. Lleva dentro el rol, la zona sugerida y el certificado de la red.', who:'sup', scr:br('host',{nav:'dev',page:'dev',title:'Dispositivos',enrol:true,cd:'9:48'},HOSTURL)},
+  {t:'Con el celular, el voluntario escanea ese código', b:'El celular queda ligado al evento. No necesita cuenta ni correo: solo este código y un PIN.', who:'ctrl', scr:ph('enrol',{token:tokenFor({v:1,e:'nac2026',typ:'enrol',dev:'tab-b',role:'control',z:'T',exp:'2026-11-20T08:12:00-05:00'}),toast:'Código leído. Enrolando…'})},
+  {t:'Escribe su PIN de 6 dígitos', b:'El PIN es personal y dura un turno de 12 horas. Tres errores lo bloquean 5 minutos.', who:'ctrl', scr:ph('pin',{dots:4})},
+  {t:'Elige dónde está: Tatamis · Puerta 3', b:'Un scanner valida solo su zona. Si cambia de puerta, el supervisor lo reasigna desde el computador central.', who:'ctrl', scr:ph('zone',{sel:'T'})},
+  {t:'Listo. Este scanner es Puerta 3 · Tatamis', b:'Descarga la lista completa de credenciales y reglas (1.986 personas) en segundos. Desde ahora puede validar sin red.', who:'sys', scr:ph('enrolok',{})},
+  {t:'En el computador central aparece conectado, con 0 pendientes', b:'Desde aquí el supervisor ve cada scanner: cuándo reportó por última vez, cuántos escaneos lleva y si tiene algo por enviar.', who:'sup', scr:br('host',{nav:'dev',page:'dev',title:'Dispositivos',hl3:true,p3:['hace 1 s','0','0','ok','Recién enrolado'],note:'Listo. Puerta 3 · Tablet B quedó enrolado como Control de entradas en Tatamis.'},HOSTURL)}
+ ], result:'Un celular sin nada instalado pasó a ser un scanner con la base completa del evento. Si se pierde o se daña, el supervisor lo desactiva y enrola otro igual de rápido.'},
+
+{id:'F', color:'#16A34A', title:'Ingreso normal', sub:'El caso de todos los días: escanear, verde, comparar la foto, siguiente.', frame:'phone',
+ steps:[
+  {t:'Juan Pérez llega a Puerta 3 y muestra su credencial', b:'El scanner está en la cámara, esperando. Lleva 214 ingresos y nada pendiente.', who:'ctrl', scr:ph('cam',{time:'9:02'})},
+  {t:'Verde en menos de 300 ms, sin preguntarle a nadie', b:'El celular comprueba la firma del QR con la clave pública, revisa zona, días y anulaciones, todo en su propia memoria. No necesita red.', who:'sys', scr:ph('result',{kind:'ok',title:'Adelante, Juan',person:P.juan,line:'Tatamis · 9:02 · Puerta 3',body:'Compara la foto con la persona.',time:'9:02',buttons:['Siguiente','No es la persona'],foot:'Se cierra sola en 3 s'})},
+  {t:'El control compara la foto de la pantalla con la persona', b:'Un QR copiado sigue siendo válido para la matemática. Por eso la foto es parte del control: si no es la persona, un toque lo registra.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Juan',person:P.juan,line:'Tatamis · 9:02 · Puerta 3',focusPhoto:true,body:'Compara la foto con la persona.',time:'9:02',buttons:['Siguiente','No es la persona']})},
+  {t:'Toca Siguiente y el scanner vuelve a la cámara', b:'El escaneo quedó guardado en el celular y se envió al computador central en menos de 2 segundos. Contador: 215.', who:'ctrl', scr:ph('cam',{time:'9:02',foot:'Hoy: 215 ingresos · 0 pendientes'})}
+ ], result:'Un ingreso tarda lo que tarda levantar el celular. Firma, zona, día, anulaciones y foto: todo revisado sin que el control tenga que pensar en nada técnico.'},
+
+{id:'G', color:'#E0323B', title:'Doble ingreso (anti-passback)', sub:'La misma credencial no puede entrar dos veces sin salir. Y cómo se resuelve sin drama.', frame:'phone',
+ steps:[
+  {t:'9:14. Juan entra a Tatamis', b:'El computador central anota: la credencial de Juan está dentro de Tatamis desde las 9:14. Todos los scanners de esa zona lo saben.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Juan',person:P.juan,line:'Tatamis · 9:14 · Puerta 3',time:'9:14'})},
+  {t:'9:40. Alguien presenta la misma credencial en Puerta 3', b:'Puede ser un préstamo, una copia, o Juan que salió por una puerta sin scanner. El sistema no adivina: aplica la regla.', who:'ctrl', scr:ph('cam',{time:'9:40',foot:'Hoy: 288 ingresos · 0 pendientes'})},
+  {t:'Rojo: "Esta credencial ya entró a Tatamis a las 9:14"', b:'Qué pasó, por qué y qué hacer, en ese orden. El control no decide solo: la pantalla le dice cómo seguir.', who:'sys', scr:ph('result',{kind:'no',title:'No puede entrar',body:'Esta credencial ya entró a Tatamis a las 9:14.',action:'Pide que salga y vuelva a escanear, o llama al supervisor.',time:'9:40',buttons:['Autorizar (supervisor)','Ingreso manual']})},
+  {t:'Era Juan: salió por una puerta sin scanner. Lo registran saliendo', b:'La salida se escanea en el scanner de salida. Con eso la credencial vuelve a estar "fuera" y puede entrar de nuevo.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Hasta luego, Juan',person:P.juan,line:'Salida de Tatamis · 9:41',body:'Salida de Tatamis registrada.',zone:'Tatamis · Puerta 3 · Salida',time:'9:41'})},
+  {t:'Vuelve a entrar: verde', b:'Si en vez de Juan hubiera sido un prestado, la foto lo habría delatado en el paso 3. La regla y la foto se cubren una a la otra.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Juan',person:P.juan,line:'Tatamis · 9:43 · Puerta 3',body:'Compara la foto con la persona.',time:'9:43',buttons:['Siguiente','No es la persona']})}
+ ], result:'Una credencial prestada no sirve para meter a dos personas. Y cuando el rechazo es por una salida no registrada, se arregla en 10 segundos sin llamar a nadie.'},
+
+{id:'H', color:'#D97706', title:'QR fotocopiado en dos puertas', sub:'Una copia entra por una puerta y la original por otra. El sistema lo nota en un minuto.', frame:'phone',
+ steps:[
+  {t:'10:02, Puerta 1 · Gradería. Una fotocopia de la credencial de Camilo entra', b:'La firma del QR es correcta: una copia perfecta engaña a la matemática. El control de esa puerta compara la foto, pero el parecido pasa.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Camilo',person:P.camilo,line:'Gradería · 10:02 · Puerta 1',body:'Compara la foto con la persona.',zone:'Gradería · Puerta 1',time:'10:02',buttons:['Siguiente','No es la persona']})},
+  {t:'10:03, Puerta 4 · Gradería. La misma credencial otra vez', b:'Dos puertas distintas, misma credencial, 1 minuto de diferencia. Nadie camina tan rápido. El scanner pasa a ámbar, no a verde.', who:'sys', scr:ph('result',{kind:'warn',title:'Revisa con el supervisor',body:'Esta credencial se usó en Puerta 1 hace 1 min.',action:'Pide que espere a un lado y llama al supervisor.',zone:'Gradería · Puerta 4',time:'10:03',buttons:['Autorizar (supervisor)','Siguiente']})},
+  {t:'En el computador central salta la alerta en tiempo real', b:'El panel muestra la credencial, las dos puertas y las horas. El supervisor sabe a quién buscar y dónde.', who:'sup', scr:br('host',{nav:'alert',page:'alert',title:'Alertas',badge:['alert','1'],live:'1 alerta activa',liveOff:true,items:[['bad','!','<b>TP-2026-00071-M</b> · Camilo Ortiz · usada en Puerta 1 (10:02) y Puerta 4 (10:03). Posible copia.']],actions:['Anular credencial','Marcar como falsa alarma']},HOSTURL)},
+  {t:'El supervisor confirma con el documento de Camilo y anula la credencial', b:'Anular deja la credencial inservible en todas las puertas en menos de un minuto. El QR copiado y el original quedan fuera a la vez.', who:'sup', scr:br('host',{nav:'alert',page:'alert',title:'Alertas',badge:['alert','1'],live:'1 alerta activa',liveOff:true,items:[['bad','!','<b>TP-2026-00071-M</b> · Camilo Ortiz · usada en Puerta 1 (10:02) y Puerta 4 (10:03). Posible copia.']],dialog:{title:'¿Anular la credencial TP-2026-00071-M de Camilo Ortiz?',body:'Dejará de servir en todas las puertas en menos de un minuto.',buttons:['Cancelar','Anular'],danger:true}},HOSTURL)},
+  {t:'Re-emite una nueva versión (v2) para el Camilo real', b:'La versión sube de 1 a 2. Cualquier copia de la v1, aunque esté perfecta, queda inservible por diseño.', who:'sup', scr:br('host',{nav:'alert',page:'alert',title:'Alertas',items:[],cver:'v2 · nueva',cst:['ok','Re-emitida'],cuse:'v1 anulada · 10:06',toast:'Nueva credencial TP-2026-00071-M v2 lista para imprimir.'},HOSTURL)},
+  {t:'La copia vieja ya no sirve en ninguna puerta', b:'Quien la tenga ve rojo con el motivo. El Camilo real recoge su v2 en acreditación y sigue el día.', who:'ctrl', scr:ph('result',{kind:'no',title:'No puede entrar',body:'Hay una credencial más nueva para esta persona.',action:'Que use la nueva o vaya a acreditación.',zone:'Gradería · Puerta 4',time:'10:21',buttons:['Siguiente','Ingreso manual']})}
+ ], result:'La copia pasó una vez, pero no dos. En 4 minutos quedó anulada en todas las puertas y la persona real siguió con una credencial nueva.'},
+
+{id:'I', color:'#6D28D9', title:'Credencial perdida', sub:'Anular, re-emitir y asegurarse de que hasta el scanner sin red se entere.', frame:'browser',
+ steps:[
+  {t:'María Ruiz perdió su credencial. Va a acreditación con su documento', b:'El Coordinador la busca por apellido o por ID corto. Ve la credencial vigente y su historial del día.', who:'coord', scr:br('host',{nav:'cred',page:'cred',title:'Credenciales',search:'Ruiz',rows:[{c:['<span class="mono">TP-2026-00064-8</span>','María Ruiz','Coach','v1',pill('ok','Entregada')],hl:true}],actions:['Re-emitir','Anular','Editar zonas']},HOSTURL)},
+  {t:'Anula y re-emite en un solo paso', b:'La v1 queda anulada y nace la v2 con el mismo ID corto. Se imprime y se entrega como cualquier otra.', who:'coord', scr:br('host',{nav:'cred',page:'cred',title:'Credenciales',search:'Ruiz',rows:[{c:['<span class="mono">TP-2026-00064-8</span>','María Ruiz','Coach','v1',pill('ok','Entregada')],hl:true}],dialog:{title:'¿Emitir una nueva versión para María Ruiz?',body:'La actual (TP-2026-00064-8 v1) queda anulada.',buttons:['Cancelar','Emitir nueva']}},HOSTURL)},
+  {t:'La anulación viaja a todos los scanners conectados en menos de un minuto', b:'7 de 8 la recibieron ya. Puerta 6 lleva 6 minutos sin conexión: el panel lo muestra en ámbar, sin alarma.', who:'sys', scr:br('host',{nav:'dev',page:'dev',title:'Dispositivos',k:['7','1','4','2 min'],p6:['hace 6 min','93','4','warn','Sin conexión 6 min'],hl6:true,toast:'Nueva credencial TP-2026-00064-8 v2 lista para imprimir.'},HOSTURL)},
+  {t:'Puerta 6 vuelve a tener red: envía sus pendientes y recibe la anulación', b:'Primero manda lo suyo (4 escaneos), luego recibe lo nuevo (1 anulación). Nada se pisa: cada escaneo es un hecho con su hora.', who:'sys', scr:ph('pending',{zone:'Pesaje · Puerta 6',n:0,syncing:true,status:'Actualizando datos… 1 anulación recibida',items:[['TP-2026-00123-C','9:58 ✓',true],['TP-2026-00310-F','9:59 ✓',true],['TP-2026-00045-8','10:01 ✓',true],['TP-2026-00088-Y','10:04 ✓',true]]})},
+  {t:'Alguien encuentra la credencial vieja y la prueba: rojo', b:'Da igual en qué puerta ni si hay red. La v1 está en la lista de anuladas de cada scanner.', who:'ctrl', scr:ph('result',{kind:'no',title:'No puede entrar',body:'Esta credencial fue anulada.',action:'Que vaya a la mesa de acreditación con su documento.',zone:'Pesaje · Puerta 6',time:'10:31',buttons:['Siguiente','Ingreso manual']})}
+ ], result:'La credencial perdida dejó de servir en todas las puertas, incluida la que estaba sin red. María siguió con su v2 sin perder la mañana.'},
+
+{id:'J', color:'#0F2A6B', title:'Se cae el Wi-Fi o el computador central', sub:'El scanner no se entera de que está solo. Sigue dejando pasar y después pone al día.', frame:'phone',
+ steps:[
+  {t:'9:30. Todo normal: conectado, 0 pendientes', b:'Cada escaneo se guarda en el celular y se envía al computador central en menos de 2 segundos.', who:'ctrl', scr:ph('cam',{time:'9:30',foot:'Hoy: 260 ingresos · 0 pendientes'})},
+  {t:'9:31. El router se apaga. El scanner pasa a "Sin conexión · sigue escaneando"', b:'No es un error y no suena nada. El scanner ya tiene todas las credenciales, reglas y anulaciones en su memoria.', who:'sys', scr:ph('cam',{time:'9:31',online:false,foot:'Hoy: 260 ingresos · 0 pendientes'})},
+  {t:'Sigue dejando pasar: verde, igual que antes', b:'La validación nunca necesitó la red. Solo cambia que el escaneo se queda guardado hasta que vuelva.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Juan',person:P.juan,line:'Tatamis · 9:33 · Puerta 3',body:'Compara la foto con la persona.',online:false,time:'9:33',buttons:['Siguiente','No es la persona']})},
+  {t:'El contador de pendientes crece con calma: 37 por enviar', b:'El celular puede guardar miles de escaneos. El control sigue trabajando; nadie tiene que apuntar nada en papel.', who:'ctrl', scr:ph('pending',{online:false,n:37,note:'Sigue escaneando: se envía solo cuando vuelva la conexión.',items:[['TP-2026-00123-C','9:33'],['TP-2026-00310-F','9:34'],['TP-2026-00019-3','9:36'],['TP-2026-00502-8','9:37'],['… y 33 más','']]})},
+  {t:'9:52. Vuelve la red. "Enviando 37…" y en segundos queda en 0', b:'Cada escaneo lleva número de orden y hora. El computador central los recibe en orden y descarta los que ya tenía.', who:'sys', scr:ph('pending',{n:0,syncing:true,status:'Enviando 37… listo',items:[['TP-2026-00123-C','9:33 ✓',true],['TP-2026-00310-F','9:34 ✓',true],['TP-2026-00019-3','9:36 ✓',true],['TP-2026-00502-8','9:37 ✓',true],['… y 33 más','✓',true]]})},
+  {t:'En el computador central llegan los 37 en orden, sin duplicar', b:'Puerta 3 estuvo 21 minutos sin reportar y ahora está al día. En el reporte del día no se nota el corte.', who:'sup', scr:br('host',{nav:'dev',page:'dev',title:'Dispositivos',hl3:true,p3:['hace 1 s','297','0','ok','Al día · recibió 37'],note:'Puerta 3 · Tablet B envió 37 escaneos pendientes. Todos en orden, ninguno repetido.'},HOSTURL)}
+ ], result:'21 minutos sin red y ningún ingreso se detuvo ni se perdió. El control ni cambió de ritmo.'},
+
+{id:'K', color:'#E0323B', title:'Corte de energía total', sub:'La UPS da 45 minutos. Qué hace cada quien en el minuto 0, 5, 15 y 45.', frame:'browser',
+ steps:[
+  {t:'Minuto 0. Se va la luz. La UPS sostiene host, router y switch', b:'La UPS de 1.000 VA aguanta mínimo 45 minutos. Los scanners no dependen de ella: tienen batería y power bank.', who:'sup', scr:br('host',{nav:'health',page:'health',title:'Salud del sistema',live:'Sin energía · en UPS',liveOff:true,minute:0,ups:100,upsLeft:'45 min'},HOSTURL)},
+  {t:'Minuto 0. Los scanners ni se enteran. Siguen escaneando', b:'Con la red en UPS, siguen conectados. Si también se cayera la red, pasarían a modo sin conexión (escenario J).', who:'ctrl', scr:ph('cam',{time:'10:31',foot:'Hoy: 402 ingresos · 0 pendientes'})},
+  {t:'Minuto 5. La copia de seguridad al USB cifrado sigue cada 5 minutos', b:'Además, el portátil de respaldo recibe cada cambio en caliente. Hay tres copias: host, USB y respaldo.', who:'oper', scr:br('host',{nav:'health',page:'health',title:'Salud del sistema',live:'Sin energía · en UPS',liveOff:true,minute:2,ups:88,upsLeft:'39 min',backup:'hace 0 min',backups:[['10:36','OK · 48 MB','ok'],['10:31','OK · 48 MB','ok'],['10:26','OK · 47 MB','ok'],['10:21','OK · 47 MB','ok']]},HOSTURL)},
+  {t:'Minuto 15. La luz no vuelve. El supervisor promueve el portátil de respaldo', b:'Una decisión y un comando. El portátil tiene la base completa y batería propia de varias horas.', who:'sup', scr:br('host',{nav:'health',page:'health',title:'Salud del sistema',live:'Sin energía · en UPS',liveOff:true,minute:3,ups:62,upsLeft:'28 min',hostName:'Equipo de respaldo · Portátil',st:'Al día con el principal<br>Batería 94 % · 5 h',dialog:{title:'¿Convertir este equipo en el principal?',body:'Hazlo solo si el principal no responde o va a apagarse. Los scanners se reconectarán solos en menos de un minuto.',buttons:['Cancelar','Promover']}},HOSTURL)},
+  {t:'Minuto 16. El portátil es ahora el computador central. Los scanners se reconectan solos', b:'El panel es el mismo, con los mismos datos. El host original, cuando vuelva la luz, entra como respaldo.', who:'sys', scr:br('host',{nav:'health',page:'health',title:'Salud del sistema',live:'Principal desde 10:47',minute:3,ups:58,upsLeft:'26 min',upsTitle:'UPS · host original (ahora respaldo)',hostName:'Host principal · Portátil',st:'8 dispositivos conectados · 0 pendientes<br>Último backup hace 1 min',standby:['ok','Host original · al día'],toast:'Este equipo es ahora el principal. 8 scanners reconectados.'},HOSTURL)},
+  {t:'Minuto 45. La UPS se agota. Nada se perdió', b:'Escaneos perdidos: 0. Último backup: hace 2 minutos. El día siguió como si nada, y la auditoría lo puede demostrar.', who:'aud', scr:br('host',{nav:'health',page:'health',title:'Salud del sistema',live:'Principal desde 10:47',minute:4,ups:3,upsLeft:'1 min',upsTitle:'UPS · host original (ahora respaldo)',hostName:'Host principal · Portátil',st:'8 dispositivos conectados · 0 pendientes<br>Último backup hace 2 min',standby:['warn','Host original · apagándose'],backup:'hace 2 min'},HOSTURL)}
+ ], result:'45 minutos sin luz, una promoción en el minuto 15 y cero escaneos perdidos. Cada persona sabía qué hacer en cada minuto.'},
+
+{id:'L', color:'#64748B', title:'Credencial digital del público', sub:'Un QR que cambia cada minuto. El pantallazo enviado a un amigo da rojo.', frame:'browser',
+ steps:[
+  {t:'Laura compró entrada general y recibe el enlace a su credencial digital', b:'Solo el público general usa credencial digital. Competidores, jurado, VIP y staff llevan credencial física con foto.', who:'pub', scr:br('mail',{sel:1,subject:'Tu credencial digital está lista',to:'laura.gomez@correo.com',body:'<p>Hola, Laura.</p><p>Tu credencial digital para el <b>viernes 20 de noviembre</b> está lista. Ábrela desde este enlace cuando llegues al coliseo.</p><p><span class="btn-mock pri sm" style="display:inline-flex">Abrir mi credencial</span></p><p><b>El código cambia cada minuto: no sirve en pantallazo.</b> Si no tienes señal, igual funciona.</p>'},'correo.laura.com')},
+  {t:'En su celular, el QR cambia cada 60 segundos', b:'Cada código lleva una hora de vencimiento firmada. El celular genera el siguiente solo, aunque no tenga señal.', who:'pub', scr:ph('digital',{left:42})},
+  {t:'Le manda un pantallazo a un amigo que llega tarde', b:'El pantallazo es una foto de un código que vence en menos de un minuto.', who:'pub', scr:ph('chat',{})},
+  {t:'El amigo lo muestra en Puerta 1: rojo "Este código ya venció"', b:'El scanner lee la hora de vencimiento firmada y la compara con su reloj (tolera 5 minutos de diferencia). Venció hace 5 minutos.', who:'ctrl', scr:ph('result',{kind:'no',title:'No puede entrar',body:'Este código ya venció.',action:'Pide que actualice su credencial digital y vuelva a mostrarla.',zone:'Gradería · Puerta 1',time:'9:59',buttons:['Siguiente','Ingreso manual']})},
+  {t:'Laura llega con su celular: verde. Sin foto que comparar', b:'La entrada general no lleva foto: el QR rotativo y el anti-passback hacen el trabajo. Si Laura ya está dentro, su código no mete a nadie más.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Laura',person:P.laura,line:'Gradería · 10:07 · Puerta 1',body:'Credencial sin foto (General). No hay que comparar.',zone:'Gradería · Puerta 1',time:'10:07',buttons:['Siguiente']})}
+ ], result:'La entrada vive en el celular de su dueña y en ningún otro. Un pantallazo vale menos de un minuto, y después, nada.'},
+
+{id:'M', color:'#EA7A1C', title:'Ingreso manual con motivo', sub:'El QR está rayado. El control escribe el ID corto y deja constancia del porqué.', frame:'phone',
+ steps:[
+  {t:'El QR de Carlos Andrade (jurado) está rayado. El scanner no lo lee', b:'Tras unos segundos sin lectura, el scanner lo dice sin culpar a nadie y ofrece el camino alterno.', who:'ctrl', scr:ph('cam',{time:'8:48',person:P.carlos,damaged:true,error:true,foot:'Hoy: 61 ingresos · 0 pendientes'})},
+  {t:'El control toca "Ingreso manual" y escribe el ID corto', b:'El ID lleva un dígito de control: si se escribe mal una cifra, el scanner lo nota antes de buscar. Con el ID correcto, muestra el nombre.', who:'ctrl', scr:ph('manual',{time:'8:48',stage:'id',id:'TP-2026-00019-3',valid:true})},
+  {t:'Elige el motivo: "Código dañado"', b:'Sin motivo no hay ingreso manual. El motivo queda en el registro con hora, puerta y quién lo hizo.', who:'ctrl', scr:ph('manual',{time:'8:49',id:'TP-2026-00019-3',valid:true,motivo:'Código dañado'})},
+  {t:'Verde: "Adelante, Carlos · Ingreso manual registrado"', b:'Aplica las mismas reglas que un escaneo: zona, día, anulaciones y anti-passback. Solo cambió cómo se leyó la credencial.', who:'sys', scr:ph('result',{kind:'ok',title:'Adelante, Carlos',person:P.carlos,line:'Tatamis · 8:49 · Puerta 3',body:'Ingreso manual registrado · Código dañado.',action:'Pide a Carlos que pase por acreditación a reimprimir su credencial.',time:'8:49',buttons:['Siguiente']})},
+  {t:'El supervisor lo ve en la auditoría: quién, dónde, por qué', b:'Los ingresos manuales se cuentan aparte. Si un scanner lleva muchos en una hora, el panel avisa: puede ser un problema de cámara o algo peor.', who:'sup', scr:br('host',{nav:'audit',page:'audit',title:'Auditoría',verified:true,upto:'1.204',filter:'Ingresos manuales · hoy',rows:[['1.204','8:49','Ingreso manual · Tatamis · TP-2026-00019-3 · Carlos Andrade · Código dañado · Puerta 3 · Tablet B · PIN de Nadia C.','f30a…9e',true],['1.011','8:12','Ingreso manual · Gradería · TP-2026-00881-Q · Credencial sin imprimir todavía · Puerta 1','d7c1…42'],['0.976','8:03','Ingreso · Tatamis · TP-2026-00064-8 · María Ruiz','21be…77']]},HOSTURL)}
+ ], result:'Un QR dañado no detiene la fila ni abre un hueco: el ingreso manual pasa por las mismas reglas y queda registrado con su motivo.'},
+
+{id:'O', color:'#5B7A00', title:'Traer novedades desde la nube', sub:'El host en la sede se pone al día con la nube por hotspot. Si el internet se cae, las puertas ni se enteran.', frame:'browser',
+ steps:[
+  {t:'El computador central tiene internet por hotspot 4G. Se pone al día con la nube cada 5 minutos', b:'La nube guarda las inscripciones en línea; el host es la fuente de verdad en la sede. Las novedades bajan de la nube al host a intervalos fijos.', who:'sys', scr:br('host',{nav:'cred',page:'cloud',title:'Nube · novedades',live:'Nube conectada'},HOSTURL+'/nube')},
+  {t:'Acaban de aprobar inscripciones en línea. El Coordinador toca "Traer ahora"', b:'No hace falta esperar al siguiente ciclo. Traer ahora pide a la nube todo lo que cambió desde la última vez.', who:'coord', scr:br('host',{nav:'cred',page:'cloud',title:'Nube · novedades',live:'Nube conectada',ago:'0',toast:'Trayendo novedades desde la nube…',toastIcon:'…'},HOSTURL+'/nube')},
+  {t:'Resultado: 3 inscripciones nuevas, 1 actualizada; credenciales emitidas', b:'Las nuevas entran ya aprobadas y el host les emite credencial al momento. Están listas para imprimir y para que los scanners las reconozcan.', who:'sys', scr:br('host',{nav:'cred',page:'cloud',title:'Nube · novedades',live:'Nube conectada',ago:'0',n:'1.415',nsub:'+3 desde la nube',log:[['Inscripciones nuevas','3','ok'],['Inscripciones actualizadas','1','ok'],['Credenciales emitidas','3','ok'],['Scanners al día','8 de 8','ok']],rows:[{c:['9:41','Traer ahora · Coordinador','3 nuevas, 1 actualizada · 3 credenciales emitidas'],hl:true},{c:['9:36','Comprobación periódica','Sin cambios']},{c:['9:31','Comprobación periódica','Sin cambios']}],toast:'3 inscripciones nuevas, 1 actualizada. 3 credenciales emitidas.'},HOSTURL+'/nube')},
+  {t:'Se cae el internet del hotspot', b:'La nube deja de responder. El host lo anota y reintenta solo en 5 minutos. Nada de lo que pasa en las puertas depende de esto.', who:'sys', scr:br('host',{nav:'cred',page:'cloud',title:'Nube · novedades',live:'Sin conexión a la nube',liveOff:true,off:true,ago:'2',n:'1.415',rows:[{c:['9:46','Comprobación periódica','Sin conexión · se reintenta en 5 min'],hl:true},{c:['9:41','Traer ahora · Coordinador','3 nuevas, 1 actualizada · 3 credenciales emitidas']},{c:['9:36','Comprobación periódica','Sin cambios']}]},HOSTURL+'/nube')},
+  {t:'Las puertas siguen igual: verde, sin saber nada de la nube', b:'Los scanners hablan con el host por la red local, no con internet. La nube solo trae novedades; nunca es necesaria para validar.', who:'ctrl', scr:ph('result',{kind:'ok',title:'Adelante, Juan',person:P.juan,line:'Tatamis · 9:47 · Puerta 3',body:'Compara la foto con la persona.',time:'9:47',buttons:['Siguiente','No es la persona']})}
+ ], result:'El host se pone al día con la nube solo (cada 5 min) o cuando el Coordinador lo pide. Si el internet se cae, el host reintenta y las puertas no se enteran.'},
+
+{id:'N', color:'#111827', title:'Cierre del día', sub:'Reporte por puerta, cadena de auditoría verificada, export con contraseña y purga a 90 días.', frame:'phone',
+ steps:[
+  {t:'Termina la jornada. Cada control cierra su turno', b:'El scanner resume el día y avisa si quedó algo por enviar. Con 0 pendientes, se puede entregar.', who:'ctrl', scr:ph('shift',{time:'18:12'})},
+  {t:'El Coordinador abre Reportes: ingresos por puerta y por zona', b:'2.004 ingresos, 15 rechazos, 4 manuales, 0 pendientes. Todo salió de los escaneos; nadie contó a mano.', who:'coord', scr:br('host',{nav:'rep',page:'rep',title:'Reportes · viernes 20'},HOSTURL)},
+  {t:'El auditor verifica el registro: íntegro hasta el número 5.812', b:'Cada registro guarda el hash del anterior. Si alguien cambiara uno, la cadena se rompería ahí y el panel lo diría.', who:'aud', scr:br('host',{nav:'audit',page:'audit',title:'Auditoría',verified:true,upto:'5.812'},HOSTURL)},
+  {t:'Exporta el reporte con contraseña', b:'El archivo lleva datos personales. No sale sin contraseña, y la descarga queda registrada en la auditoría.', who:'aud', scr:br('host',{nav:'audit',page:'audit',title:'Auditoría',verified:true,upto:'5.812',dialog:{title:'Descargar con contraseña',body:'Este archivo contiene datos personales. Ponle una contraseña antes de descargarlo.',input:'••••••••••',buttons:['Cancelar','Descargar']}},HOSTURL)},
+  {t:'Recordatorio: los datos personales se borran a los 90 días', b:'El 20 de febrero de 2027 se purgan nombre, documento, foto y fecha de nacimiento. Los conteos del reporte se conservan.', who:'admin', scr:br('host',{nav:'rep',page:'rep',title:'Reportes · viernes 20',purge:true},HOSTURL)}
+ ], result:'El día cerró con cifras que salieron de los escaneos, un registro que se puede verificar y un plan claro para borrar los datos personales a tiempo.'},
+
+{id:'P', color:'#5B7A00', title:'Coordinación por voz', sub:'Fila larga en Puerta 1. El supervisor habla por la radio del scanner, manda una orden y recibe el acuse. Si cae el host, la voz sigue.', frame:'phone',
+ steps:[
+  {t:'El supervisor ve en el panel una fila larga en Puerta 1', b:'Tatami Radio va dentro del scanner y del panel: voz por la Wi-Fi del staff, sin internet. El panel › Radio muestra los 4 canales, quién está en cada uno y quién habla.', who:'sup', scr:br('host',{nav:'radio',page:'radio',title:'Radio · En vivo',live:'Radio: 11 equipos conectados',note:'Fila en Puerta 1: 38 personas esperando · ritmo 6 /min. Puerta 2 está libre.',noteKind:'warn',noteIcon:'!',rows:[['10:31','Puertas','Supervisor habló 6,0 s'],['10:29','Puertas','Puerta 1 habló 4,2 s'],['9:58','Acreditación','Mesa 1 habló 11,4 s']]},HOSTURL+'/radio')},
+  {t:'Mantiene pulsado el botón en el canal Puertas: "Puerta 2, abre ya"', b:'Un solo hablante por canal: mientras el supervisor tiene la palabra, nadie más habla en Puertas. El audio va directo entre equipos; el host solo arbitra quién habla.', who:'sup', scr:ph('radio',{time:'10:38',me:'Supervisor',state:'talk',cap:'Celular del supervisor'})},
+  {t:'El control de Puerta 2 lo oye y responde en cuanto se libera el canal', b:'En Puerta 2 el botón se pone ámbar: "Ocupado · Supervisor está hablando · sigue pulsando y te toca". Si sigue pulsando entra en cola y su micrófono se abre solo cuando el supervisor suelta. No se graba audio; solo queda quién habló y cuánto.', who:'ctrl', scr:ph('radio',{time:'10:38',me:'Puerta 2',state:'busy',talker:'Supervisor',queued:true,note:'Estás en la cola. Si sueltas, sales de ella.',noteIcon:'1'})},
+  {t:'El supervisor envía la orden "Abrir Puerta 2" desde el panel', b:'Las órdenes son predefinidas: no se dictan, se eligen del catálogo. Llegan al scanner, suenan, vibran y se leen en voz alta. Así queda constancia aunque la voz se haya oído mal.', who:'sup', scr:br('host',{nav:'radio',page:'radio',title:'Radio · En vivo',live:'Radio: 11 equipos conectados',orderTo:'Puerta 2 · Celular C',order:'Abrir Puerta {n}',sent:true,pending:1,pendingSub:'Abrir Puerta 2 · hace 3 s',acks:[['wait','Abrir Puerta 2 → Puerta 2','sin acuse']],toast:'Orden enviada: Abrir Puerta 2',toastIcon:'→',rows:[['10:39:10','Puertas','Orden "Abrir Puerta 2" de Supervisor → Puerta 2','<span class="tag warn">sin acuse</span>',true],['10:38:41','Puertas','Puerta 2 habló 3,1 s'],['10:38:20','Puertas','Supervisor habló 5,4 s']]},HOSTURL+'/radio')},
+  {t:'Puerta 2 recibe la orden, la oye en voz alta y toca Recibido', b:'El scanner suena, vibra y lee "Orden: Abrir Puerta 2". Un solo botón. Si fuera por el canal Emergencia, la pantalla sería roja, sonaría la sirena de dos tonos e interrumpiría cualquier otra conversación.', who:'ctrl', scr:ph('order',{time:'10:39',me:'Puerta 2',channel:'Puertas',title:'Abrir Puerta 2',from:'Supervisor',hl:true})},
+  {t:'El panel muestra el acuse: Puerta 2 recibió 10:39', b:'Orden y acuse quedan en el historial con hora y quién. El supervisor no tiene que preguntar "¿me copiaste?".', who:'sys', scr:br('host',{nav:'radio',page:'radio',title:'Radio · En vivo',live:'Radio: 11 equipos conectados',orderTo:'Puerta 2 · Celular C',order:'Abrir Puerta {n}',sent:true,pending:0,acks:[['','Abrir Puerta 2 → Puerta 2','Puerta 2 recibió 10:39']],toast:'Puerta 2 recibió 10:39',rows:[['10:39:19','Puertas','Puerta 2 confirmó "Abrir Puerta 2"','<span class="tag ok">Puerta 2 recibió 10:39</span>',true],['10:39:10','Puertas','Orden "Abrir Puerta 2" de Supervisor → Puerta 2','<span class="tag ok">Puerta 2 recibió 10:39</span>'],['10:38:41','Puertas','Puerta 2 habló 3,1 s']]},HOSTURL+'/radio')},
+  {t:'Se cae el host. Los que ya hablaban se siguen oyendo', b:'El host solo presta la señalización (quién entra, quién pide la palabra). El audio va directo entre equipos, en malla, así que las conversaciones abiertas continúan sin arbitraje: el PTT pasa a "Hablando (sin host)". Lo que no se puede hasta que vuelva: entrar a un canal nuevo o enviar órdenes. Para eso están las radios físicas de respaldo.', who:'sys', scr:br('host',{nav:'radio',page:'radio',title:'Radio · En vivo',live:'Radio sin señalización · los equipos conectados siguen hablando',liveOff:true,off:true,talker:'Puerta 1',talkCh:'Puertas',pending:0,note:'Radio sin señalización · los equipos conectados siguen hablando. Sin órdenes ni canales nuevos hasta que vuelva el host; usa las radios físicas.',noteKind:'lime',noteIcon:'◉',acks:[['','Abrir Puerta 2 → Puerta 2','Puerta 2 recibió 10:39']],rows:[['10:44:02','—','Host sin señalización · reconectando'],['10:39:19','Puertas','Puerta 2 confirmó "Abrir Puerta 2"','<span class="tag ok">Puerta 2 recibió 10:39</span>'],['10:39:10','Puertas','Orden "Abrir Puerta 2" de Supervisor → Puerta 2','<span class="tag ok">Puerta 2 recibió 10:39</span>']]},HOSTURL+'/radio')}
+ ], result:'La fila se movió con una frase y una orden confirmada, sin walkies prestados ni gritos. Y cuando el host cayó, la voz que ya estaba en el aire no se cortó.'}
+];
+
+// ---------- cobertura ----------
+var COV = [
+  ['Inscripción por club con categoría calculada por edad','Formulario en la nube; edad al primer día del evento; menores con acudiente','A'],
+  ['Cupos por evento, rol y categoría','Cupo lleno → lista de espera → aviso por correo al liberar','B'],
+  ['Competidores desde SportData','Importación CSV con mapeo guiado y sin duplicados; repetible','C'],
+  ['Credencial física con QR firmado','Emisión en lote, PDF 100 × 150 mm, entrega escaneada','D'],
+  ['Scanner en cualquier celular','Enrolamiento por QR, PIN, zona','E'],
+  ['Validación sin red en < 300 ms','Firma, zona, día y anulaciones en el celular','F · J'],
+  ['Credencial prestada o reutilizada','Anti-passback por zona y comparación de foto','G'],
+  ['QR fotocopiado','Alerta de duplicado entre puertas, anulación y re-emisión con versión','H'],
+  ['Credencial perdida','Anular y re-emitir; la anulación llega hasta el scanner sin red','I'],
+  ['Caída de Wi-Fi o del host','El scanner sigue solo; pendientes se envían al volver','J'],
+  ['Corte de energía','UPS 45 min, backup cada 5 min, equipo de respaldo','K'],
+  ['Entrada del público en el celular','QR rotativo cada 60 s; el pantallazo vence','L'],
+  ['QR ilegible','Ingreso manual con ID corto y motivo, auditado','M'],
+  ['Acompañantes de un participante','Lista con límite configurable (o sin límite); credencial digital de rol Acompañante para Gradería','A'],
+  ['Cierre, auditoría y datos personales','Reporte por puerta, cadena de hashes, export con contraseña, purga a 90 días','N'],
+  ['Novedades de la nube al host durante el evento','Actualización periódica cada 5 min + "Traer ahora"; si cae internet, reintenta y las puertas siguen','O'],
+  ['Voz y órdenes entre equipos','Tatami Radio: voz por la Wi-Fi del staff por canales, un hablante a la vez con cola, órdenes predefinidas con acuse "Recibido"; sin internet, y la voz sigue si cae el host','P']
+];
+
+function scrollToDemo(){ var nav=document.querySelector('.nav'); var top=$('demo').getBoundingClientRect().top+window.scrollY-((nav&&nav.offsetHeight)||0); window.scrollTo({top:Math.max(0,top),behavior:'smooth'}); }
+// ---------- estado del reproductor ----------
+var cur = {s:0, i:0}, visited = {}, auto = null, present = false;
+var TOTAL = SCEN.reduce(function(a,s){ return a+s.steps.length; }, 0);
+var $ = function(id){ return document.getElementById(id); };
+function key(s,i){ return SCEN[s].id+':'+i; }
+function scenDone(s){ for (var i=0;i<SCEN[s].steps.length;i++) if(!visited[key(s,i)]) return false; return true; }
+
+// tarjetas
+var grid = $('scen-grid');
+SCEN.forEach(function(sc, idx){
+  var b = document.createElement('button'); b.type='button'; b.className='scen'; b.setAttribute('role','listitem'); b.style.setProperty('--sc', sc.color); b.dataset.idx = idx;
+  var fr = sc.frame==='phone' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>Scanner' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/></svg>Panel';
+  b.innerHTML = '<div class="top"><span class="letter">'+sc.id+'</span><b>'+sc.title+'</b><span class="fr">'+fr+'</span></div><small>'+sc.sub+'</small><div class="meta"><span>'+sc.steps.length+' pasos</span><span class="dots">'+sc.steps.map(function(){return '<i></i>';}).join('')+'</span></div><span class="done" aria-hidden="true">✓</span>';
+  b.addEventListener('click', function(){ go(idx, 0); scrollToDemo(); });
+  grid.appendChild(b);
+});
+// tabla de cobertura
+$('cov-table').querySelector('tbody').innerHTML = COV.map(function(r){
+  var ids = r[2].split(' · ');
+  return '<tr><td><span class="ok"><i>✓</i>'+r[0]+'</span></td><td class="muted">'+r[1]+'</td><td>'+ids.map(function(id){ return '<button type="button" data-go="'+id+'">'+id+'</button>'; }).join('')+'</td></tr>';
+}).join('');
+$('cov-table').addEventListener('click', function(e){
+  var t = e.target.closest('button[data-go]'); if (!t) return;
+  var idx = SCEN.findIndex(function(s){ return s.id===t.dataset.go; }); if (idx<0) return;
+  go(idx,0); scrollToDemo();
+});
+
+// ---------- render de pantalla ----------
+function renderScreen(scr){
+  var stage = $('stage'), fp = $('fit-phone'), fb = $('fit-browser');
+  if (scr.type==='phone'){
+    fb.hidden = true; fp.hidden = false;
+    var screen = $('ph-screen'), app = $('ph-app');
+    screen.className = 'screen' + (scr.view==='result' ? ' '+scr.s.kind : scr.view==='order' ? (scr.s.channel==='Emergencia'?' emerg':' order') : '');
+    $('ph-time').textContent = scr.s.time || '9:41';
+    app.innerHTML = PH[scr.view](scr.s);
+    app.classList.remove('swap'); void app.offsetWidth; app.classList.add('swap');
+    $('stage-cap').innerHTML = '<i></i>' + (scr.s.cap || (scr.view==='digital'||scr.view==='chat' ? 'Celular del público' : 'Scanner · celular en la puerta'));
+  } else {
+    fp.hidden = true; fb.hidden = false;
+    $('br-url').textContent = scr.url || CLOUD;
+    var body = $('br-body');
+    body.innerHTML = '<div class="view swap">'+BR[scr.view](scr.s)+'</div>';
+    $('stage-cap').innerHTML = '<i></i>' + (scr.view==='host'||scr.view==='print' ? 'Computador central · panel en la sede' : scr.view==='mail' ? 'Correo' : 'Inscripción en línea');
+  }
+  fitAll();
+}
+function fitAll(){
+  document.querySelectorAll('.stage .fit').forEach(function(box){
+    if (box.hidden) return;
+    var w = parseFloat(box.dataset.w), h = parseFloat(box.dataset.h);
+    var child = box.firstElementChild; if (!child) return;
+    var avail = box.clientWidth || w, s = Math.min(1, avail / w);
+    if (present && box.classList.contains('ph')){
+      var maxH = $('stage').clientHeight - 44; if (maxH > 200) s = Math.min(s, maxH / h);
+    }
+    child.style.transform = 'scale('+s+')'; box.style.height = (h*s)+'px';
+  });
+}
+
+// ---------- paso ----------
+function go(s, i, opts){
+  opts = opts||{};
+  cur = {s:s, i:i}; var sc = SCEN[s], st = sc.steps[i];
+  visited[key(s,i)] = true;
+  document.documentElement.style.setProperty('--sc', sc.color);
+  $('ph-eyebrow').textContent = 'Escenario '+sc.id+' · '+(s+1)+' de '+SCEN.length;
+  $('ph-letter').textContent = sc.id; $('ph-title').textContent = sc.title; $('ph-sub').textContent = sc.sub;
+  $('st-num').textContent = i+1; $('st-of').textContent = 'de '+sc.steps.length;
+  $('st-bar').style.width = ((i+1)/sc.steps.length*100)+'%';
+  $('st-title').textContent = st.t; $('st-behind').textContent = st.b;
+  var w = WHO[st.who]; var who = $('st-who'); who.innerHTML = '<i></i>'+w[0]; who.style.setProperty('--wc','var('+w[1]+')');
+  var card = $('step-card'); card.classList.remove('step-swap'); void card.offsetWidth; card.classList.add('step-swap');
+  renderScreen(st.scr);
+  // resultado al final
+  var last = i===sc.steps.length-1;
+  $('result-slot').innerHTML = last ? '<div class="result-card"><div class="lbl"><i>✓</i>Resultado</div><p>'+sc.result+'</p>'+(s<SCEN.length-1?'<button class="btn btn-primary" type="button" id="btn-go-next">Siguiente escenario: '+SCEN[s+1].id+' · '+SCEN[s+1].title+'</button>':'<button class="btn btn-secondary" type="button" id="btn-go-next">Volver al primer escenario</button>')+'</div>' : '';
+  var gn = $('btn-go-next'); if (gn) gn.addEventListener('click', function(){ go((s+1)%SCEN.length, 0); });
+  $('btn-prev').disabled = (s===0 && i===0);
+  $('btn-next').textContent = ''; $('btn-next').innerHTML = (last ? (s<SCEN.length-1?'Siguiente escenario':'Terminar') : 'Siguiente')+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>';
+  // lista de pasos
+  $('step-list').innerHTML = sc.steps.map(function(_,k){ return '<button type="button" data-i="'+k+'" aria-current="'+(k===i)+'" class="'+(visited[key(s,k)]?'v':'')+'" aria-label="Paso '+(k+1)+'">'+(k+1)+'</button>'; }).join('');
+  // tarjetas + progreso global
+  var n=0; for (var k in visited) n++;
+  $('gp-bar').style.width = (n/TOTAL*100)+'%'; $('gp-count').textContent = Math.round(n/TOTAL*100)+' % · '+n+' de '+TOTAL+' pasos';
+  $('gp-label').textContent = sc.id+' · '+sc.title+' · paso '+(i+1)+' de '+sc.steps.length;
+  Array.prototype.forEach.call(grid.children, function(b, idx){
+    b.setAttribute('aria-current', idx===s ? 'true' : 'false'); b.classList.toggle('complete', scenDone(idx));
+    var dots = b.querySelectorAll('.dots i'); dots.forEach(function(d,k){ d.classList.toggle('v', !!visited[key(idx,k)]); });
+  });
+  if (!opts.keepHash){ try { history.replaceState(null,'','#'+sc.id); } catch(e){} }
+  if (last && auto) stopAuto();
+}
+function next(){ var sc=SCEN[cur.s]; if (cur.i<sc.steps.length-1) go(cur.s, cur.i+1); else if (cur.s<SCEN.length-1) go(cur.s+1, 0); else go(0,0); }
+function prev(){ if (cur.i>0) go(cur.s, cur.i-1); else if (cur.s>0) go(cur.s-1, SCEN[cur.s-1].steps.length-1); }
+$('btn-next').addEventListener('click', next);
+$('btn-prev').addEventListener('click', prev);
+$('btn-next-scen').addEventListener('click', function(){ go((cur.s+1)%SCEN.length, 0); });
+$('btn-prev-scen').addEventListener('click', function(){ go((cur.s-1+SCEN.length)%SCEN.length, 0); });
+$('step-list').addEventListener('click', function(e){ var t=e.target.closest('button[data-i]'); if (t) go(cur.s, parseInt(t.dataset.i,10)); });
+
+// auto
+function startAuto(){
+  auto = setInterval(function(){ var sc=SCEN[cur.s]; if (cur.i<sc.steps.length-1) go(cur.s, cur.i+1); else stopAuto(); }, 3000);
+  $('btn-auto').setAttribute('aria-pressed','true'); $('auto-txt').textContent='Pausar';
+  var ab=$('autobar'); ab.classList.add('on'); restartBar();
+}
+function restartBar(){ var ab=$('autobar'), i=ab.firstElementChild; i.style.animation='none'; void i.offsetWidth; i.style.animation=''; }
+function stopAuto(){ clearInterval(auto); auto=null; $('btn-auto').setAttribute('aria-pressed','false'); $('auto-txt').textContent='Reproducir automático'; $('autobar').classList.remove('on'); }
+$('btn-auto').addEventListener('click', function(){ if (auto) stopAuto(); else { if (cur.i===SCEN[cur.s].steps.length-1) go(cur.s,0); startAuto(); } });
+var _go = go; go = function(s,i,o){ _go(s,i,o); if (auto) restartBar(); };
+
+// teclado
+document.addEventListener('keydown', function(e){
+  if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+  if (e.key==='ArrowRight'){ e.preventDefault(); next(); }
+  else if (e.key==='ArrowLeft'){ e.preventDefault(); prev(); }
+  else if (e.key==='Escape' && present){ setPresent(false); }
+  else if (e.key===' ' && present){ e.preventDefault(); if (auto) stopAuto(); else startAuto(); }
+});
+
+// presentación
+function setPresent(on){
+  present = on; document.documentElement.classList.toggle('present', on);
+  $('present-txt').textContent = on ? 'Salir' : 'Presentación';
+  if (on){ try { var p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(function(){}); } catch(e){} }
+  else { try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function(){}); } catch(e){} }
+  setTimeout(fitAll, 30); setTimeout(fitAll, 300);
+}
+$('btn-present').addEventListener('click', function(){ setPresent(!present); });
+$('btn-present-top').addEventListener('click', function(){ scrollToDemo(); setPresent(true); });
+document.addEventListener('fullscreenchange', function(){ if (!document.fullscreenElement && present) setPresent(false); });
+
+window.addEventListener('resize', fitAll);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+setTimeout(fitAll, 400);
+
+// arranque: #A…#P abre ese escenario
+var h = (location.hash||'').replace('#','').toUpperCase();
+var startIdx = SCEN.findIndex(function(s){ return s.id===h; });
+go(startIdx>=0?startIdx:0, 0, {keepHash:true});
+
+// API para pruebas automáticas
+window.TP_DEMO = {go:function(s,i){ go(s,i); }, next:next, prev:prev, scen:SCEN.map(function(s){ return {id:s.id, steps:s.steps.length}; }), total:TOTAL, present:setPresent};
+})();
+</script>
+</body>
+</html>

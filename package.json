@@ -1,0 +1,57 @@
+{
+  "name": "tatami-pass",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Tatami Pass — acreditación y control de accesos del Campeonato Nacional de Taekwondo ITF 2026",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "e2e",
+    "docs-site"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "npm run build -w packages/core && npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "simulate": "tsx scripts/simulate.ts",
+    "seed": "npm run seed -w apps/host",
+    "dev:host": "npm run dev -w apps/host",
+    "dev:scanner": "npm run dev -w apps/scanner",
+    "dev:admin": "npm run dev -w apps/host-admin",
+    "build:admin": "npm run build -w apps/host-admin",
+    "promote": "npm run promote -w apps/host",
+    "restore": "npm run restore -w apps/host --",
+    "purge": "npm run purge -w apps/host --",
+    "dev:registration": "npm run dev -w apps/registration",
+    "print:sample": "npm run print:sample -w apps/print",
+    "prepare": "npm run build -w packages/core",
+    "e2e": "npm run e2e -w e2e",
+    "e2e:smoke": "npm run e2e:smoke -w e2e",
+    "e2e:perf": "npm run e2e:perf -w e2e",
+    "e2e:ui": "npm run e2e:ui -w e2e",
+    "e2e:report": "npm run e2e:report -w e2e",
+    "preflight": "bash scripts/preflight.sh",
+    "docs:gen": "tsx scripts/docs/gen-api.ts && tsx scripts/docs/gen-config.ts",
+    "docs:dev": "npm run docs:dev -w docs-site",
+    "docs:build": "npm run docs:gen && npm run docs:build -w docs-site",
+    "docs:preview": "npm run docs:preview -w docs-site",
+    "docs:links": "tsx scripts/agent/verify-docs-links.ts",
+    "check": "bash scripts/agent/check-all.sh"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@types/node": "^22.20.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "zod": "^3.25.76"
+  },
+  "overrides": {
+    "postcss": "^8.5.29",
+    "tinypool": "^2.2.0",
+    "sharp": "^0.35.5",
+    "sprintf-js": "^1.1.3"
+  }
+}

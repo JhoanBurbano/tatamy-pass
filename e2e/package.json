@@ -1,0 +1,24 @@
+{
+  "name": "@tatami/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas end-to-end de Tatami Pass (Playwright): nube + host (+ panel) + scanner",
+  "scripts": {
+    "e2e:build": "node scripts/build.mjs",
+    "e2e": "npm run e2e:build && playwright test --project full",
+    "e2e:smoke": "npm run e2e:build && playwright test --project smoke",
+    "e2e:perf": "npm run e2e:build -- --no-registration && playwright test --project perf",
+    "e2e:only": "playwright test --project full",
+    "e2e:ui": "playwright test --project full --ui",
+    "e2e:report": "playwright show-report playwright-report",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@tatami/core": "*"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.56.1"
+  }
+}

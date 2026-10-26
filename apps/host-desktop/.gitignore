@@ -1,0 +1,7 @@
+release/
+resources/caddy/
+resources/native/
+resources/icons/icon.icns
+resources/icons/icon.ico
+resources/icons/icon-1024.png
+*.tsbuildinfo

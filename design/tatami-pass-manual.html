@@ -1,0 +1,1667 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manual Tatami Pass</title>
+<meta name="description" content="Manual integral de Tatami Pass: instalar, configurar, entender, operar y probar el sistema de acreditación del Campeonato Nacional ITF 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* Layout: manual de dos columnas (índice fijo a la izquierda en escritorio, cajón en móvil); cada sección = pasos numerados + "salió bien" + "si algo falla"; bloques técnicos marcados con chip y filtrables por público. Misma familia visual que tatami-pass-design.html. */
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#EEF2F8; --fg:#0F172A; --muted:#5B6B82; --line:#DDE3EC;
+  --blue:#1C4FD1; --blue-ink:#133A9C; --blue-soft:#E4EBFB;
+  --red:#E0323B; --red-soft:#FCE6E7; --green:#16A34A; --green-soft:#DEF7E6;
+  --amber:#D97706; --amber-soft:#FCEFD6; --lime:#C8F560; --lime-ink:#5B7A00;
+  --tech:#6D28D9; --tech-soft:#EEE8FB;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 12px 32px -12px rgba(28,79,209,.18);
+  --font-display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:14px; --t:180ms;
+  --r-GEN:#64748B; --r-COMP:#1C4FD1; --r-COACH:#0E7490; --r-JUR:#0F172A; --r-VIP:#B45309; --r-SPON:#7C3AED; --r-PRESS:#DB2777; --r-MED:#16A34A; --r-STAFF:#E0323B; --r-ACOMP:#6B7F99;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --tech:#B49CF5; --tech-soft:#2A2246;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --r-JUR:#CBD5E1;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --tech:#B49CF5; --tech-soft:#2A2246;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --r-JUR:#CBD5E1;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:84px}
+@media (max-width:999px){html{scroll-padding-top:176px}section.sec,article.sub{scroll-margin-top:176px!important}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.45rem,2.6vw,1.9rem);font-weight:700;letter-spacing:-.015em}
+h3{font-size:1.12rem;font-weight:700}
+h4{font-size:.98rem;font-weight:700}
+p{margin:0}
+a{color:var(--blue)}
+code,.mono,kbd{font-family:var(--font-mono);font-size:.86em}
+code{background:var(--surface-2);padding:1px 6px;border-radius:6px;border:1px solid var(--line);overflow-wrap:anywhere}
+pre{margin:0;background:#0F172A;color:#E2E8F0;border-radius:12px;padding:14px 16px;overflow-x:auto;font-family:var(--font-mono);font-size:.8rem;line-height:1.6}
+pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* ===== barra superior ===== */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .in{display:flex;align-items:center;gap:10px;min-height:64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:-.01em;white-space:nowrap;text-decoration:none;color:var(--fg)}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#4C7DF5);position:relative;overflow:hidden;box-shadow:0 4px 10px -4px rgba(28,79,209,.6);flex:none}
+.brand .mark::after{content:"";position:absolute;inset:-4px;background:linear-gradient(115deg,transparent 46%,var(--lime) 46%,var(--lime) 60%,transparent 60%)}
+.brand small{font-weight:600;color:var(--muted);font-size:.8rem;margin-left:2px}
+.search{flex:1 1 220px;min-width:0;position:relative}
+.search input{width:100%;height:42px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font:500 .92rem var(--font-body);padding:0 40px 0 38px}
+.search input:focus{border-color:var(--blue)}
+.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);height:30px;width:30px;border-radius:8px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:1.1rem}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{height:34px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:var(--muted);font:600 .82rem var(--font-body);cursor:pointer;white-space:nowrap;transition:background var(--t),color var(--t)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--blue);box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 .86rem var(--font-body);cursor:pointer;text-decoration:none;transition:border-color var(--t),color var(--t)}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.menu{display:none}
+@media (max-width:999px){.btn.menu{display:inline-flex}}
+
+/* ===== layout ===== */
+.page{display:grid;grid-template-columns:272px minmax(0,1fr);gap:0;max-width:1320px;margin:0 auto}
+@media (max-width:999px){.page{grid-template-columns:minmax(0,1fr)}}
+.side{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));height:calc(100vh - 64px - env(safe-area-inset-top,0px));overflow-y:auto;padding:22px 12px 40px max(16px,env(safe-area-inset-left,0px));border-right:1px solid var(--line)}
+.side .lbl{font-family:var(--font-display);font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 10px;margin-bottom:8px}
+.side ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.side ol ol{margin:2px 0 6px 0;padding-left:14px}
+.side a{display:flex;gap:8px;align-items:baseline;color:var(--fg);text-decoration:none;font-size:.88rem;font-weight:600;padding:7px 10px;border-radius:10px;transition:background var(--t),color var(--t)}
+.side ol ol a{font-weight:500;font-size:.82rem;color:var(--muted);padding:5px 10px}
+.side a:hover,.side a.active{background:var(--blue-soft);color:var(--blue)}
+.side a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);min-width:1.6em}
+.side a.active .n{color:var(--blue)}
+@media (max-width:999px){
+  .side{position:fixed;inset:0;top:0;height:100%;z-index:70;background:var(--surface);transform:translateX(-100%);transition:transform 220ms ease;padding-top:calc(16px + env(safe-area-inset-top,0px));width:min(320px,88vw);border-right:1px solid var(--line);box-shadow:var(--shadow)}
+  .side.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:65}
+}
+.side .close{display:none;margin:0 0 12px auto}
+@media (max-width:999px){.side .close{display:inline-flex}}
+.main{min-width:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 80px}
+@media (min-width:1000px){.main{padding-left:40px;padding-right:max(24px,env(safe-area-inset-right,0px))}}
+.content{max-width:860px}
+
+/* ===== portada ===== */
+.hero{position:relative;overflow:hidden;padding-block:40px 28px;margin-inline:-16px;padding-inline:16px;background:
+  radial-gradient(700px 340px at 8% -10%,color-mix(in srgb,var(--blue) 16%,transparent),transparent 60%),
+  radial-gradient(600px 300px at 95% 10%,color-mix(in srgb,var(--lime) 30%,transparent),transparent 60%),var(--bg)}
+@media (min-width:1000px){.hero{margin-inline:-40px -24px;padding-inline:40px 24px}}
+.hero::before{content:"";position:absolute;right:-30%;top:-40%;width:70%;height:200%;background:linear-gradient(115deg,transparent 48%,color-mix(in srgb,var(--blue) 9%,transparent) 48%,color-mix(in srgb,var(--blue) 9%,transparent) 52%,transparent 52%,transparent 58%,color-mix(in srgb,var(--red) 8%,transparent) 58%,color-mix(in srgb,var(--red) 8%,transparent) 61%,transparent 61%);pointer-events:none}
+.hero>*{position:relative}
+.eyebrow{font-family:var(--font-display);font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.lead{color:var(--muted);max-width:62ch;font-size:1.05rem;margin-top:10px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:22px;max-width:760px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);min-width:0}
+.fact b{font-family:var(--font-display);display:block;font-size:1rem}
+.fact span{color:var(--muted);font-size:.82rem}
+.belt{height:10px;background:repeating-linear-gradient(-55deg,var(--blue) 0 28px,var(--lime) 28px 36px,var(--red) 36px 64px,var(--surface) 64px 72px);opacity:.9;border-radius:3px;margin-block:8px 0}
+.aud-note{margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.86rem;color:var(--muted)}
+.aud-note b{color:var(--fg)}
+
+/* ===== secciones ===== */
+section.sec{padding-block:44px 8px;border-top:1px solid var(--line);scroll-margin-top:84px}
+section.sec:first-of-type{border-top:0}
+.sec-head{display:grid;gap:8px;margin-bottom:22px}
+.sec-head .num{font-family:var(--font-mono);color:var(--blue);font-weight:700;font-size:.8rem;letter-spacing:.08em}
+article.sub{padding-block:18px 26px;scroll-margin-top:84px}
+article.sub+article.sub{border-top:1px dashed var(--line)}
+article.sub h3{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+article.sub h3 .n{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--rc,var(--blue));white-space:nowrap;font-family:var(--font-body)}
+.chip.light{color:#0F172A}
+.chip.tech{background:var(--tech-soft);color:var(--tech);border:1px solid color-mix(in srgb,var(--tech) 35%,transparent)}
+.chip.org{background:var(--green-soft);color:var(--green)}
+.chip.time{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);text-transform:none;letter-spacing:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.who{font-size:.84rem;color:var(--muted);margin-bottom:12px}
+.who b{color:var(--fg)}
+
+/* pasos */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:st}
+ol.steps>li{counter-increment:st;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start}
+ol.steps>li::before{content:counter(st);width:30px;height:30px;border-radius:9px;background:var(--blue-soft);color:var(--blue);font:700 .82rem var(--font-display);display:grid;place-items:center}
+ol.steps>li>div{min-width:0;padding-top:3px}
+ol.steps pre{margin-top:8px}
+ol.steps ul{margin:6px 0 0 0;padding-left:18px}
+.outcome{display:grid;gap:10px;margin-top:16px}
+@media (min-width:720px){.outcome{grid-template-columns:1fr 1fr}}
+.box{border-radius:12px;padding:12px 14px;font-size:.9rem;border:1px solid var(--line);background:var(--surface);min-width:0}
+.box h4{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.84rem}
+.box.ok{border-color:color-mix(in srgb,var(--green) 40%,transparent);background:color-mix(in srgb,var(--green-soft) 60%,var(--surface))}
+.box.ok h4{color:var(--green)}
+.box.fail{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:color-mix(in srgb,var(--amber-soft) 60%,var(--surface))}
+.box.fail h4{color:var(--amber)}
+.box ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.note{border-left:4px solid var(--blue);background:var(--blue-soft);padding:10px 14px;border-radius:0 10px 10px 0;font-size:.9rem;margin-block:12px}
+.note.warn{border-color:var(--red);background:var(--red-soft)}
+.note.lime{border-color:var(--lime-ink);background:color-mix(in srgb,var(--lime) 22%,var(--surface))}
+
+/* tablas */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-block:12px}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--font-display);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums;text-align:right}
+.tbl.compact table{min-width:0}
+
+/* tarjetas de nivel y de rol */
+.grid2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-block:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;min-width:0}
+.card h4{margin-bottom:6px}
+.card p{font-size:.88rem;color:var(--muted)}
+.lvl{border-top:5px solid var(--lc,var(--blue))}
+
+/* diagramas */
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-block:14px;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;max-width:100%;font-family:var(--font-body)}
+.fig figcaption{font-size:.82rem;color:var(--muted);margin-top:8px}
+.qr-demo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;margin-block:12px}
+@media (max-width:520px){.qr-demo{grid-template-columns:1fr}}
+.qr-demo .qr{width:140px;height:140px;background:#fff;padding:8px;border-radius:10px;border:1px solid var(--line)}
+.qr-demo .qr img,.qr-demo .qr svg{width:100%;height:100%;display:block}
+.token{font-family:var(--font-mono);font-size:.74rem;line-height:1.6;background:var(--surface-2);padding:10px 12px;border-radius:10px;word-break:break-all;border:1px solid var(--line)}
+.token i{font-style:normal;color:var(--blue)}
+.token u{text-decoration:none;color:var(--muted)}
+
+/* cronograma */
+.timeline{display:grid;gap:0;margin-block:12px;border-left:2px solid var(--line);padding-left:16px}
+.timeline>div{position:relative;padding:8px 0 14px}
+.timeline>div::before{content:"";position:absolute;left:-23px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--blue);border:3px solid var(--bg)}
+.timeline b{font-family:var(--font-display);display:block;font-size:.92rem}
+.timeline p{font-size:.88rem;color:var(--muted)}
+
+/* glosario */
+dl.gloss{display:grid;grid-template-columns:minmax(120px,auto) minmax(0,1fr);gap:8px 16px;margin:12px 0;font-size:.9rem}
+dl.gloss dt{font-weight:700;font-family:var(--font-display);font-size:.86rem}
+dl.gloss dd{margin:0;color:var(--muted)}
+@media (max-width:520px){dl.gloss{grid-template-columns:1fr}dl.gloss dd{margin-bottom:6px}}
+
+/* búsqueda */
+.search-state{display:none;margin:18px 0 0;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:.9rem}
+html.searching .search-state{display:block}
+html.searching .hero,html.searching .aud-note{display:none}
+mark{background:color-mix(in srgb,var(--lime) 70%,transparent);color:var(--fg);padding:0 2px;border-radius:3px}
+
+/* público */
+html[data-aud="org"] .tech{display:none}
+html[data-aud="org"] .only-tech-hint{display:block}
+.only-tech-hint{display:none;font-size:.82rem;color:var(--muted);padding:8px 12px;border:1px dashed var(--line);border-radius:10px;margin-top:8px}
+
+.back{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:40;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--blue);box-shadow:var(--shadow);cursor:pointer;display:none;place-items:center;font-size:1.2rem}
+.back.show{display:grid}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+
+/* ===== impresión ===== */
+@media print{
+  :root{--bg:#fff;--surface:#fff;--surface-2:#f3f4f6;--fg:#000;--muted:#374151;--line:#cbd5e1;--blue:#1C4FD1}
+  .top,.side,.back,.search-state,.scrim,.only-tech-hint{display:none!important}
+  .page{display:block}
+  .main{padding:0}
+  .content{max-width:none}
+  .hero{background:none;padding-block:0 12px}
+  .hero::before{display:none}
+  section.sec{break-before:page;padding-top:16px}
+  section.sec:first-of-type{break-before:auto}
+  article.sub,.box,.card,.fig,.tbl,pre{break-inside:avoid}
+  pre{background:#f3f4f6;color:#000;border:1px solid #cbd5e1;white-space:pre-wrap}
+  a{color:#000;text-decoration:none}
+  .fact,.card,.box{box-shadow:none}
+  table{min-width:0;font-size:.8rem}
+  body{font-size:11pt}
+}
+/* ===== Credencial "Nacional 2026" (plantilla configurable) · unidades en mm, escala real ===== */
+/* La credencial es un objeto impreso: sus colores son fijos (papel blanco) en ambos temas; la plantilla los recibe como variables. */
+.nb{--p:#0F2A6B;--a:#E6007E;--g:#C9A227;--gr:#C7CCD6;--ink:#0F2A6B;--role:#E6007E;--role-ink:#fff;--tower:#DCE6F5;
+  width:100mm;height:150mm;background:#fff;color:var(--ink);border-radius:4mm;position:relative;overflow:hidden;box-shadow:var(--shadow-lg,0 2px 4px rgba(15,23,42,.06),0 30px 60px -24px rgba(15,23,42,.3));
+  font-family:"Inter",ui-sans-serif,system-ui,sans-serif;line-height:1.15;box-sizing:border-box}
+.nb *{box-sizing:border-box}
+.nb .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.nb .tower{position:absolute;right:0;top:0;width:36mm;height:34mm;color:var(--tower);pointer-events:none}
+.nb .inner{position:absolute;inset:0;padding:5mm 5mm 4.5mm;display:flex;flex-direction:column}
+/* cabecera */
+.nb .hdr{display:flex;align-items:flex-start;gap:1.6mm;height:16mm}
+.nb .ed{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:17mm;line-height:.82;letter-spacing:-.01em;color:var(--p);
+  background:repeating-linear-gradient(180deg,var(--p) 0 1.6mm,transparent 1.6mm 1.95mm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.4mm}
+.nb .ttl{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;text-transform:uppercase;color:var(--p);font-size:6.1mm;line-height:.9;letter-spacing:-.01em;display:flex;flex-direction:column}
+.nb .ttl small{font-size:2.5mm;font-weight:700;letter-spacing:.1em;margin-top:.9mm;line-height:1}
+.nb .yr{align-self:stretch;display:flex;align-items:center;gap:1.4mm;padding-left:1.4mm;border-left:.35mm solid var(--g);font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:5.2mm;line-height:.92;color:var(--a);letter-spacing:.02em;margin-top:.6mm}
+.nb .yr span{display:block}
+.nb .city{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:5mm;letter-spacing:.32em;color:var(--p);text-align:center;margin-top:1.2mm;line-height:1}
+.nb .dates{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:2.7mm;letter-spacing:.2em;color:var(--p);text-align:center;margin-top:1mm;line-height:1;padding-bottom:1.3mm;border-bottom:.3mm solid var(--g)}
+.nb.nb-back .hdr{height:14mm}
+.nb.nb-back .ed{font-size:14mm}
+.nb.nb-back .ttl{font-size:5.4mm}
+.nb.nb-back .city{font-size:4.2mm;margin-top:.8mm}
+/* identidad */
+.nb .idrow{display:flex;gap:2.5mm;margin-top:3mm;align-items:stretch}
+.nb .photo{width:30mm;height:41mm;flex:none;border-radius:1.6mm;border:.4mm solid #D4DBE6;background:linear-gradient(180deg,#E9EEF6,#D5DDEA);display:grid;place-items:center;overflow:hidden}
+.nb .photo svg{width:20mm;height:20mm;color:#94A3B8}
+.nb .fields{flex:1;min-width:0;display:grid;gap:1.6mm;align-content:stretch}
+.nb .f{border:.3mm solid #D9DEE8;border-radius:1.3mm;padding:1mm 2mm .9mm;min-width:0;display:flex;flex-direction:column;justify-content:center;background:rgba(255,255,255,.92)}
+.nb .f b{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.2mm;letter-spacing:.14em;text-transform:uppercase;color:var(--p);font-weight:700;line-height:1}
+.nb .f.ac b{color:var(--a)}
+.nb .f span{display:block;font-size:3.3mm;font-weight:600;color:#111827;line-height:1.15;margin-top:.5mm;overflow-wrap:anywhere}
+.nb .f.long span{font-size:2.9mm}
+/* banda de rol */
+.nb .band{margin-top:3mm;height:12mm;border-radius:1.4mm;background:var(--role);color:var(--role-ink);display:flex;align-items:center;gap:2.5mm;padding:0 3mm;position:relative;overflow:hidden}
+.nb .band svg{width:7.5mm;height:7.5mm;flex:none}
+.nb .band span{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:8.6mm;letter-spacing:.02em;text-transform:uppercase;line-height:1;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb .band.sm span{font-size:6.4mm}
+/* tarjetas de acceso + QR */
+.nb .acc{display:flex;gap:2mm;margin-top:3mm}
+.nb .acc .col{flex:1;min-width:0;display:grid;gap:2mm;align-content:stretch}
+.nb .c{border:.3mm solid #D9DEE8;border-radius:1.4mm;padding:1.8mm 2mm;display:flex;gap:2mm;align-items:center;background:rgba(255,255,255,.92);min-width:0}
+.nb .c svg{width:5.5mm;height:5.5mm;flex:none;color:var(--a)}
+.nb .c b{display:block;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.6mm;letter-spacing:.1em;text-transform:uppercase;color:var(--a);font-weight:700;line-height:1}
+.nb .c span{display:block;font-size:2.9mm;color:#111827;line-height:1.2;margin-top:.5mm;font-weight:500;white-space:pre-line}
+.nb .c .id{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:3.9mm;letter-spacing:.01em;color:var(--p);margin-top:.6mm;white-space:nowrap}
+.nb .qrc{width:31mm;flex:none;border:.3mm solid #D9DEE8;border-radius:1.4mm;background:#fff;padding:1.2mm;display:grid;place-items:center}
+.nb .qrc svg{width:100%;height:auto;display:block}
+/* pie de logos */
+.nb .foot{margin-top:auto;padding-top:1.6mm;border-top:.3mm solid var(--g);display:flex;align-items:center;justify-content:space-between;gap:1.2mm}
+.nb .lg{flex:1;min-width:0;height:10mm;border:.25mm dashed #B6BFCD;border-radius:1mm;display:grid;place-items:center;text-align:center;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:1.95mm;line-height:1.05;letter-spacing:.04em;text-transform:uppercase;color:#64748B;padding:0 .8mm;overflow:hidden}
+.nb .lg.w{flex:1.25}
+/* reverso */
+.nb .info{margin-top:2.4mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:2mm 2.4mm;background:rgba(255,255,255,.92)}
+.nb .info h5{margin:0;display:flex;align-items:center;gap:2mm;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:4.2mm;letter-spacing:.1em;text-transform:uppercase;color:var(--p);font-weight:800;line-height:1}
+.nb .info h5 i{width:5mm;height:5mm;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-style:normal;font-family:"Barlow Condensed","Sora",sans-serif;font-size:3.6mm;font-weight:800;flex:none}
+.nb .info ul{list-style:none;margin:2mm 0 0;padding:0;display:grid;gap:1.6mm}
+.nb .info li{display:flex;gap:2mm;align-items:flex-start;font-size:2.75mm;color:#111827;line-height:1.25;font-weight:500}
+.nb .info li svg{width:4mm;height:4mm;flex:none;color:var(--p);margin-top:.1mm}
+.nb .two{display:flex;gap:2mm;margin-top:2.5mm}
+.nb .two .c{flex:1;align-items:flex-start}
+.nb .two .c svg{margin-top:.4mm}
+.nb .two .c span{font-size:2.8mm}
+.nb .spon{margin-top:2.5mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:1.6mm 2.4mm 2mm;background:rgba(255,255,255,.92)}
+.nb .spon b{display:flex;align-items:center;gap:1.5mm;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.9mm;letter-spacing:.12em;text-transform:uppercase;color:var(--a);font-weight:800;line-height:1}
+.nb .spon b svg{width:3.4mm;height:3.4mm;color:var(--p)}
+.nb .spon .row{display:flex;gap:1.5mm;margin-top:1.4mm}
+.nb .spon .lg{height:11mm;font-size:2.2mm}
+.nb .bar{margin-top:2.5mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:1.4mm 2mm 1mm;background:#fff;text-align:center}
+.nb .bar svg{display:block;width:100%;height:9mm}
+.nb .bar span{display:block;font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:3.1mm;color:#111827;letter-spacing:.06em;margin-top:.6mm}
+/* vistas */
+.nb-pair{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.nb-pair>div{flex:1 1 230px;min-width:0;max-width:378px}
+.nb-side{display:grid;gap:4px;text-align:center;font-size:.8rem;color:var(--muted)}
+/* ===== fin credencial ===== */
+.badge-fig{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:center}
+.badge-fig .bf{flex:1 1 200px;max-width:300px;min-width:0}
+.badge-fig .bf .fit{position:relative;width:100%;overflow:visible}
+.badge-fig .bf .fit>.nb{transform-origin:top left;position:absolute;left:0;top:0}
+.badge-fig .bf small{display:block;text-align:center;color:var(--muted);font-size:.8rem;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in">
+    <button class="btn menu" id="menuBtn" aria-controls="side" aria-expanded="false" aria-label="Abrir índice">☰ Índice</button>
+    <a class="brand" href="#inicio"><span class="mark"></span>Tatami Pass <small>· Manual</small></a>
+    <div class="search" role="search">
+      <span class="ico" aria-hidden="true">⌕</span>
+      <input id="q" type="search" placeholder="Buscar en el manual (p. ej. certificado, cupo, promover)" aria-label="Buscar en el manual" autocomplete="off">
+      <button class="clear" id="qClear" aria-label="Borrar búsqueda" hidden>×</button>
+    </div>
+    <div class="seg" role="group" aria-label="Elige tu público">
+      <button id="audOrg" aria-pressed="true">Soy organizador</button>
+      <button id="audTech" aria-pressed="false">Soy técnico</button>
+    </div>
+    <button class="btn" id="printBtn" title="Imprime lo que estás viendo (el público elegido se respeta)">🖨 Imprimir</button>
+  </div>
+</header>
+
+<div class="page">
+<nav class="side" id="side" aria-label="Índice del manual">
+  <button class="btn close" id="sideClose">Cerrar ×</button>
+  <div class="lbl">Contenido</div>
+  <ol id="toc">
+    <li><a href="#s1"><span class="n">1</span>Qué es y cómo funciona</a>
+      <ol><li><a href="#s1-niveles">Los 3 niveles</a></li><li><a href="#s1-qr">El QR firmado</a></li><li><a href="#s1-puertas">Entradas, salidas, acompañantes</a></li><li><a href="#s1-nube">La nube es opcional</a></li></ol></li>
+    <li><a href="#s2"><span class="n">2</span>Instalación</a>
+      <ol><li><a href="#s2a">2a Nube</a></li><li><a href="#s2b">2b Host (app o Docker)</a></li><li><a href="#s2c">2c Respaldo</a></li><li><a href="#s2d">2d Scanners</a></li><li><a href="#s2e">2e Impresora y credenciales</a></li><li><a href="#s2f">2f Red del coliseo</a></li><li><a href="#s2g">2g Energía</a></li><li><a href="#s2h">2h Radio por la red local</a></li></ol></li>
+    <li><a href="#s3"><span class="n">3</span>Configuración</a>
+      <ol><li><a href="#s3-config">event.config.json</a></li><li><a href="#s3-usuarios">Usuarios y roles</a></li><li><a href="#s3-claves">Claves y rotación</a></li><li><a href="#s3-copias">Copias</a></li></ol></li>
+    <li><a href="#s4"><span class="n">4</span>Cómo funciona en el evento</a>
+      <ol><li><a href="#s4-crono">T−30 → T+90</a></li><li><a href="#s4-diad">Día D hora a hora</a></li><li><a href="#s4-roles">Qué hace cada rol</a></li><li><a href="#s4-persona">Flujo de una persona</a></li><li><a href="#s4-fallas">Si se va la red, la luz…</a></li></ol></li>
+    <li><a href="#s5"><span class="n">5</span>Documentación de producto</a>
+      <ol><li><a href="#s5-prd">Resumen del PRD</a></li><li><a href="#s5-adr">Decisiones clave (ADR)</a></li></ol></li>
+    <li><a href="#s6"><span class="n">6</span>Documentación técnica</a>
+      <ol><li><a href="#s6-arq">Arquitectura</a></li><li><a href="#s6-sync">Protocolo de sync</a></li><li><a href="#s6-token">Formato del token</a></li><li><a href="#s6-api">API</a></li><li><a href="#s6-seg">Seguridad</a></li><li><a href="#s6-agentes">Agentes y documentación</a></li></ol></li>
+    <li><a href="#s7"><span class="n">7</span>Cómo hacer las pruebas</a>
+      <ol><li><a href="#s7-portatil">En el portátil</a></li><li><a href="#s7-casa">Prueba en casa (30 min)</a></li><li><a href="#s7-simulacro">Simulacro a 7 días</a></li><li><a href="#s7-smoke">Smoke D−1</a></li><li><a href="#s7-reportes">Reportes y defectos</a></li></ol></li>
+    <li><a href="#s8"><span class="n">8</span>Problemas, glosario, documentos</a>
+      <ol><li><a href="#s8-problemas">Problemas frecuentes</a></li><li><a href="#s8-glosario">Glosario</a></li><li><a href="#s8-docs">Documentos del repo</a></li></ol></li>
+  </ol>
+</nav>
+<div class="scrim" id="scrim" hidden></div>
+
+<main class="main" id="inicio">
+<div class="content">
+
+<div class="hero">
+  <div class="eyebrow">Campeonato Nacional de Taekwondo ITF 2026 · Colombia</div>
+  <h1 style="margin-top:8px">Manual integral de Tatami Pass</h1>
+  <p class="lead">Todo lo que necesitas para instalar, configurar, entender, operar y probar el sistema de acreditación y control de accesos. Escrito para organizadores que no son técnicos y para el técnico que monta todo. Si algo se cae (internet, Wi-Fi, luz), la puerta sigue funcionando: ese es el principio que atraviesa cada página.</p>
+  <div class="facts">
+    <div class="fact"><b>1.000 – 2.000 personas</b><span>3 días · hasta 8 puertas</span></div>
+    <div class="fact"><b>&lt; 300 ms</b><span>validación del QR sin red</span></div>
+    <div class="fact"><b>3 niveles</b><span>scanner · host · nube</span></div>
+    <div class="fact"><b>15 min</b><span>para capacitar a un portero</span></div>
+  </div>
+  <div class="belt"></div>
+  <div class="aud-note"><b>Cómo usar este manual:</b> elige arriba <em>Soy organizador</em> (oculta los bloques técnicos, marcados con <span class="chip tech">técnico</span>) o <em>Soy técnico</em> (lo muestra todo). El buscador filtra las secciones por texto. Cada apartado trae pasos numerados, <b>cómo sé que salió bien</b> y <b>si algo falla</b>.</div>
+</div>
+<div class="search-state" id="searchState" aria-live="polite"></div>
+
+<!-- ============ 1 ============ -->
+<section class="sec" id="s1">
+<div class="sec-head"><span class="num">SECCIÓN 1</span><h2>Qué es Tatami Pass y cómo funciona</h2><p class="muted">Un sistema de acreditación: convierte la lista de inscritos en credenciales con QR firmado y las valida en cada puerta, aunque no haya red ni nube. Solo accesos: no gestiona llaves, pesajes ni resultados (eso lo hace SportData, de donde se importan los competidores).</p></div>
+
+<article class="sub" id="s1-niveles">
+<h3><span class="n">1.1</span>Los tres niveles: funciona aunque no haya nada <span class="chip org">todos</span></h3>
+<p>Cada nivel trabaja solo si el de arriba desaparece. Por eso el día del evento nadie depende del internet del coliseo.</p>
+<figure class="fig">
+<svg viewBox="0 0 760 400" role="img" aria-labelledby="d1t"><title id="d1t">Diagrama de los tres niveles: nube arriba, host y respaldo en medio, scanners abajo</title>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<rect x="20" y="20" width="720" height="92" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+<text x="36" y="44" font-size="12" font-weight="700" fill="var(--blue)" letter-spacing="2">L3 · NUBE (OPCIONAL EL DÍA D)</text>
+<rect x="36" y="56" width="300" height="42" rx="10" fill="var(--surface)" stroke="var(--blue)"/>
+<text x="50" y="74" font-size="13" font-weight="700" fill="var(--fg)">Inscripción online · panel</text>
+<text x="50" y="90" font-size="11" fill="var(--muted)">Vercel + Postgres · importa SportData · aprueba</text>
+<rect x="356" y="56" width="180" height="42" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+<text x="370" y="74" font-size="13" font-weight="700" fill="var(--fg)">Credencial digital</text>
+<text x="370" y="90" font-size="11" fill="var(--muted)">QR rotativo 60 s (público)</text>
+<rect x="556" y="56" width="168" height="42" rx="10" fill="var(--surface)" stroke="var(--line)"/>
+<text x="570" y="74" font-size="13" font-weight="700" fill="var(--fg)">Correos</text>
+<text x="570" y="90" font-size="11" fill="var(--muted)">confirmación · aprobación</text>
+<line x1="200" y1="112" x2="200" y2="160" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<text x="212" y="140" font-size="11" fill="var(--muted)">hotspot 4G · "Traer ahora" cada 5 min</text>
+<rect x="20" y="162" width="720" height="108" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+<text x="36" y="186" font-size="12" font-weight="700" fill="var(--blue)" letter-spacing="2">L2 · HOST DE SEDE (FUENTE DE VERDAD)</text>
+<rect x="36" y="198" width="330" height="58" rx="10" fill="var(--surface)" stroke="var(--blue)" stroke-width="2"/>
+<text x="50" y="218" font-size="13" font-weight="700" fill="var(--fg)">Host principal · mini PC o portátil</text>
+<text x="50" y="234" font-size="11" fill="var(--muted)">panel /admin · impresión · anti-passback · alertas</text>
+<text x="50" y="248" font-size="11" fill="var(--muted)">copias cada 5 min a USB · auditoría encadenada</text>
+<line x1="366" y1="227" x2="420" y2="227" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)"/>
+<text x="372" y="218" font-size="10" fill="var(--muted)">replica 10 s</text>
+<rect x="422" y="198" width="302" height="58" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-dasharray="5 4"/>
+<text x="436" y="218" font-size="13" font-weight="700" fill="var(--fg)">Equipo de respaldo · portátil con batería</text>
+<text x="436" y="234" font-size="11" fill="var(--muted)">copia completa, en otro punto del coliseo</text>
+<text x="436" y="248" font-size="11" fill="var(--muted)">se "promueve" si el principal cae</text>
+<line x1="200" y1="270" x2="200" y2="318" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<text x="212" y="298" font-size="11" fill="var(--muted)">Wi-Fi de staff · HTTPS · cada 15 s (si hay)</text>
+<rect x="20" y="320" width="720" height="68" rx="14" fill="var(--surface-2)" stroke="var(--line)"/>
+<text x="36" y="344" font-size="12" font-weight="700" fill="var(--blue)" letter-spacing="2">L1 · SCANNERS (DECIDEN SOLOS)</text>
+<g font-size="12" font-weight="700" fill="var(--fg)">
+<rect x="36" y="354" width="120" height="26" rx="8" fill="var(--surface)" stroke="var(--green)"/><text x="48" y="372">P1 Gradería</text>
+<rect x="166" y="354" width="150" height="26" rx="8" fill="var(--surface)" stroke="var(--green)"/><text x="178" y="372">P3 Calentamiento</text>
+<rect x="326" y="354" width="150" height="26" rx="8" fill="var(--surface)" stroke="var(--green)"/><text x="338" y="372">P4 Tatamis · in/out</text>
+<rect x="486" y="354" width="110" height="26" rx="8" fill="var(--surface)" stroke="var(--green)"/><text x="498" y="372">P5 Palco</text>
+<rect x="606" y="354" width="118" height="26" rx="8" fill="var(--surface)" stroke="var(--line)" stroke-dasharray="4 3"/><text x="618" y="372" fill="var(--muted)">+ 2 reserva</text>
+</g>
+</svg>
+<figcaption>Cada celular tiene la lista completa de credenciales y la clave pública; valida en menos de 300 ms sin preguntarle a nadie. El host junta lo de todas las puertas; la nube solo sirve antes (inscripción) y después (reportes).</figcaption>
+</figure>
+<div class="grid2">
+  <div class="card lvl" style="--lc:var(--green)"><h4>L1 · Scanner</h4><p>Celular o tablet con la app (PWA). Copia local de credenciales, reglas y lista de anuladas. Guarda cada escaneo y lo sube cuando puede. Sin red sigue igual.</p></div>
+  <div class="card lvl" style="--lc:var(--blue)"><h4>L2 · Host</h4><p>Mini PC o portátil en la sede. Panel web, impresión, anti-passback entre puertas, alertas de duplicado, copias de seguridad. No necesita internet.</p></div>
+  <div class="card lvl" style="--lc:var(--r-SPON)"><h4>L3 · Nube</h4><p>Inscripción pública, aprobación, importación de SportData, credencial digital. Si se cae el día del evento, no pasa nada.</p></div>
+</div>
+<h4 style="margin-top:14px">Recorrido de 10 minutos para entenderlo</h4>
+<ol class="steps" style="margin-top:8px">
+  <li><div>Abre el panel del host con el usuario de demo (<code>admin</code> / <code>admin123</code>, ver <a href="#s7-portatil">7.1</a>) y mira <b>Puertas en vivo</b>: ahí se ve cuánta gente entró, cuántos escaneos faltan por subir y qué alertas hay.</div></li>
+  <li><div>Entra a <b>Credenciales</b>, abre una y toca <b>Ver QR</b>. Ese QR es lo que va impreso: un texto firmado, no un enlace.</div></li>
+  <li><div>Abre el scanner en un celular, escanea ese QR dos veces seguidas en zona Tatamis: la primera sale verde, la segunda roja ("ya entró"). Eso es el anti-passback.</div></li>
+  <li><div>Apaga el Wi-Fi del celular y escanea otra: sigue saliendo verde y arriba aparece <b>Pendientes: 1</b>. Enciende el Wi-Fi: baja a 0. Eso es "funciona aunque no haya nada".</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que lo entendí</h4><ul><li>Puedo explicar en una frase qué pasa si se cae internet (nada), si se cae el host (las puertas siguen; se promueve el respaldo) y si se cae un scanner (se usa el de reserva o la planilla).</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Si el scanner no sale verde en el paso 3, revisa que el celular tenga la lista descargada (menú ⋯ muestra "N credenciales"). Si no, vuelve a enrolar (<a href="#s2d">2d</a>).</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s1-qr">
+<h3><span class="n">1.2</span>El QR firmado <span class="chip org">todos</span></h3>
+<p>El QR de cada credencial contiene un <b>token firmado</b>: evento, número de credencial, rol, zonas, fechas válidas, versión y clave con la que se firmó. No lleva nombre ni documento. El scanner comprueba la firma con la clave pública (la privada nunca sale del host) y después aplica las reglas: ¿es de este evento? ¿vale hoy? ¿puede entrar a esta zona? ¿está anulada? ¿ya entró?</p>
+<div class="qr-demo">
+  <div class="qr" id="qrDemo" aria-label="Ejemplo de QR de credencial"></div>
+  <div>
+    <div class="token"><i>TP1</i>.<u>eyJ2IjoxLCJlIjoibmFjMjAyNiIsImMiOiIwMDEyMyIsInIiOiJDT01QIiwieiI6WyJHIiwiVyIsIlQiLCJQIl0sImYiOiIyMDI2LTExLTIwIiwidCI6IjIwMjYtMTEtMjIiLCJuIjoxLCJrIjoiazEifQ</u>.<i>…firma Ed25519 (86 caracteres)…</i></div>
+    <p class="small muted" style="margin-top:8px">Prefijo <code>TP1</code> · payload en base64url · firma. Debajo del QR va impreso el <b>ID corto</b> <code>TP-2026-00123-C</code> (el último carácter es un dígito verificador) para el ingreso manual.</p>
+  </div>
+</div>
+<div class="note">Un QR fotocopiado sigue teniendo una firma válida. Por eso el QR no basta solo: el portero <b>compara la foto</b> en pantalla, el <b>anti-passback</b> impide que original y copia entren las dos, el host avisa si el mismo QR aparece en <b>dos puertas en menos de 2 min</b>, y el coordinador puede <b>anular</b> y re-emitir (la versión vieja queda inservible en todos los scanners). El público general usa credencial digital con QR que cambia cada 60 s: un pantallazo caduca.</div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Una credencial impresa de prueba sale verde en un scanner; la misma, después de anularla en el panel, sale roja "Esta credencial fue anulada" en menos de un minuto.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>"Clave desconocida" en todo: el scanner no tiene la clave pública. Menú ⋯ › Actualizar datos, o enrolar de nuevo.</li><li>"No reconozco esta credencial": se emitió después de la última descarga; espera el siguiente sync o usa ingreso manual con autorización.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s1-puertas">
+<h3><span class="n">1.3</span>Entradas, salidas y acompañantes <span class="chip org">todos</span></h3>
+<p>Cada scanner está atado a una <b>zona</b> (Gradería, Calentamiento, Tatamis, Pesaje, Jueces, Palco…) y a un <b>modo</b>: Entrada, Salida o Entrada + Salida. En las zonas con anti-passback (Calentamiento, Tatamis, Jueces, Palco…) una credencial que entró tiene que registrar salida antes de volver a entrar. Esto es lo que frena la credencial prestada.</p>
+<ol class="steps">
+  <li><div><b>Entrada</b>: la persona muestra el QR, el portero mira la foto en pantalla y la cara. Verde "Adelante, Juan" y pasa.</div></li>
+  <li><div><b>Salida</b>: en Tatamis y Calentamiento hay un scanner en modo Salida. Escanea igual: "Salida registrada, Juan".</div></li>
+  <li><div><b>Reingreso</b>: como hay salida registrada, vuelve a salir verde. Si no la hay, rojo "ya entró a Tatamis a las 9:14": pide que pase por el scanner de salida, o llama al supervisor, que puede autorizar una excepción con su PIN (queda registrado).</div></li>
+  <li><div><b>Acompañantes</b>: cada participante puede inscribir hasta 2 acompañantes (configurable) que entran con él a Gradería. Tienen rol <code>ACOMP</code>, no llevan foto y reciben credencial digital. Cuentan para el aforo total (2.000 por defecto), no para el cupo del rol del participante.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>En el panel › Puertas en vivo, "dentro ahora" de Tatamis sube con cada entrada y baja con cada salida.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Mucha gente "ya entró" sin haberlo hecho: alguien salió sin escanear. Refuerza el scanner de salida y recuérdalo por radio; el supervisor autoriza las excepciones con motivo "Salió sin escanear".</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s1-nube">
+<h3><span class="n">1.4</span>La nube es opcional el día del evento <span class="chip org">todos</span></h3>
+<p>Antes del evento la nube recibe las inscripciones, el coordinador aprueba y el host se las trae ("Traer ahora" o cada 5 minutos por el hotspot 4G). Desde ese momento el host tiene todo: puede emitir en sitio, imprimir, anular y re-emitir sin internet. Después del evento el host sube a la nube qué credenciales se emitieron, imprimieron y entregaron (eso activa las credenciales digitales del público).</p>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Panel › Nube muestra "última actualización hace N min" sin error y Credenciales lista a las personas aprobadas.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>"Sin conexión a la nube, se reintenta en N min": revisa el hotspot. El evento sigue con lo que ya está en el host; lo que llegue tarde se emite en sitio desde Inscripciones.</li></ul></div>
+</div>
+</article>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="sec" id="s2">
+<div class="sec-head"><span class="num">SECCIÓN 2</span><h2>Instalación</h2><p class="muted">Ocho piezas, en este orden: nube (T−30), host (T−14), respaldo, scanners (T−7), impresora, red del coliseo (T−1), energía y la radio por la red local. Los tiempos son los de <code>docs/90</code>. Quien no es técnico puede leer solo los pasos sin chip <span class="chip tech">técnico</span>: son los que se hacen desde el panel o la app.</p></div>
+
+<article class="sub" id="s2a">
+<h3><span class="n">2a</span>Nube: Vercel + Neon + Blob + Resend <span class="chip tech">técnico</span> <span class="chip time">45 min · T−30</span></h3>
+<div class="tech">
+<p class="who"><b>Quién:</b> técnico. <b>Resultado:</b> formulario público de inscripción, panel <code>/panel</code> y la API que el host consulta. Detalle completo en <code>docs/85-DESPLIEGUE-NUBE.md</code>.</p>
+<ol class="steps">
+  <li><div><b>Neon (Postgres).</b> Crea el proyecto en neon.tech (región <code>us-east-1</code>), copia la cadena <b>pooled</b> y aplica las migraciones desde tu máquina:
+  <pre><code>DATABASE_URL='postgres://…-pooler…' ADMIN_EMAIL=coordinacion@tuevento.co ADMIN_PASSWORD='una-clave-larga-123' npm run migrate -w apps/registration</code></pre></div></li>
+  <li><div><b>Vercel Blob</b> para las fotos: Storage › Create › Blob (<code>tatami-fotos</code>) conectado al proyecto. Vercel crea <code>BLOB_READ_WRITE_TOKEN</code> solo. Sin Blob, en Vercel las fotos se pierden.</div></li>
+  <li><div><b>Resend</b> para correos: añade tu dominio, agrega SPF y DKIM, crea una API key. <code>MAIL_FROM</code> debe ser una dirección de ese dominio.</div></li>
+  <li><div><b>Proyecto Vercel.</b> Importa el repo con <b>Root Directory</b> <code>apps/registration</code>, Node 20 o 22. Variables (Production y Preview):
+  <div class="tbl"><table><thead><tr><th>Variable</th><th>Valor</th></tr></thead><tbody>
+  <tr><td><code>DATABASE_URL</code></td><td>cadena pooled de Neon</td></tr>
+  <tr><td><code>SESSION_SECRET</code></td><td><code>openssl rand -base64 48</code></td></tr>
+  <tr><td><code>TP_CLOUD_KEY</code></td><td><code>openssl rand -base64 32</code> · la misma va al host</td></tr>
+  <tr><td><code>MAIL_FROM</code>, <code>RESEND_API_KEY</code></td><td>del paso 3</td></tr>
+  <tr><td><code>BLOB_READ_WRITE_TOKEN</code></td><td>del paso 2</td></tr>
+  <tr><td><code>APP_URL</code></td><td><code>https://inscripciones.tuevento.co</code> (enlaces de los correos)</td></tr>
+  <tr><td><code>CRON_SECRET</code></td><td><code>openssl rand -hex 24</code> (cron de lista de espera)</td></tr>
+  <tr><td><code>TP_SIGNING_KEY</code></td><td>solo Production: la clave de firma exportada del host (<a href="#s3-claves">3.3</a>) para la credencial digital</td></tr>
+  <tr><td><code>EVENT_CONFIG_JSON</code></td><td>opcional: copia de <code>apps/host/event.config.json</code> para cupos y categorías del formulario</td></tr>
+  </tbody></table></div></div></li>
+  <li><div><b>Dominio propio.</b> Settings › Domains › <code>inscripciones.tuevento.co</code>; en tu DNS un <code>CNAME → cname.vercel-dns.com</code>. El certificado se emite solo. Actualiza <code>APP_URL</code> y vuelve a desplegar.</div></li>
+  <li><div><b>Apunta el host a la nube</b> (en el <code>.env</code> del host): <code>TP_CLOUD_URL</code>, <code>TP_CLOUD_KEY</code>, <code>TP_CLOUD_INTERVAL_MIN=5</code>.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li><code>https://&lt;proyecto&gt;.vercel.app/api/status</code> responde JSON con el evento y los roles.</li><li><code>curl -s "$APP_URL/api/export?since=" -H "x-tatami-key: $TP_CLOUD_KEY" | jq '{count,cursor}'</code> responde 200.</li><li>Verificación de 5 min (85 §10): inscribes a alguien con foto y 2 acompañantes, llega el correo, apruebas en <code>/panel</code>, el host la trae con <b>Traer ahora</b>.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li><code>401</code> en <code>/api/export</code>: la clave no coincide. <code>503</code>: la nube no tiene clave.</li><li>Los correos no llegan: dominio sin verificar en Resend (mientras tanto solo entrega a tu propio correo).</li><li>El build no encuentra <code>@tatami/core</code>: pon Install Command = <code>cd ../.. &amp;&amp; npm install</code>.</li></ul></div>
+</div>
+</div>
+<div class="only-tech-hint">Este bloque es técnico. Cambia a <b>Soy técnico</b> arriba para verlo. Lo que necesitas saber como organizador: la nube es el formulario de inscripción y el panel donde el coordinador aprueba; el técnico la deja lista un mes antes y te entrega la dirección y los usuarios.</div>
+</article>
+
+<article class="sub" id="s2b">
+<h3><span class="n">2b</span>Host de sede: opción A app de escritorio, opción B Docker <span class="chip org">todos</span> <span class="chip time">A: 20 min · B: 2–3 h · T−14</span></h3>
+<p class="who"><b>Quién:</b> técnico o administrador. <b>Resultado:</b> un computador en la sede con el panel en <code>/admin</code>, la impresión y la sincronización con los scanners. Elige <b>una</b> opción.</p>
+
+<h4>Opción A · App de escritorio (Mac .dmg / Windows .exe o portable)</h4>
+<p class="small muted" style="margin:4px 0 10px">Es el camino recomendado si no hay un técnico Linux a mano. Empaqueta el host, el panel y el scanner en una sola app. Detalle en <code>docs/86-APP-ESCRITORIO.md</code> (en elaboración junto con <code>apps/host-desktop</code>).</p>
+<ol class="steps">
+  <li><div><b>Descarga</b> el instalador de la versión etiquetada (release del repo): <code>.dmg</code> para Mac, <code>.exe</code> (instalador) o <code>.exe</code> portable para Windows. Usa un computador <b>del comité</b>, no el personal de alguien, con disco cifrado (FileVault / BitLocker).</div></li>
+  <li><div><b>Ábrela aunque no esté firmada.</b> Mac: clic derecho › <b>Abrir</b> › Abrir (o Ajustes › Privacidad y seguridad › "Abrir de todos modos"). Windows: SmartScreen › <b>Más información</b> › <b>Ejecutar de todas formas</b>. Es normal: la app no pasa por tiendas.</div></li>
+  <li><div><b>Asistente de primera ejecución.</b> Te pide, en orden: nombre del evento (o importa <code>event.config.json</code>), la <b>passphrase</b> de la clave de firma (20+ caracteres; guárdala en el sobre sellado del Administrador), la clave compartida con la nube (<code>TP_CLOUD_KEY</code>, opcional), la carpeta de datos y, si quieres HTTPS para los celulares, activa <b>Caddy</b> (la app genera la CA interna y te muestra el certificado para instalar en los scanners).</div></li>
+  <li><div><b>Crea el administrador</b> y los usuarios reales (<a href="#s3-usuarios">3.2</a>). Cambia la contraseña de <code>admin</code>.</div></li>
+  <li><div><b>Trae los datos</b>: con internet, Nube › <b>Traer ahora</b>. Sin nube, usa datos de demo (Sistema › Cargar demo) para practicar.</div></li>
+  <li><div><b>Dónde quedan los datos.</b> Mac: <code>~/Library/Application Support/Tatami Pass Host/tatami/</code>; Windows: <code>%APPDATA%\Tatami Pass Host\tatami\</code>. Dentro: <code>tatami.db</code>, <code>keys/signing.enc.json</code>, <code>event.config.json</code>, <code>backups/</code>. La app ofrece <b>Copiar a USB</b> (segunda carpeta de copias), <b>QR de enrolamiento</b> para los scanners y <b>Promover</b> cuando este equipo es el respaldo.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>La ventana de la app muestra "Principal · en marcha" y la dirección (<code>http://10.10.0.2:8787/admin</code> o <code>https://…</code> si activaste Caddy).</li><li>Desde otro computador de la misma Wi-Fi, esa dirección abre el panel.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>"El puerto 8787 está ocupado": cierra la otra instancia o cambia el puerto en Ajustes.</li><li>El panel abre en el host pero no desde otro equipo: firewall del sistema (permite la app en redes privadas) o el equipo está en otra red.</li><li>Olvidaste la passphrase: no hay recuperación. Genera una clave nueva (<a href="#s3-claves">3.3</a>) antes de emitir nada.</li></ul></div>
+</div>
+
+<h4 style="margin-top:22px">Opción B · Docker Compose en Ubuntu (con Caddy y CA interna) <span class="chip tech">técnico</span></h4>
+<div class="tech">
+<p class="small muted" style="margin:4px 0 10px">Para mini PC o portátil con Ubuntu 24.04 instalado con cifrado de disco (LUKS). Es la opción que describe <code>docs/90 §3</code> y <code>docs/50 §3</code>.</p>
+<ol class="steps">
+  <li><div><b>Base del sistema</b>: firewall solo 22 (desde la LAN de staff), 80 y 443; SSH por llave; sin suspensión al cerrar la tapa; <b>chrony</b> como reloj de la LAN.
+  <pre><code>sudo apt update &amp;&amp; sudo apt install -y ufw chrony git curl jq
+sudo ufw default deny incoming &amp;&amp; sudo ufw allow from 10.10.0.0/24 to any port 22 proto tcp &amp;&amp; sudo ufw allow 80,443/tcp &amp;&amp; sudo ufw enable
+printf 'allow 10.10.0.0/24\nlocal stratum 10\n' | sudo tee -a /etc/chrony/chrony.conf &amp;&amp; sudo systemctl restart chrony</code></pre></div></li>
+  <li><div><b>IP fija</b> <code>10.10.0.2/24</code> en la interfaz de la LAN de staff, sin ruta por defecto (internet, si hay, va por el hotspot). Comprueba con <code>ip -4 addr</code>.</div></li>
+  <li><div><b>Docker</b> (repositorio oficial) y <code>docker run --rm hello-world</code>.</div></li>
+  <li><div><b>Código y variables</b>:
+  <pre><code>sudo mkdir -p /opt/tatami &amp;&amp; sudo chown ops:ops /opt/tatami
+git clone &lt;repo&gt; /opt/tatami &amp;&amp; cd /opt/tatami/apps/host
+cat &gt; .env &lt;&lt;'EOT'
+TP_KEY_PASSPHRASE=&lt;passphrase larga, 20+ caracteres&gt;
+TP_CLOUD_URL=https://inscripciones.tuevento.co
+TP_CLOUD_KEY=&lt;misma clave que en Vercel&gt;
+TP_CLOUD_INTERVAL_MIN=5
+TP_ROLE=primary
+TP_REPLICA_KEY=&lt;clave compartida con el respaldo&gt;
+TP_RETENTION_DAYS=90
+EOT
+chmod 600 .env</code></pre></div></li>
+  <li><div><b>Caddyfile</b>: añade la IP al primer renglón (<code>host.tatami.local, localhost, 10.10.0.2 {</code>). Para servir la PWA del scanner, compila <code>npm run build -w apps/scanner</code> y monta <code>apps/scanner/dist</code> en Caddy como segundo sitio (<code>scanner.tatami.local, 10.10.0.2:8443</code>) según 90 §3.2 paso 8.</div></li>
+  <li><div><b>Arranque y comprobación</b>:
+  <pre><code>docker compose up -d --build          # la primera vez compila (5–10 min)
+docker compose logs -f host           # espera "listening" y mode=primary
+curl -sk https://localhost/health | jq '{ok,mode,event,credentials,audit}'</code></pre></div></li>
+  <li><div><b>Datos y usuarios</b>: panel › Nube › Traer ahora (o seed de demo: <code>docker compose exec host node dist/seed.js</code>). Crea los usuarios reales y cambia la contraseña de <code>admin</code>.</div></li>
+  <li><div><b>Exporta la CA</b> para los celulares: <code>docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./root.crt</code>. Cópiala a una USB.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li><code>/health</code> responde <code>ok:true, mode:"primary", audit.ok:true</code>.</li><li><code>https://10.10.0.2/admin</code> abre (con aviso de certificado hasta instalar la CA) y entras.</li><li><code>openssl x509 -in root.crt -noout -subject</code> imprime <code>Caddy Local Authority</code>.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li><code>TP_KEY_PASSPHRASE es obligatoria en producción</code>: rellena el <code>.env</code>.</li><li>Caddy devuelve 404 por nombre desconocido: falta la IP en el Caddyfile; <code>docker compose restart caddy</code>.</li><li>El host no arranca tras reinicio ("disco bloqueado"): LUKS pide la passphrase en consola; conecta monitor y teclado.</li></ul></div>
+</div>
+</div>
+<div class="only-tech-hint">La opción B (Docker en Ubuntu) está oculta en la vista de organizador. Si tu técnico la elige, tú solo necesitas la dirección del panel y tu usuario.</div>
+</article>
+
+<article class="sub" id="s2c">
+<h3><span class="n">2c</span>Respaldo: un segundo portátil que replica <span class="chip org">todos</span> <span class="chip time">30 min · T−14</span></h3>
+<p class="who"><b>Quién:</b> técnico. <b>Resultado:</b> un portátil con batería, en otro punto físico (mesa de acreditación), con una copia completa que se actualiza cada 10 s y que se puede convertir en principal con un botón.</p>
+<ol class="steps">
+  <li><div>Instala el host igual que en <a href="#s2b">2b</a> (app de escritorio o Docker) en el segundo portátil, con IP <code>10.10.0.3</code>.</div></li>
+  <li><div>Configúralo como <b>respaldo</b>: en la app, asistente › "Este equipo es el respaldo de…" y la dirección del principal; en Docker, <code>TP_ROLE=standby</code>, <code>TP_PRIMARY_URL=https://10.10.0.2</code>, el mismo <code>TP_REPLICA_KEY</code> y la misma <code>TP_KEY_PASSPHRASE</code>.</div></li>
+  <li><div class="tech">Copia la <b>misma clave de firma</b> (<code>keys/signing.enc.json</code> del principal) y la <b>misma CA de Caddy</b> (volumen <code>caddy-data</code>), para que los scanners confíen en los dos sin reinstalar nada. La app de escritorio lo hace con "Copiar a USB" › "Importar en el respaldo".</div><div class="only-tech-hint" style="margin:0">Paso técnico oculto: copiar la clave y el certificado del principal al respaldo.</div></li>
+  <li><div><b>Ensayo de promoción</b> (ahora, no el día D): apaga el principal; en el respaldo, panel › Sistema › <b>Convertir este equipo en el principal</b> (escribe PROMOVER). Un scanner apuntado a <code>10.10.0.3</code> debe enrolar y escanear. Después deshaz el ensayo: enciende el principal y vuelve a dejar el respaldo como respaldo.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li><code>/health</code> del respaldo: <code>role:"standby"</code> y <code>lagSeconds ≤ 10</code>.</li><li>Su panel abre en modo consulta: cualquier cambio responde 409 "Este equipo es el de respaldo".</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Lag no baja: clave de replicación distinta o el principal no es alcanzable (<code>curl -sk https://10.10.0.2/health</code> desde el respaldo).</li><li>"Dos principales" tras una promoción: reencendieron el viejo como principal. Apaga uno ya y arráncalo como respaldo del nuevo.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s2d">
+<h3><span class="n">2d</span>Scanners: certificado, app, enrolar, cámara <span class="chip org">todos</span> <span class="chip time">15 min por celular · T−7</span></h3>
+<p class="who"><b>Quién:</b> supervisor con el técnico. <b>Equipo:</b> Android 11+ con Chrome 100+ o iPhone con iOS 16+, pantalla ≥ 6", funda con agarre, etiqueta con la puerta ("P1-NORTE"), power bank de 20.000 mAh. Seis para las puertas y dos de reserva.</p>
+<ol class="steps">
+  <li><div><b>Prepara el celular</b>: hora automática, brillo 70 %, bloqueo con PIN del comité, No molestar, sin cuentas personales ni apps de chat. Conéctalo al SSID de staff (está oculto: escribe el nombre).</div></li>
+  <li><div><b>Instala el certificado raíz</b> (una vez por celular; solo si el host usa HTTPS con CA interna). Descarga <code>root.crt</code> desde <code>http://10.10.0.2/ca.crt</code> o cópialo por USB/AirDrop.
+    <ul><li><b>Android</b>: Ajustes › Seguridad › Cifrado y credenciales › Instalar certificado › <b>Certificado de CA</b> › acepta el aviso.</li>
+    <li><b>iPhone</b>: abre el archivo › Ajustes › Perfil descargado › Instalar. <b>Luego</b> Ajustes › General › Información › Ajustes de confianza de certificados › activa la confianza total. Sin este segundo paso la cámara no abre.</li></ul></div></li>
+  <li><div><b>Instala la app</b>: abre la dirección del scanner (<code>https://scanner.tatami.local</code>, <code>https://10.10.0.2:8443</code> o la que muestre la app de escritorio). Android/Chrome: menú ⋮ › <b>Instalar aplicación</b>. iPhone/Safari: Compartir › <b>Añadir a pantalla de inicio</b>. Ábrela siempre desde el icono.</div></li>
+  <li><div><b>Enrola</b>: en el panel › Dispositivos › <b>Enrolar un scanner</b> → nombre ("P4 · Tatamis"), zona, rol (Control, o Supervisor para el celular del supervisor), dirección (entrada/salida) › <b>Generar código</b>. Sale un QR con cuenta regresiva de 10 min. En el celular: escanea el QR (o pega el código y la dirección del host) › PIN de 6 dígitos (lo elige el portero, dos veces) › <b>Enrolar</b>.</div></li>
+  <li><div><b>Inicio de turno</b>: comprueba zona y modo, escribe el nombre del portero, <b>Empezar a escanear</b>. Activa menú ⋯ › <b>Modo kiosk</b> (pantalla completa, no se apaga) y, si quieres, "Fijar pantalla" (Android) o "Acceso guiado" (iPhone).</div></li>
+  <li><div><b>Prueba la cámara</b> con una credencial impresa de staff: verde en menos de 300 ms. Prueba ⟳ (cambiar cámara) y 🔦 (linterna; en iPhone no existe desde la web). Escanea la misma dos veces en una zona con anti-passback: rojo "ya entró".</div></li>
+  <li><div><b>Modo avión 2 min</b> con 3 escaneos → "Pendientes: 3". Quita el modo avión → 0 en 15 s. Pega la etiqueta y anota modelo, sistema y PIN en el sobre del supervisor.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li><code>https://10.10.0.2/health</code> abre en el navegador del celular <b>sin</b> aviso de seguridad.</li><li>La app muestra la zona, "Conectado" y "N credenciales" igual al conteo del panel; en Dispositivos aparece conectado con 0 pendientes.</li><li>Con el Wi-Fi apagado la app vuelve a abrir desde el icono.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>"No puedo abrir la cámara": falta la CA (o la confianza total en iPhone), o abriste por <code>http://</code>.</li><li>"No pude conectar con el computador central": IP equivocada o firewall; prueba <code>/health</code> desde un portátil en el mismo SSID.</li><li>"Código no válido o caducado": pasaron 10 min o ya se usó; genera otro.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s2e">
+<h3><span class="n">2e</span>Impresora y credenciales físicas <span class="chip org">todos</span> <span class="chip time">1 h · T−7 · lotes en T−2</span></h3>
+<p class="who"><b>Quién:</b> operador de impresión con el coordinador. <b>Equipo:</b> láser color A4 (Brother HL-L3270CDW o HP M255) + papel cartulina 200 g o PVC láser, guillotina, portacredenciales 100 × 150 mm verticales, lanyards por color de rol, hologramas adhesivos numerados, tóner de repuesto. Nunca conectes la impresora al UPS.</p>
+<ol class="steps">
+  <li><div><b>Muestra</b>: en el portátil, <code>npm run print:sample</code> genera <code>apps/print/out/sample-credentials.pdf</code> (o en el panel › Impresión › Vista previa de un lote pequeño). Imprime una hoja al <b>100 %</b>, sin "ajustar a página", calidad alta.</div></li>
+  <li><div><b>Mide</b>: cada credencial debe medir 100 × 150 mm con regla; banda de color por rol, nombre legible, QR nítido, No. de acreditación legible a 1 m y código de barras del reverso entero.</div></li>
+  <li><div><b>Lee el QR impreso</b> con un scanner enrolado → verde. Si no lee: más contraste, papel mate, nada de brillo.</div></li>
+  <li><div><b>Lote de prueba</b> (usuario <code>print</code>): Impresión › crear lote por rol (STAFF) › Vista previa › Descargar PDF › imprime 20 › <b>Marcar como impreso</b>. Corta, mete en el portacredencial, pega el holograma sobre el ID corto (solo roles acreditados, no General).</div></li>
+  <li><div><b>Lotes reales en T−2</b>, en este orden: STAFF y JUR, luego COMP por club, VIP, SPON, PRESS, MED, GEN de preventa. Ordena por club en cajas etiquetadas.</div></li>
+  <li><div><b>Entrega</b> en la mesa de acreditación: documento en mano, escanear la credencial y <b>Marcar entregada</b> (o el lote completo con "Marcar entregadas").</div></li>
+</ol>
+<p>Así se ve la credencial del piloto, a dos caras. Al frente van la cabecera del evento, la foto, los datos de la persona, la banda con el rol, las zonas de acceso, el número de acreditación y el QR firmado; al dorso, la información importante, el contacto de emergencia, la EPS, los patrocinadores y un código de barras con el mismo número para el ingreso manual.</p>
+<figure class="fig">
+  <div class="badge-fig" id="badge-fig">
+    <div class="bf"><div class="fit"><div class="nb" id="badge-fig-front"></div></div><small>Anverso</small></div>
+    <div class="bf"><div class="fit"><div class="nb nb-back" id="badge-fig-back"></div></div><small>Reverso</small></div>
+  </div>
+  <figcaption>Plantilla Nacional 2026: 100 × 150 mm, anverso y reverso. Datos de ejemplo; los logos son cajas de muestra.</figcaption>
+</figure>
+<div class="note">El diseño es una <b>plantilla editable</b> desde <b>Panel › Impresión › Diseño de la credencial</b> (colores, edición, ciudad, fechas, textos por rol, logos, patrocinadores y qué datos se imprimen); el piloto usa la plantilla <b>Nacional 2026</b>. No hace falta tocar código para cambiarla.</div>
+<div class="note warn"><b>Privacidad (Ley 1581 de 2012).</b> Documento, EPS y contacto de emergencia son datos personales. Imprímelos solo si el evento lo decidió y la persona lo aceptó en la inscripción; si no, desactívalos en la plantilla. El QR nunca los contiene, y las credenciales sobrantes o dañadas se destruyen, no se botan enteras.</div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Las 20 de prueba leen en verde y en Credenciales aparecen como "Impresa"; un lote de 500 produce el PDF en menos de 60 s.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>QR borroso o colores raros: modo borrador o tóner bajo; 600 dpi y papel adecuado.</li><li>Reflejo al plastificar: usa fundas mate o deja el QR sin plastificar.</li><li>Credencial dañada en el evento: Credenciales › Re-emitir (versión nueva) › PDF individual.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s2f">
+<h3><span class="n">2f</span>Red del coliseo <span class="chip org">todos</span> <span class="chip time">2 h montaje + 1 h medición · T−1</span></h3>
+<p class="who"><b>Quién:</b> técnico. <b>Equipo:</b> kit mesh de 3 nodos (TP-Link Deco X50 o similar; alternativa Ubiquiti UniFi), 1–2 nodos extra, switch Gigabit de 5 puertos, cables Cat 6, hotspot 4G aparte solo para el host.</p>
+<ol class="steps">
+  <li><div><b>Nodo principal</b> en la sala técnica junto al host, <b>host por cable</b>, nunca por Wi-Fi. SSID de staff <b>oculto</b>, WPA2/WPA3, contraseña larga y nueva. Aislamiento de clientes <b>desactivado</b> (los scanners hablan con el host). DHCP <code>10.10.0.100–200</code>; el host en <code>10.10.0.2</code> y el respaldo en <code>10.10.0.3</code> fuera del rango. Sin salida a internet en esta red.</div></li>
+  <li><div><b>Nodo 2</b> en la mesa de acreditación (el respaldo por cable si se puede); <b>nodo 3</b> en altura sobre el área de competencia; uno más por puerta exterior o detrás de gradería de concreto. Altura 1,5–2 m, lejos de equipos de sonido.</div></li>
+  <li><div><b>Canales</b>: con mesh real se configura solo. Con repetidores clásicos: mismo SSID, canales <b>1 / 6 / 11</b> en 2,4 GHz (uno por nodo) y 36 / 44 / 52 en 5 GHz. Pega el plan de canales escrito en la sala técnica.</div></li>
+  <li><div><b>Mide la cobertura</b> con WiFiman (Ubiquiti) o WiFi Analyzer: párate donde estará cada portero y anota el RSSI. ≥ −65 dBm excelente · −65 a −70 bien · −70 a −75 mueve o añade un nodo · &lt; −75 no aceptable. La gente resta ~5 dBm: deja margen.</div></li>
+  <li><div><b>Prueba real</b>: con la PWA abierta en cada punto, el indicador debe estar en verde y "Pendientes" bajar a 0 tras un escaneo. Anota todo en el acta de T−1.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Un portátil conectado al SSID recibe IP <code>10.10.0.1xx</code> y <code>curl -sk https://10.10.0.2/health</code> responde.</li><li>Todas las puertas ≥ −70 dBm con la gradería vacía.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Una puerta queda &lt; −75: opera en modo local permanente (funciona, pero sin alertas de duplicado en tiempo real); el supervisor compara fotos con más cuidado allí.</li><li>Scanners que "ven" el SSID pero no sincronizan y avisos de certificado: posible Wi-Fi hostil (evil twin). No aceptes ningún aviso; cambia canal y contraseña del legítimo.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s2g">
+<h3><span class="n">2g</span>Energía: UPS y power banks <span class="chip org">todos</span> <span class="chip time">T−1 · prueba de 20 min</span></h3>
+<p class="who"><b>Equipo:</b> UPS 1.000 VA / 600 W (APC BX1000 o Forza NT-1011) para host + nodo principal + switch (≥ 45 min); mini-UPS 12 V por nodo mesh lejano (2–4 h); 8 power banks de 20.000 mAh (uno por scanner, consumo ~10 %/h); regletas con supresor de picos.</p>
+<ol class="steps">
+  <li><div>Conecta al UPS solo host, nodo principal y switch. La impresora a la pared (consume 500 W al calentar).</div></li>
+  <li><div>Si el host es un portátil, su batería (4–6 h) cubre; el UPS queda para la red.</div></li>
+  <li><div>Prueba de autonomía en T−1: desconecta el UPS de la pared 20 min; todo debe seguir y el UPS mostrar más del 50 %.</div></li>
+  <li><div>Power bank con cable corto fijado con velcro a la funda de cada scanner; scanners al 100 % a H−2.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Durante la prueba de 20 min el panel sigue respondiendo y ningún scanner cambia de estado.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>El UPS pita sin corte: batería vieja o sobrecarga (¿conectaste la impresora?).</li><li>Qué hacer minuto a minuto en un corte real: <a href="#s4-fallas">4.5</a>.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s2h">
+<h3><span class="n">2h</span>Radio por la red local (Tatami Radio) <span class="chip org">todos</span> <span class="chip time">10 min · T−1 · prueba con 3 celulares</span></h3>
+<p class="who"><b>Qué es:</b> voz en tiempo real entre scanners y panel por la Wi-Fi del staff, por canales (Puertas, Supervisores, Acreditación, Emergencia). Es un panel deslizable dentro del scanner; no hay app aparte. No usa internet. <b>Quién:</b> supervisor y técnico lo prueban; cada control lo usa. Detalle técnico en <code>docs/34</code>.</p>
+<h4 style="margin:12px 0 6px">Requisitos</h4>
+<ul>
+  <li><b>HTTPS con el certificado instalado</b> (paso <a href="#s2d">2d</a>). Sin HTTPS el navegador no da acceso al micrófono y la radio no aparece.</li>
+  <li><b>Permiso de micrófono</b> para la app del scanner. La primera vez el celular lo pregunta; si se negó, el botón dice "Sin micrófono · Solo escuchas. Da permiso al micrófono para hablar" y hay que activarlo en Ajustes › Safari o Chrome › Micrófono.</li>
+  <li><b>El scanner en primer plano.</b> Con la pantalla apagada o la app detrás de otra, el celular corta el audio (iOS siempre; Android tras unos segundos). Pantalla siempre encendida mientras dura el turno, como ya pide <a href="#s2d">2d</a>; el modo kiosk evita que se apague sola.</li>
+  <li><b>Todos en la misma Wi-Fi de staff</b> (<a href="#s2f">2f</a>), con aislamiento de clientes desactivado: el audio va directo de celular a celular.</li>
+</ul>
+<ol class="steps">
+  <li><div><b>Unirse a un canal.</b> En el scanner toca la píldora <b>● Radio</b> de la barra superior. Se abre el panel "Radio · {canal} · Conectada · {n} en el canal". Cada scanner entra solo al canal de su rol: las puertas a <b>Puertas</b>, los supervisores a <b>Supervisores</b> (y pueden cambiar a Puertas), la mesa a <b>Acreditación</b>. <b>Emergencia</b> lo oyen todos. Abajo, "En el canal" lista quién está; el que habla lleva el micrófono al lado.</div></li>
+  <li><div><b>Hablar (PTT).</b> Mantén pulsado el botón grande, di una frase corta, suelta. Azul = "Escuchando · Mantén pulsado para hablar"; lima con borde = "Hablando · Suelta para terminar" (ves la onda; un tono corto te avisa que tienes la palabra); ámbar = "Ocupado · Puerta 2 está hablando · sigue pulsando y te toca". Habla uno a la vez por canal: si sigues pulsando mientras otro habla entras en cola y tu micrófono se abre solo cuando suelta; si sueltas, sales de la cola.</div></li>
+  <li><div><b>Órdenes del supervisor.</b> Desde el panel › <b>Radio</b> › Enviar orden: elige el destino (un canal o una puerta) y una orden del catálogo (Abrir Puerta {n}, Cerrar Puerta {n}, Pausar ingreso, Reanudar ingreso, Supervisor a Puerta {n}, Evacuación). En el scanner suena, vibra, se lee en voz alta ("Orden: Abrir Puerta 2") y aparece con el botón <b>Recibido</b>. El panel muestra "Puerta 2 recibió 10:39"; mientras no, "sin acuse". El catálogo de órdenes y los canales se editan en Radio › Configuración.</div></li>
+  <li><div><b>Emergencia.</b> Mantén pulsado el botón rojo <b>Emergencia</b> del scanner (o del panel): entra al canal y pide la palabra en un gesto. Interrumpe lo que esté sonando en los demás canales, en todos los equipos: sirena de dos tonos, vibración larga y banner "Emergencia · {quién} está hablando a todos". Al terminar, cada equipo vuelve solo a su canal a los 5 s. Úsalo solo para eso.</div></li>
+  <li><div><b>Prueba en T−1</b> con 3 celulares en tres puntos del coliseo: habla desde cada uno, manda una orden desde el panel y comprueba que llega el Recibido. Apaga el host 1 minuto en medio de una conversación: la voz debe seguir y el botón decir "Hablando (sin host)".</div></li>
+</ol>
+<div class="note" style="margin-top:12px"><b>Qué guarda y qué no.</b> No se graba audio. El historial de Radio guarda quién habló, en qué canal, cuándo y cuánto ("Supervisor habló 6,0 s"); y cada orden con su acuse. Entra en la auditoría como cualquier otro evento.</div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>En el panel › Radio › En vivo, los 4 canales listan los equipos esperados y la columna "Hablando" cambia cuando alguien pulsa; la barra lateral dice "Radio: {n} equipos conectados".</li><li>Una orden enviada a una puerta recibe su acuse en menos de 15 s.</li><li>Con el host apagado un minuto, dos celulares que ya hablaban se siguen oyendo.</li></ul></div>
+  <div class="box fail"><h4>! Límites y si algo falla</h4><ul><li><b>Hasta 10 equipos por canal</b> (<code>radio.maxPerChannel</code>). El audio va en malla: quien habla sube una copia a cada compañero (~40 kbps por par) y con más de 10 se entrecorta. Si hay más puertas, divide: Puertas A y Puertas B. Si el canal está lleno, el scanner lo dice y pide usar otro.</li><li><b>iOS en segundo plano corta el audio.</b> Si un celular bloquea la pantalla, desaparece del canal y vuelve solo al desbloquear. El panel lo deja de listar.</li><li><b>Si cae el host</b>, el panel del scanner dice "Sin host · reconectando · {n} equipos conectados" y el botón "Escuchando (sin host)" o "Hablando (sin host)": las conversaciones abiertas continúan sin arbitraje (si dos hablan a la vez, se pisan), pero no se puede entrar a un canal nuevo ni enviar órdenes hasta que vuelva el host o se promueva el respaldo (<a href="#s2c">2c</a>). Los Recibido pendientes se envían al reconectar. El panel del host, si sigue abierto, muestra "Radio sin señalización · los equipos conectados siguen hablando".</li><li><b>Radios físicas como respaldo.</b> Ten 2–3 walkies cargados en la sala técnica y uno con el supervisor: cubren el celular en segundo plano, sin batería o fuera de la Wi-Fi, y la coordinación mientras el host no vuelve. Tatami Radio los reemplaza en el día a día; no los retira del kit.</li><li>No aparece la píldora Radio: falta HTTPS o el permiso de micrófono (requisitos de arriba). Se oye pero no te oyen: otra app tiene el micrófono (cámara de fotos, llamada); ciérrala.</li></ul></div>
+</div>
+</article>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="sec" id="s3">
+<div class="sec-head"><span class="num">SECCIÓN 3</span><h2>Configuración</h2><p class="muted">Todo lo que define el evento vive en un archivo, <code>event.config.json</code>, que se edita desde el panel › <b>Evento y roles</b> (valida, guarda y recarga en caliente). La nube usa la misma forma para los cupos del formulario. Durante el evento solo el Administrador lo cambia y queda en auditoría.</p></div>
+
+<article class="sub" id="s3-config">
+<h3><span class="n">3.1</span><code>event.config.json</code> campo por campo <span class="chip org">todos</span></h3>
+<p class="small muted">Resumen de <code>docs/32-CONFIG-EVENTO.md</code> (generado desde el código). Los valores de ejemplo son los que trae por defecto para <code>nac2026</code>.</p>
+<h4 style="margin-top:14px">Datos del evento</h4>
+<div class="tbl"><table><thead><tr><th>Campo</th><th>Qué es</th><th>Por defecto</th></tr></thead><tbody>
+<tr><td><code>eventId</code></td><td>Identificador; va dentro del QR. <b>No cambiarlo después de emitir.</b></td><td><code>nac2026</code></td></tr>
+<tr><td><code>name</code></td><td>Nombre completo (se imprime y se pide al confirmar la purga).</td><td>Campeonato Nacional de Taekwondo ITF 2026</td></tr>
+<tr><td><code>idPrefix</code></td><td>Prefijo de los IDs cortos.</td><td><code>TP-2026</code></td></tr>
+<tr><td><code>startDate</code> / <code>endDate</code></td><td>Primer y último día. La edad se calcula al primer día.</td><td>2026-11-20 / 2026-11-22</td></tr>
+<tr><td><code>utcOffsetMinutes</code></td><td>Zona horaria en minutos.</td><td><code>-300</code> (Colombia)</td></tr>
+<tr><td><code>totalCapacity</code></td><td><b>Aforo total</b> (personas con credencial). <code>null</code> = sin límite.</td><td>2000</td></tr>
+<tr><td><code>companions.perParticipant</code></td><td><b>Acompañantes por participante.</b></td><td>2</td></tr>
+<tr><td><code>companions.total</code></td><td>Acompañantes en todo el evento. <code>null</code> = sin límite.</td><td>sin límite</td></tr>
+<tr><td><code>duplicateWindowSeconds</code></td><td>Mismo QR en dos puertas dentro de esta ventana → alerta.</td><td>120</td></tr>
+<tr><td><code>digitalTokenWindowSeconds</code></td><td>Vida del QR rotativo de la credencial digital.</td><td>60</td></tr>
+<tr><td><code>clockToleranceSeconds</code></td><td>Tolerancia de reloj para el QR rotativo.</td><td>300</td></tr>
+<tr><td><code>signingKeys</code></td><td>Clave pública con la que verifican los scanners. <b>La escribe el host al arrancar</b>; no se edita.</td><td>—</td></tr>
+<tr><td><code>configVersion</code></td><td>Número que sube en cada guardado; si dos admins guardan a la vez, el segundo recibe un aviso.</td><td>1</td></tr>
+</tbody></table></div>
+
+<h4>Zonas (<code>zones[]</code>)</h4>
+<p class="small">Cada zona tiene <code>code</code> (mayúsculas, va en el QR), <code>name</code> y <code>tracksExit</code> (si controla salida; necesario para anti-passback).</p>
+<div class="tbl compact"><table><thead><tr><th>Código</th><th>Nombre</th><th>Controla salida</th></tr></thead><tbody>
+<tr><td><code>G</code></td><td>Gradería</td><td>no</td></tr><tr><td><code>W</code></td><td>Área de calentamiento</td><td>sí</td></tr><tr><td><code>T</code></td><td>Tatamis</td><td>sí</td></tr><tr><td><code>P</code></td><td>Pesaje</td><td>sí</td></tr><tr><td><code>J</code></td><td>Sala de jueces</td><td>sí</td></tr><tr><td><code>V</code></td><td>Palco</td><td>sí</td></tr><tr><td><code>H</code></td><td>Zona de hospitalidad</td><td>sí</td></tr><tr><td><code>S</code></td><td>Stands</td><td>no</td></tr><tr><td><code>M</code></td><td>Zona de prensa</td><td>sí</td></tr>
+</tbody></table></div>
+
+<h4>Roles de acceso (<code>roles[]</code>)</h4>
+<p class="small">Cada rol define <code>zones</code> (<code>["*"]</code> = todas), <code>days</code> (fechas válidas o <code>null</code> = todos los días), <code>capacity</code> (<b>número o <code>null</code> = sin límite</b>), <code>requiresPhoto</code>, <code>color</code> (franja de la credencial y del lanyard), <code>allowsDigital</code> (credencial en el celular) y <code>antiPassbackZones</code>. El rol <code>ACOMP</code> es especial: no cuenta contra su propio cupo sino contra <code>companions</code> y <code>totalCapacity</code>.</p>
+<div class="tbl"><table><thead><tr><th>Rol</th><th>Nombre</th><th>Zonas</th><th>Cupo</th><th>Foto</th><th>Digital</th><th>Anti-passback</th></tr></thead><tbody>
+<tr><td><span class="chip" style="--rc:var(--r-GEN)">GEN</span></td><td>General</td><td>G</td><td class="num">1.500</td><td>no</td><td>sí</td><td>—</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-COMP)">COMP</span></td><td>Competidor</td><td>G, W, T, P</td><td class="num">1.200</td><td>sí</td><td>no</td><td>W, T, P</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-COACH)">COACH</span></td><td>Coach / Entrenador</td><td>G, W, T</td><td class="num">300</td><td>sí</td><td>no</td><td>W, T</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-JUR);color:var(--bg)">JUR</span></td><td>Jurado / Árbitro</td><td>G, W, T, J</td><td class="num">80</td><td>sí</td><td>no</td><td>J</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-VIP)">VIP</span></td><td>VIP</td><td>G, V, H</td><td class="num">100</td><td>sí</td><td>no</td><td>V</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-SPON)">SPON</span></td><td>Patrocinador</td><td>G, H, S</td><td class="num">60</td><td>sí</td><td>no</td><td>—</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-PRESS)">PRESS</span></td><td>Prensa</td><td>G, M, T</td><td class="num">40</td><td>sí</td><td>no</td><td>M</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-MED)">MED</span></td><td>Médico</td><td>todas</td><td class="num">20</td><td>sí</td><td>no</td><td>—</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-STAFF)">STAFF</span></td><td>Staff / Organización</td><td>todas</td><td class="num">150</td><td>sí</td><td>no</td><td>—</td></tr>
+<tr><td><span class="chip" style="--rc:var(--r-ACOMP)">ACOMP</span></td><td>Acompañante</td><td>G</td><td>sin límite</td><td>no</td><td>sí</td><td>—</td></tr>
+</tbody></table></div>
+
+<h4>Categorías de edad (<code>ageCategories[]</code>)</h4>
+<p class="small">Edad calculada al primer día del evento. Un competidor debe caer en una; si elige otra, el formulario y la emisión en sitio lo bloquean y le dicen cuál le corresponde. Cada categoría puede tener su propio <code>capacity</code>. No pueden solaparse.</p>
+<div class="tbl compact"><table><thead><tr><th>Código</th><th>Nombre</th><th>Edad</th></tr></thead><tbody>
+<tr><td><code>INF_A</code></td><td>Infantil A</td><td>6–9</td></tr><tr><td><code>INF_B</code></td><td>Infantil B</td><td>10–13</td></tr><tr><td><code>JUV</code></td><td>Juvenil</td><td>14–17</td></tr><tr><td><code>ADU</code></td><td>Adulto</td><td>18–35</td></tr><tr><td><code>SEN</code></td><td>Senior</td><td>36 en adelante</td></tr>
+</tbody></table></div>
+
+<h4>Cómo cambiar algo sin romper nada</h4>
+<ol class="steps" style="margin-top:8px">
+  <li><div><b>Subir un cupo</b>: Evento y roles › el rol › Cupo › Guardar. Sube la lista de espera en orden de llegada (el coordinador aprueba). Bajarlo por debajo de lo emitido no anula nada, solo bloquea emisiones nuevas.</div></li>
+  <li><div><b>Crear un rol</b> ("Voluntario"): Evento y roles › <b>Nuevo rol</b>: código en mayúsculas (<code>VOL</code>), nombre, zonas, cupo, foto, color, digital. Guarda. Llega a los scanners en menos de un minuto. Compra lanyards del color. No reutilices un código que ya existió.</div></li>
+  <li><div><b>Cambiar las zonas de un rol</b> afecta solo a credenciales <b>nuevas</b> (las ya emitidas llevan sus zonas firmadas en el QR). Para una persona ya acreditada: Credenciales › Editar zonas → re-emite automáticamente y hay que reimprimir.</div></li>
+  <li><div><b>Anti-passback de una zona</b> (<code>tracksExit</code>) aplica de inmediato en todos los scanners: es una regla, no va en el QR.</div></li>
+  <li><div class="tech"><b>Validar a mano</b> antes de guardar: <code>POST /config/validate</code> con <code>{ config }</code> devuelve errores por campo; o desde la raíz del repo tras <code>npm run build -w packages/core</code>: <pre><code>npx tsx -e "import('@tatami/core').then(m =&gt; console.log(m.validateEventConfig(JSON.parse(require('fs').readFileSync('apps/host/event.config.json','utf8')))))"</code></pre></div><div class="only-tech-hint" style="margin:0">Paso técnico oculto: validación por consola o API.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>El panel guarda sin marcar ningún campo en rojo y en Dispositivos los scanners muestran la configuración nueva ("config v<i>N</i>") en menos de un minuto.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>"La zona X no existe": creaste el rol antes que la zona. Crea la zona primero.</li><li>"Otro administrador guardó antes" (409): recarga y repite tu cambio.</li><li>El formulario online dice "cupo lleno" pero ves cupo: es el cupo de la categoría o del rol, no el aforo total.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s3-usuarios">
+<h3><span class="n">3.2</span>Usuarios y roles del sistema <span class="chip org">todos</span></h3>
+<p>Siete roles, cada uno ve solo sus páginas y el host lo aplica en cada acción (copiar un enlace no sirve de nada). Una cuenta por persona, nunca compartidas; los porteros no usan usuario sino el PIN del scanner.</p>
+<div class="tbl"><table><thead><tr><th>Rol</th><th>Dónde</th><th>Qué hace</th><th>Qué no puede</th></tr></thead><tbody>
+<tr><td><b>Administrador</b></td><td>Nube + host</td><td>Configura evento, roles, zonas, cupos, categorías, claves; crea usuarios; ve todo.</td><td>Escanear (usa un scanner enrolado).</td></tr>
+<tr><td><b>Coordinador</b></td><td>Nube + host</td><td>Aprueba inscripciones, resuelve duplicados, importa SportData, emite, re-emite, anula, resuelve alertas.</td><td>Cambiar claves, borrar registros, crear roles.</td></tr>
+<tr><td><b>Operador de impresión</b></td><td>Host</td><td>Lotes, PDF, reimprimir, marcar impresas y entregadas.</td><td>Emitir, aprobar, anular.</td></tr>
+<tr><td><b>Inscriptor (club)</b></td><td>Nube</td><td>Inscribe a los suyos, sube fotos, ve su estado.</td><td>Ver otros clubes.</td></tr>
+<tr><td><b>Control de entradas</b></td><td>Scanner (PIN)</td><td>Escanea, compara foto, registra salida, ingreso manual con motivo.</td><td>Cambiar zona o modo, autorizar excepciones.</td></tr>
+<tr><td><b>Supervisor de puerta</b></td><td>Scanner + host</td><td>Todo lo de Control + excepciones con PIN, alertas en vivo, cambiar zona, enrolar y desactivar scanners.</td><td>Emitir o anular (lo pide al coordinador).</td></tr>
+<tr><td><b>Auditor</b></td><td>Host + nube</td><td>Solo lectura: auditoría, verificación de la cadena, reportes, exportación.</td><td>Cualquier cambio.</td></tr>
+</tbody></table></div>
+<ol class="steps">
+  <li><div>Panel › <b>Usuarios</b> › Nuevo: nombre de usuario, contraseña (mínimo 8), rol. Crea un <code>coord</code>, un <code>print</code>, un <code>super</code> por supervisor y un <code>audit</code>.</div></li>
+  <li><div>En la nube, <code>/panel</code> › Clubes e inscriptores › invita por correo (la invitación vence a los 7 días).</div></li>
+  <li><div>Cambia la contraseña del <code>admin</code> inicial y anótala en el sobre sellado.</div></li>
+  <li><div>En T+1 desactiva Control, Supervisor y Operador; Coordinador y Auditor siguen hasta T+90.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Entras con <code>print</code> y solo ves Impresión y Credenciales; con <code>audit</code> no hay ningún botón de acción.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Alguien olvidó la contraseña: Usuarios › Restablecer (solo Administrador).</li><li>"No puedes desactivarte a ti mismo": pide a otro administrador.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s3-claves">
+<h3><span class="n">3.3</span>Claves: firma, passphrase, clave de la nube, y cómo rotarlas <span class="chip org">todos</span></h3>
+<div class="tbl"><table><thead><tr><th>Clave</th><th>Para qué</th><th>Dónde vive</th><th>Quién la custodia</th></tr></thead><tbody>
+<tr><td><b>Clave de firma</b> (<code>k1</code>, Ed25519)</td><td>Firma cada QR. Los scanners solo tienen la pública.</td><td>Cifrada en <code>keys/signing.enc.json</code> del host (y en la nube para el QR digital). <b>Nunca</b> en el snapshot ni en el respaldo sin cifrar.</td><td>Administrador + técnico; copia en USB cifrada fuera de la sede.</td></tr>
+<tr><td><b>Passphrase</b> (<code>TP_KEY_PASSPHRASE</code>)</td><td>Descifra la clave de firma y deriva la clave que cifra documento y fecha de nacimiento.</td><td>Solo en el <code>.env</code> del host (o en la app) y en el sobre sellado.</td><td>Dos personas distintas (Administrador y Coordinador).</td></tr>
+<tr><td><b>Clave de la nube</b> (<code>TP_CLOUD_KEY</code>)</td><td>El host se identifica ante la nube para traer inscripciones y reportar estados.</td><td>Vercel (Production) y <code>.env</code> del host. Se puede regenerar desde Panel › Exportar.</td><td>Técnico.</td></tr>
+<tr><td><b>Clave de replicación</b> (<code>TP_REPLICA_KEY</code>)</td><td>El respaldo se identifica ante el principal.</td><td><code>.env</code> de ambos.</td><td>Técnico.</td></tr>
+<tr><td><b>Contraseña del Wi-Fi de staff</b></td><td>Acceso a la LAN.</td><td>Router; sobre del supervisor.</td><td>Técnico y supervisores.</td></tr>
+</tbody></table></div>
+<ol class="steps">
+  <li><div><b>Generar la clave del evento</b> (una vez, T−14): la app lo hace en el asistente; en Docker la genera el host al primer arranque con la passphrase del <code>.env</code>. Anota la huella de la pública (panel › Sistema) en el acta.</div></li>
+  <li><div><b>Compartirla con la nube</b> para la credencial digital <span class="chip tech">técnico</span>: <span class="tech">exporta con <code>cd apps/host &amp;&amp; TP_KEY_PASSPHRASE='…' npx tsx -e "import('./src/config.ts').then(m =&gt; console.log(JSON.stringify(m.loadSigningKey())))"</code> y pega el JSON en <code>TP_SIGNING_KEY</code> (solo Production) en Vercel.</span></div></li>
+  <li><div><b>Rotar la clave de la nube</b>: Panel de la nube › Exportar › <b>Generar clave nueva</b>; cámbiala en el host y reinicia. Mientras tanto el host dice "clave inválida" y sigue operando con lo que tiene.</div></li>
+  <li><div><b>Si se filtra la clave de firma</b> (minuto 0): el Administrador la marca como comprometida en el panel; los scanners pasan a ámbar para todo lo firmado con ella ("Revisa con el supervisor": foto + documento). Minuto 5: generar <code>k2</code>; la pública llega a los scanners por sync. Minuto 15: re-emitir y canjear primero JUR, STAFF, MED, VIP; después COMP y COACH por club. Registrar el incidente.</div></li>
+  <li><div><b>Al cerrar el evento (T+1)</b>: destruir la clave privada (host, nube y USB). Conservar la pública para verificar el registro histórico.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Panel › Sistema muestra la clave <code>k1</code> con su huella y "cifrado de datos personales: activo".</li><li>Una credencial digital de prueba (correo de aprobación) sale verde en un scanner.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>La credencial digital sale "La firma no coincide": la nube firma con otra clave; vuelve a exportar <code>TP_SIGNING_KEY</code>.</li><li>Perdiste la passphrase: no hay recuperación; genera clave nueva y re-emite todo. Por eso van dos personas con el sobre.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s3-copias">
+<h3><span class="n">3.4</span>Copias de seguridad <span class="chip org">todos</span></h3>
+<p>El host hace una copia completa de su base cada <b>5 minutos</b> a dos sitios: su propia carpeta y una USB cifrada. Guarda las 48 últimas (4 h) y una por hora (72 h). Además el respaldo replica cada 10 s y, cuando hay internet, el host sube a la nube un resumen.</p>
+<ol class="steps">
+  <li><div><b>Dos USB cifradas</b> (USB-A y USB-B) preparadas en T−7 <span class="chip tech">técnico</span>: <span class="tech"><code>sudo cryptsetup luksFormat /dev/sdX</code> · <code>cryptsetup open</code> · <code>mkfs.ext4</code> · montar en <code>/media/usb-a</code> y pasar <code>TP_BACKUPS_DIR_2=/backups2</code> al host (90 §3.3). En la app de escritorio: Ajustes › Copias › "Segunda carpeta" apuntando a una USB con BitLocker/FileVault.</span></div></li>
+  <li><div><b>Rotación cada 2 h</b> durante el evento: la USB que sale se guarda en la mesa de acreditación (otro punto físico). Así siempre hay una copia de hace ≤ 2 h fuera de la sala del host.</div></li>
+  <li><div><b>Verificar</b>: panel › Sistema › Copias › <b>Verificar</b> abre la copia, comprueba su integridad y compara conteos. Se hace en T−7, T−1 y al cierre de cada día.</div></li>
+  <li><div><b>Restaurar</b> (host apagado, solo Administrador): panel › Sistema › Restaurar (escribe RESTAURAR; guarda antes una copia del estado actual), o <span class="tech"><code>npm run restore -w apps/host -- &lt;archivo&gt; --yes</code></span>. Objetivo: menos de 15 min desde "decidimos restaurar" hasta scanners en verde. Se practica en el simulacro.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Sistema › "Última copia hace N min" con N &lt; 10 y el mensaje "también en el segundo destino".</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>"Segundo destino" falla: la USB no está montada; la copia local sigue. Monta y vuelve a intentar.</li><li>Copia de más de 10 min: alerta roja en el panel; revisa disco lleno o el programador en Sistema.</li></ul></div>
+</div>
+</article>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="sec" id="s4">
+<div class="sec-head"><span class="num">SECCIÓN 4</span><h2>Cómo debe funcionar en el evento</h2><p class="muted">El runbook de <code>docs/50</code> y los manuales de <code>docs/60</code> condensados. Regla de oro: <b>la puerta nunca se detiene</b> por red, host o nube. Modo local → planilla → captura después.</p></div>
+
+<article class="sub" id="s4-crono">
+<h3><span class="n">4.1</span>De T−30 a T+90 <span class="chip org">todos</span></h3>
+<div class="timeline">
+  <div><b>T−30 días</b><p>Evento creado en la nube, <code>event.config.json</code> v1 con cupos y categorías. Abrir inscripción y publicar el aviso de privacidad. Comprar equipo (lanyards tardan 2–3 semanas). Definir puertas y zonas con el coliseo. Reclutar: 1 coordinador, 1–2 operadores de impresión, 2 supervisores por turno, 1 portero por scanner por turno, 1 auditor, 1 técnico.</p></div>
+  <div><b>T−14</b><p>Primera importación SportData de prueba. Instalar host y respaldo; generar la clave. Diseño de credencial aprobado; 10 impresas de prueba leídas con el scanner. Prueba en casa (<a href="#s7-casa">7.2</a>).</p></div>
+  <div><b>T−7 · Simulacro obligatorio</b><p>Congelar el software: lo que pasa el simulacro es lo que se usa. Importación SportData definitiva. Capacitación de 2 h con los manuales por rol; acta firmada. Simulacro de 2 h con fallos inyectados y decisión go/no-go (<a href="#s7-simulacro">7.3</a>). Checklist de seguridad (40 §9). USB cifradas listas.</p></div>
+  <div><b>T−2</b><p>Cierre de inscripciones. El coordinador aprueba pendientes y resuelve duplicados. Emisión masiva, "Traer ahora" al host, impresión por lotes, hologramas, lanyards, cajas por club.</p></div>
+  <div><b>T−1 · Montaje</b><p>Red montada y medida; host en UPS; respaldo en la mesa de acreditación; prueba de 20 min sin corriente. Enrolar los 8 scanners y etiquetar. Sobres de modo degradado por puerta. Copia a USB verificada. Smoke test D−1 (<a href="#s7-smoke">7.4</a>). Reunión de 30 min con supervisores: puertas, radios, señas, escalamiento.</p></div>
+  <div><b>Día D</b><p>Ver <a href="#s4-diad">4.2</a>.</p></div>
+  <div><b>T+1 · Cierre</b><p>Última sincronización con la nube; verificar cadena de auditoría; exportes cifrados para el comité (asistencia por zona y día, incidencias, ingresos manuales, re-emisiones); retrospectiva de 1 h. Desenrolar scanners y borrar sus datos; destruir listas y planillas con acta; desactivar usuarios de puerta; destruir la clave privada; host apagado bajo llave con USB-A, USB-B con el Administrador.</p></div>
+  <div><b>T+90 · Purga</b><p>Sistema › Purgar datos personales (doble confirmación con el nombre del evento) y en la nube borrar base y fotos. Borrado seguro de las USB. El auditor firma el acta final. Quedan escaneos y auditoría sin datos personales.</p></div>
+</div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que vamos bien</h4><ul><li>En T−7 los 16 ítems del go/no-go están en verde (o ámbar con plan antes de T−2).</li><li>En T−1 el checklist del día D impreso está completo y firmado.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Un ítem rojo en T−7 abre un defecto P1 que se corrige y re-verifica con la misma prueba antes de T−2; si no, no hay go.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s4-diad">
+<h3><span class="n">4.2</span>Día D, hora a hora <span class="chip org">todos</span></h3>
+<div class="tbl"><table><thead><tr><th>Hora</th><th>Quién</th><th>Qué pasa</th></tr></thead><tbody>
+<tr><td><b>H−2:00</b></td><td>Técnico</td><td>Enciende todo. <code>/health</code> en verde y <code>audit.ok</code>; respaldo con lag ≤ 10 s; copia manual en los dos destinos; hotspot conectado solo al host; Nube › <b>Traer ahora</b>. Scanners al 100 % con power bank.</td></tr>
+<tr><td><b>H−1:30</b></td><td>Coordinador + Operador</td><td>Abre la mesa de acreditación para delegaciones: documento en mano, escanear, <b>Marcar entregada</b>. "Pendientes de imprimir" debe estar en 0 antes de abrir.</td></tr>
+<tr><td><b>H−1:00</b></td><td>Porteros + Supervisores</td><td>Cada portero en su puesto con PIN ingresado, zona y modo correctos en pantalla, "Conectado", power bank, sobre de modo degradado. Escaneo de prueba con la credencial del supervisor en cada puerta: verde.</td></tr>
+<tr><td><b>H−0:30</b></td><td>Todos</td><td>Apertura al público (GEN). Puerta principal con 2 scanners y una <b>mesa de ayuda</b> lateral para quien tenga problemas, así la fila no se frena.</td></tr>
+<tr><td><b>Cada 2 h</b></td><td>Técnico</td><td>Rotación USB-A ↔ USB-B. Revisa el semáforo: dispositivos conectados, pendientes, última copia, respaldo, nube.</td></tr>
+<tr><td><b>Cada 3 h</b></td><td>Porteros</td><td>Cambio de turno con 30 min de pausa. El saliente toca menú ⋯ › <b>Terminar turno</b> (resumen); el entrante escribe su nombre y su PIN.</td></tr>
+<tr><td><b>Pico de ingreso</b></td><td>Supervisor</td><td>Se queda en la puerta principal apartando casos a la mesa de ayuda. En Tatamis, Jueces y Palco refuerza la comparación de foto.</td></tr>
+<tr><td><b>Final del día</b></td><td>Todos</td><td>Scanners de salida registran salidas; porteros terminan turno; scanners a cargar. Técnico: copia manual, verificar cadena, descargar el reporte de cierre. El host <b>no se apaga</b>: sigue sincronizando con la nube.</td></tr>
+</tbody></table></div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>A las H−1:00 todas las puertas tienen su escaneo de prueba verde y 0 pendientes.</li><li>Al cierre: pendientes 0 en todos los scanners, copia verificada, "Registro íntegro hasta el número N".</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Pendientes que no bajan en una puerta: cobertura (RSSI) o host caído; la puerta sigue escaneando. Ver <a href="#s4-fallas">4.5</a>.</li><li>Un scanner se agota: pasa el de reserva (ya enrolado); el supervisor le cambia la zona desde su PIN.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s4-roles">
+<h3><span class="n">4.3</span>Qué hace cada rol <span class="chip org">todos</span></h3>
+<p class="small muted">Resumen de los manuales de <code>docs/60-MANUALES-POR-ROL.md</code>; cada uno se puede imprimir por separado. Dos ideas para todos: <b>si algo se cae, tu trabajo sigue igual</b>; y <b>si tienes duda, llama al supervisor</b>: nadie te regaña por preguntar.</p>
+<div class="grid2">
+  <div class="card"><h4>Administrador del evento <span class="small muted">(60 §1)</span></h4><p>Deja el evento configurado una vez y no lo toca el día D. Mira el panel cada hora: Puertas en vivo y Sistema. Decide subidas de cupo y si se desactiva un scanner. Después: revisa exportes, desactiva usuarios, destruye la clave con el técnico.</p></div>
+  <div class="card"><h4>Coordinador de acreditación <span class="small muted">(60 §2)</span></h4><p>Que cada persona que debe tener credencial la tenga, y nadie más. Aprueba, resuelve duplicados, emite y re-emite, anula por pérdida o fraude, libera lista de espera. En la mesa de acreditación con documento en mano.</p></div>
+  <div class="card"><h4>Operador de impresión <span class="small muted">(60 §3)</span></h4><p>Imprime lotes sin errores y sabe qué entregó. Crea lotes, PDF, marca impresas, reimprime una, marca entregadas contra documento. Nunca emite ni anula.</p></div>
+  <div class="card"><h4>Inscriptor de club <span class="small muted">(60 §4)</span></h4><p>Inscribe a sus atletas y coaches en 10 min desde el celular, sube fotos, corrige datos antes de la aprobación, ve el estado de cada uno. Solo ve su club.</p></div>
+  <div class="card"><h4>Control de entradas (portero) <span class="small muted">(60 §5)</span></h4><p>El manual más importante. Escanea, mira la foto y la cara, deja pasar o no según la pantalla. Pantalla <b>verde</b> "Adelante, Juan" · <b>roja</b> "No puede entrar" + por qué + qué hacer · <b>ámbar</b> "Revisa con el supervisor". Registra salidas, hace ingreso manual con motivo, termina turno. No cambia zona ni modo.</p></div>
+  <div class="card"><h4>Supervisor de puerta <span class="small muted">(60 §6)</span></h4><p>Resuelve excepciones sin parar la fila. Autoriza con su PIN (queda en el registro), atiende alertas de duplicado (documento en mano, retiene la copia, pide anular), cambia zona o modo, enrola y desactiva scanners, pasa una puerta a modo degradado.</p></div>
+  <div class="card"><h4>Auditor <span class="small muted">(60 §7)</span></h4><p>Reconstruye qué pasó con pruebas. Verifica la cadena de auditoría al cierre de cada día, revisa ingresos manuales por dispositivo, exporta con huella SHA-256. Solo lectura.</p></div>
+  <div class="card"><h4>Participante y público <span class="small muted">(60 §8)</span></h4><p>Se inscribe, recibe la credencial (física en acreditación o digital por correo), la cuida (no la presta, no la fotografía). Si la pierde: mesa de acreditación con documento. Sus datos se borran a los 90 días.</p></div>
+</div>
+<h4>Qué hace cada rol ante una alerta</h4>
+<div class="tbl"><table><thead><tr><th>Pantalla</th><th>Portero</th><th>Supervisor</th><th>Coordinador</th></tr></thead><tbody>
+<tr><td>Ámbar "se usó en otra puerta hace 1 min"</td><td>No deja pasar; la persona espera a un lado; avisa.</td><td>Va a la puerta; documento vs credencial; retiene la copia; registra incidencia.</td><td>Anula y re-emite al titular legítimo.</td></tr>
+<tr><td>Roja "fue anulada"</td><td>No entra; mesa de acreditación.</td><td>Si insiste, verifica con el coordinador.</td><td>Explica el motivo; re-emite si procede.</td></tr>
+<tr><td>Roja "ya entró a Tatamis a las 9:14"</td><td>Que salga por el scanner de salida y vuelva; si no hay, llama.</td><td>Verifica; puede autorizar excepción con motivo.</td><td>—</td></tr>
+<tr><td>Roja "La firma no coincide"</td><td>No entra; llama; retiene la credencial si puede sin conflicto.</td><td>Documento; incidencia de fraude.</td><td>Anula si existe; informa al administrador.</td></tr>
+<tr><td>Muchos ingresos manuales en un scanner</td><td>—</td><td>Pregunta al portero; revisa el registro del dispositivo.</td><td>—</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="sub" id="s4-persona">
+<h3><span class="n">4.4</span>El recorrido de una persona <span class="chip org">todos</span></h3>
+<ol class="steps">
+  <li><div><b>Inscripción</b> (inscriptor, nube): formulario con edad, cupo y consentimiento del acudiente si es menor. Estado <i>inscrito → validado</i>. Si el cupo está lleno, lista de espera con oferta de 48 h cuando se libera.</div></li>
+  <li><div><b>Aprobación</b> (coordinador, nube): revisa, resuelve duplicados, aprueba. Correo "Inscripción aprobada". Los acompañantes heredan el estado.</div></li>
+  <li><div><b>Emisión</b> (host): "Traer ahora" crea la persona y su credencial con ID corto, QR firmado y versión 1. Para público y acompañantes, la credencial digital se activa cuando el host reporta a la nube.</div></li>
+  <li><div><b>Impresión y entrega</b> (operador, host): lote, PDF, holograma, lanyard. En la mesa: documento, escanear, <i>entregada</i>.</div></li>
+  <li><div><b>Puerta</b> (portero, scanner zona G): verde "Adelante, Juan", compara foto, pasa. El escaneo se guarda en el celular y sube cuando hay red.</div></li>
+  <li><div><b>Zona interna</b> (scanner zona T): mismo gesto; se valida que su rol tenga Tatamis.</div></li>
+  <li><div><b>Salida</b> (scanner T en modo Salida): "Salida registrada". Libera el anti-passback.</div></li>
+  <li><div><b>Reingreso</b>: verde de nuevo porque hay salida registrada.</div></li>
+  <li><div><b>Pérdida</b>: mesa de acreditación con documento → Re-emitir (versión 2) → imprimir individual → entregar. La vieja sale roja "Hay una credencial más nueva" en todos los scanners en menos de un minuto.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Credenciales › la ficha muestra la línea de tiempo: emitida → impresa → entregada → escaneos por zona.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Llega alguien sin inscripción (prensa, staff de última hora): Inscripciones › <b>Emitir en sitio</b> (valida rol, cupo, edad, acudiente), PDF individual, entregar. Sin foto: el scanner muestra iniciales.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s4-fallas">
+<h3><span class="n">4.5</span>Si se va la red, la luz, se pierde una credencial o hay un QR duplicado <span class="chip org">todos</span></h3>
+<div class="grid2">
+  <div class="card lvl" style="--lc:var(--amber)"><h4>Se va la red (Wi-Fi o host)</h4><p><b>Nada cambia en la puerta.</b> El punto pasa a gris "Sin conexión · sigue escaneando" y Pendientes sube. Lo único que se pierde es la alerta de duplicado entre puertas: en Tatamis, Jueces y Palco se compara la foto con más cuidado. Técnico: RSSI en la puerta y <code>/health</code> del host. Si el host no vuelve en 2 min: <b>promover el respaldo</b>; los scanners reconectan solos (tienen las dos direcciones) o el supervisor cambia la dirección en menú ⋯.</p></div>
+  <div class="card lvl" style="--lc:var(--red)"><h4>Se va la luz</h4><p><b>Min 0</b>: UPS pita; host y red siguen; scanners ni se enteran. Radio: "corte de energía, todo sigue, no cambien nada". No imprimir. <b>Min 5</b>: copia manual; respaldo con lag 0. <b>Min 15</b>: si no hay estimación &lt; 30 min, apagar el host principal con orden y <b>promover el respaldo</b> (tiene batería). <b>Min 45</b>: UPS agotado, cae el nodo principal; las puertas que cubría quedan en local. <b>Horas 2–4</b>: cae todo; scanners solos. Si un scanner se agota: modo degradado en esa puerta. <b>Vuelve la luz</b>: red, luego host como respaldo del que quedó como principal; verificar que pendientes baja a 0 y la cadena de auditoría.</p></div>
+  <div class="card lvl" style="--lc:var(--blue)"><h4>Se pierde una credencial</h4><p>La persona va a acreditación con documento. Coordinador: Credenciales › buscar › <b>Anular</b> (motivo "pérdida") › <b>Re-emitir</b>. Operador imprime individual y entrega. Si alguien usa la perdida: rojo "Hay una credencial más nueva" e incidencia para el supervisor. No existe "des-anular": se re-emite.</p></div>
+  <div class="card lvl" style="--lc:var(--tech)"><h4>QR duplicado (copia en uso)</h4><p>Ámbar en el segundo scanner y alerta en el panel (mismo QR en dos puertas en &lt; 2 min). Ambos porteros retienen a la persona a un lado, sin confrontar. El supervisor verifica documento contra credencial: la que coincide entra, la otra se retiene. Coordinador anula y re-emite al titular. Alertas › Resolver con nota.</p></div>
+  <div class="card lvl" style="--lc:var(--green)"><h4>Se pierde un scanner</h4><p>Supervisor: Dispositivos › <b>Desactivar</b> (su sync queda bloqueado); entrega el de reserva enrolado. A bordo solo hay nombre, foto y rol, nunca documento. Revisa sus últimos ingresos manuales. Informa al cierre.</p></div>
+  <div class="card lvl" style="--lc:var(--r-JUR)"><h4>No hay scanner en una puerta (modo degradado)</h4><p>Solo cuando no hay scanner ni reserva (no por falta de red). El supervisor abre el <b>sobre sellado</b>: lista de credenciales de esa zona (ID, nombre, foto) y planilla. Portero: color y franja, ID en la lista, foto, anota hora/ID/nombre/E-S. Después, Supervisor › Ingreso manual › <b>Captura de planilla</b> con motivo PLANILLA; la planilla se destruye en T+1 con acta.</p></div>
+</div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Tras cualquier incidente: pendientes en 0, "Registro íntegro hasta el número N" y una incidencia registrada en el panel con hora, puerta, personas y decisión.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Promover falla con "lag &gt; 0": el respaldo no estaba al día; promueve con fuerza (acepta perder los últimos segundos; los scanners reenvían lo pendiente).</li><li>Después de una promoción nunca reenciendas el principal viejo como principal.</li></ul></div>
+</div>
+</article>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="sec" id="s5">
+<div class="sec-head"><span class="num">SECCIÓN 5</span><h2>Documentación de producto</h2><p class="muted">Lo esencial de <code>docs/10-PRD.md</code> y de las decisiones (<code>docs/00</code>, <code>docs/95-ADR</code>). Para saber qué hace el producto, qué no, y por qué está hecho así.</p></div>
+
+<article class="sub" id="s5-prd">
+<h3><span class="n">5.1</span>Resumen del PRD <span class="chip org">todos</span></h3>
+<p><b>Problema:</b> en los nacionales ITF en Colombia la acreditación se resuelve con escarapelas de papelería, listas en Excel y voluntarios que reconocen "de vista". Resultado: filas de 30–40 min, escarapelas fotocopiadas o prestadas, listas desactualizadas, sin registro de quién entró y cualquier sistema "en la nube" inútil a las 8:00 a. m.</p>
+<h4 style="margin-top:12px">Objetivos y métricas</h4>
+<div class="tbl"><table><thead><tr><th>#</th><th>Objetivo</th><th>Meta</th><th>Cómo se mide</th></tr></thead><tbody>
+<tr><td>O1</td><td>Ingreso rápido</td><td>&lt; 300 ms de validación; &lt; 10 s por persona con foto</td><td>Telemetría del scanner + cronómetro en el simulacro</td></tr>
+<tr><td>O2</td><td>Funciona sin red</td><td>100 % de los escaneos resueltos en el celular</td><td>Registro de escaneos</td></tr>
+<tr><td>O3</td><td>Reconciliación fiable</td><td>0 perdidos tras 1 h sin red; 5.000 eventos en &lt; 30 s</td><td><code>npm run simulate</code> + conteo host vs scanner</td></tr>
+<tr><td>O4</td><td>Cero fraude aceptado</td><td>0 de ≥ 50 intentos inyectados</td><td>Guion del simulacro</td></tr>
+<tr><td>O5</td><td>Pico absorbido</td><td>≥ 1.500 personas en 60 min con 6 puertas, sin fila &gt; 10 min</td><td>Simulación + conteo real</td></tr>
+<tr><td>O6</td><td>Resiliencia a energía</td><td>Recuperación &lt; 10 min desde USB, 0 perdidos</td><td>Prueba de corte en el simulacro</td></tr>
+<tr><td>O7</td><td>Operable por no técnicos</td><td>≤ 15 min de capacitación; ≥ 90 % de tareas sin ayuda</td><td>Sesión con 5 voluntarios</td></tr>
+<tr><td>O8</td><td>Impresión a tiempo</td><td>500 credenciales a PDF en &lt; 60 s</td><td>Cronómetro</td></tr>
+<tr><td>O9</td><td>Trazabilidad</td><td>100 % de ingresos con registro verificable</td><td>Verificación de cadena al cierre</td></tr>
+<tr><td>O10</td><td>Privacidad</td><td>100 % de datos personales purgados a los 90 días</td><td>Reporte de purga</td></tr>
+</tbody></table></div>
+<div class="grid2">
+  <div class="card"><h4>Dentro de v1</h4><p>Inscripción online con cupos, edad y consentimiento · importación idempotente de SportData · credenciales con QR firmado, ID corto, versión y anulación · diseño 100 × 150 mm e impresión por lotes · scanner PWA offline con foto, anti-passback y alertas · host por sede con panel, respaldo en caliente y sync con nube · roles, PIN, enrolamiento · auditoría encadenada y reportes · copias cada 5 min y modo degradado · credencial digital rotativa (General y acompañantes) · acompañantes por participante · simulacro obligatorio.</p></div>
+  <div class="card"><h4>Fuera de alcance v1</h4><p>Cobros y pagos (solo se marca "pagado"), llaves y resultados, control de aforo por sensores, reconocimiento facial, app nativa (la PWA cubre), varios idiomas, integración por API con SportData (se asume CSV/XLSX).</p></div>
+</div>
+<h4>Roles del sistema y tipos de entrada</h4>
+<p class="small">Siete roles del sistema (<a href="#s3-usuarios">3.2</a>) y diez tipos de entrada configurables (<a href="#s3-config">3.1</a>). Solo General y Acompañante admiten credencial digital; los roles acreditados usan credencial física con foto. El competidor se importa de SportData con control de edad por categoría.</p>
+</article>
+
+<article class="sub" id="s5-adr">
+<h3><span class="n">5.2</span>Decisiones clave (ADR) <span class="chip org">todos</span></h3>
+<p class="small muted">Una decisión por archivo en <code>docs/95-ADR/</code>. Cambiar una de estas exige un ADR nuevo.</p>
+<div class="tbl"><table><thead><tr><th>ADR</th><th>Decisión</th><th>Alternativa descartada</th><th>Por qué</th></tr></thead><tbody>
+<tr><td>0001</td><td>SQLite (WAL) en el host, SQL directo con <code>better-sqlite3</code></td><td>Postgres en el host; Drizzle</td><td>Un archivo = copia trivial (<code>VACUUM INTO</code>), cero administración, arranca en cualquier portátil; de sobra para 25 personas/min.</td></tr>
+<tr><td>0002</td><td>Token firmado (Ed25519) dentro del QR</td><td>URL a un servidor; HMAC compartido</td><td>Una URL exige red; con HMAC cualquier scanner podría firmar. Ed25519: firmas de 64 bytes que caben en un QR de 40 mm y se verifican en 50 ms.</td></tr>
+<tr><td>0003</td><td>PWA en vez de app nativa</td><td>App Android/iOS</td><td>Sin tiendas ni revisiones, se instala desde el host en 30 s, misma base de código. Costo: HTTPS obligatorio en LAN.</td></tr>
+<tr><td>0004</td><td>Sync append-only, idempotente por <code>deviceId:seq</code></td><td>Tablas mutables con estado actual</td><td>Un hecho no se discute: sin conflictos, reenviar es seguro, auditoría verificable con hash encadenado.</td></tr>
+<tr><td>0005</td><td>Caddy con CA interna por defecto</td><td>Let's Encrypt DNS-01</td><td>No depende de internet, DNS ni renovaciones. Costo: instalar un certificado por celular, una vez.</td></tr>
+<tr><td>0006</td><td>scrypt (<code>node:crypto</code>) en el host</td><td>Argon2id</td><td>Evita otro módulo nativo en el host; la nube sí usa Argon2id.</td></tr>
+<tr><td>0007</td><td>La nube no empuja: el host <b>trae</b> (pull) las inscripciones aprobadas</td><td>Push desde la nube; WebSocket</td><td>El host puede no ser alcanzable desde internet; el pull es idempotente, manual o cada N min, y reporta estados de vuelta.</td></tr>
+<tr><td>0008</td><td>Acompañantes como rol <code>ACOMP</code> ligado por <code>companionOf</code></td><td>Campo numérico en el participante</td><td>Cada acompañante es una credencial real (digital), con límites por participante, totales y aforo validados por una sola función del core.</td></tr>
+<tr><td>00 §2</td><td>Offline-first por niveles: nada nuevo puede exigir red en la puerta</td><td>Nube como fuente de verdad</td><td>Internet en coliseos es inestable. La nube sirve antes y después; el día D es opcional por diseño.</td></tr>
+</tbody></table></div>
+</article>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="sec" id="s6">
+<div class="sec-head"><span class="num">SECCIÓN 6</span><h2>Documentación técnica</h2><p class="muted">Para quien toca el código o monta la infraestructura. Resumen de <code>docs/30</code>, <code>31</code>, <code>36</code> y <code>40</code> y de <code>CLAUDE.md</code>. Toda la sección es técnica; en la vista de organizador queda oculta.</p></div>
+<div class="only-tech-hint">Sección técnica oculta. Cambia a <b>Soy técnico</b> para ver arquitectura, protocolo de sync, formato del token, API, seguridad y el framework de agentes.</div>
+<div class="tech">
+
+<article class="sub" id="s6-arq">
+<h3><span class="n">6.1</span>Arquitectura y monorepo <span class="chip tech">técnico</span></h3>
+<figure class="fig">
+<svg viewBox="0 0 760 330" role="img" aria-labelledby="d2t"><title id="d2t">Diagrama de los paquetes del monorepo y cómo se conectan</title>
+<rect x="250" y="20" width="260" height="64" rx="12" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+<text x="380" y="46" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">packages/core</text>
+<text x="380" y="64" text-anchor="middle" font-size="11" fill="var(--muted)">tipos · firma Ed25519 · reglas · log · ID Luhn · SportData · cifrado</text>
+<text x="380" y="78" text-anchor="middle" font-size="10" fill="var(--blue)" font-weight="700">LA MISMA LÓGICA EN LOS TRES NIVELES</text>
+<g stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)">
+<line x1="300" y1="84" x2="130" y2="130"/><line x1="380" y1="84" x2="380" y2="130"/><line x1="460" y1="84" x2="630" y2="130"/>
+</g>
+<rect x="20" y="132" width="220" height="86" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+<text x="34" y="154" font-size="13" font-weight="700" fill="var(--fg)">apps/scanner · L1</text>
+<text x="34" y="172" font-size="11" fill="var(--muted)">PWA Vite + React + Dexie</text>
+<text x="34" y="188" font-size="11" fill="var(--muted)">BarcodeDetector → fallback ZXing</text>
+<text x="34" y="204" font-size="11" fill="var(--muted)">cola de pendientes · PIN · modos</text>
+<rect x="270" y="132" width="220" height="86" rx="12" fill="var(--surface)" stroke="var(--blue)" stroke-width="2"/>
+<text x="284" y="154" font-size="13" font-weight="700" fill="var(--fg)">apps/host · L2</text>
+<text x="284" y="172" font-size="11" fill="var(--muted)">Fastify + SQLite WAL · :8787</text>
+<text x="284" y="188" font-size="11" fill="var(--muted)">sync · anti-passback · auditoría · copias</text>
+<text x="284" y="204" font-size="11" fill="var(--muted)">sirve /admin (host-admin) · usa print</text>
+<rect x="520" y="132" width="220" height="86" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+<text x="534" y="154" font-size="13" font-weight="700" fill="var(--fg)">apps/registration · L3</text>
+<text x="534" y="172" font-size="11" fill="var(--muted)">Next.js 15 · Vercel · Neon Postgres</text>
+<text x="534" y="188" font-size="11" fill="var(--muted)">inscripción · /panel · /api/export</text>
+<text x="534" y="204" font-size="11" fill="var(--muted)">credencial digital · correos</text>
+<line x1="240" y1="175" x2="270" y2="175" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<line x1="490" y1="175" x2="520" y2="175" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+<rect x="20" y="246" width="160" height="60" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+<text x="34" y="268" font-size="12" font-weight="700" fill="var(--fg)">apps/host-admin</text><text x="34" y="286" font-size="10" fill="var(--muted)">panel React → public/admin</text>
+<rect x="200" y="246" width="150" height="60" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+<text x="214" y="268" font-size="12" font-weight="700" fill="var(--fg)">apps/print</text><text x="214" y="286" font-size="10" fill="var(--muted)">PDF 100 × 150 (pdf-lib)</text>
+<rect x="370" y="246" width="170" height="60" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+<text x="384" y="268" font-size="12" font-weight="700" fill="var(--fg)">apps/host-desktop</text><text x="384" y="286" font-size="10" fill="var(--muted)">Electron: host + panel + scanner</text>
+<rect x="560" y="246" width="180" height="60" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+<text x="574" y="268" font-size="12" font-weight="700" fill="var(--fg)">e2e · scripts</text><text x="574" y="286" font-size="10" fill="var(--muted)">Playwright · simulate · docs:gen · mcp</text>
+</svg>
+<figcaption><code>packages/core</code> es la única fuente de la lógica de decisión: una decisión tomada sin red en el scanner es idéntica a la que tomaría el host.</figcaption>
+</figure>
+<div class="tbl"><table><thead><tr><th>Ruta</th><th>Qué es</th><th>Guía propia</th></tr></thead><tbody>
+<tr><td><code>packages/core</code></td><td>Dominio puro sin IO. 100 % testeado con Vitest.</td><td><code>packages/core/CLAUDE.md</code></td></tr>
+<tr><td><code>apps/host</code></td><td>L2: Fastify + SQLite. Sync, anti-passback, revocación, emisión en sitio, impresión, auditoría, copias, respaldo (<code>TP_ROLE=standby</code>), cifrado PII, purga, pull desde la nube. Docker Compose con Caddy.</td><td><code>apps/host/CLAUDE.md</code></td></tr>
+<tr><td><code>apps/host-admin</code></td><td>Panel React (Vite) compilado a <code>apps/host/public/admin</code>.</td><td>—</td></tr>
+<tr><td><code>apps/host-desktop</code></td><td>App de escritorio (Electron) para Mac y Windows: asistente, QR de enrolamiento, copia a USB, promover, Caddy opcional.</td><td><code>docs/86-APP-ESCRITORIO.md</code></td></tr>
+<tr><td><code>apps/scanner</code></td><td>L1: PWA offline-first.</td><td><code>apps/scanner/CLAUDE.md</code></td></tr>
+<tr><td><code>apps/registration</code></td><td>L3: Next.js 15 en Vercel + Postgres.</td><td><code>apps/registration/CLAUDE.md</code></td></tr>
+<tr><td><code>apps/print</code></td><td>PDF de credenciales 100 × 150 mm.</td><td>—</td></tr>
+<tr><td><code>e2e</code>, <code>scripts/</code>, <code>docs/</code>, <code>docs-site/</code></td><td>Playwright; simulate, generadores, agente, MCP; documentación numerada; VitePress.</td><td><code>docs/80</code>, <code>docs/36</code>, <code>docs/README.md</code></td></tr>
+</tbody></table></div>
+<pre><code>npm install            # instala y compila core
+npm test               # core (cobertura) + host + scanner + registration
+npm run build          # todos los workspaces
+npm run typecheck      # tsc --noEmit por workspace
+npm run simulate       # 2.000 credenciales, 8 puertas, corte de red
+npm run seed &amp;&amp; npm run dev:host      # host demo en :8787, panel en /admin (admin/admin123)
+npm run dev:scanner | dev:admin | dev:registration
+npm run e2e | e2e:smoke | e2e:ui
+npm run docs:gen       # regenera docs/31 y docs/32
+npm run check          # test + build + typecheck + docs:gen sin diff + enlaces</code></pre>
+<h4>Invariantes (no se tocan sin ADR)</h4>
+<ol class="steps">
+  <li><div><b>Firma Ed25519 en el QR.</b> La privada vive cifrada en el host; los scanners solo reciben la pública. Nunca va al snapshot, al respaldo ni a la nube sin cifrar.</div></li>
+  <li><div><b>Offline-first por niveles.</b> Nada nuevo puede exigir red o nube en la puerta.</div></li>
+  <li><div><b>Append-only.</b> Escaneos y auditoría son hechos inmutables identificados por <code>deviceId:seq</code> y encadenados por hash. No hay <code>UPDATE</code>; se añade un evento compensatorio. Config y revocaciones son LWW.</div></li>
+  <li><div><b>UX writing humano</b> (<code>docs/70</code>): qué pasó + por qué + qué hacer, máximo 2 líneas en el scanner; cada texto nuevo entra al catálogo en el mismo PR.</div></li>
+  <li><div><b>Ley 1581.</b> Documento, fecha de nacimiento y acudiente cifrados en reposo (AES-256-GCM); búsqueda por HMAC; menores con consentimiento; retención 90 días. Nada de PII en logs, QR ni respuestas a roles que no la necesitan.</div></li>
+  <li><div><b>RBAC en cada endpoint.</b> El panel solo oculta; el host aplica. En el respaldo toda escritura responde 409.</div></li>
+</ol>
+</article>
+
+<article class="sub" id="s6-sync">
+<h3><span class="n">6.2</span>Protocolo de sync <span class="chip tech">técnico</span></h3>
+<p>Mismo protocolo para scanner ↔ host, host ↔ respaldo y host ↔ nube. Transporte real hoy: polling cada 15 s con backoff (el WebSocket del contrato queda como optimización).</p>
+<ol class="steps">
+  <li><div><b>Snapshot inicial</b>: <code>GET /sync/snapshot</code> con el <code>deviceToken</code> → config, credenciales (sin PII: id, versión, estado, rol, zonas, vigencia, nombre, foto), revocaciones, claves públicas, hora del host y cursor. ~14 MB para 2.000 credenciales con miniaturas.</div></li>
+  <li><div><b>Push</b>: el scanner envía los sobres con <code>seq &gt; lastSeqAcked</code> a <code>POST /sync/events</code>. El host hace <code>INSERT … ON CONFLICT DO NOTHING</code> por <code>(deviceId, seq)</code> y responde un ack acumulativo. Un scanner solo puede subir sobres con su propio <code>origin</code>.</div></li>
+  <li><div><b>Pull</b>: <code>GET /sync/events?since=&lt;cursor&gt;</code> trae revocaciones, estados de credencial (dentro/fuera por zona, calculados solo por el host) y cambios de config (LWW por hora del host). Al reconectar tras una caída también se refresca el snapshot, así una revocación hecha sin red llega en el primer tick.</div></li>
+  <li><div><b>Respaldo</b>: <code>GET /replication/snapshot</code> y <code>/replication/changes</code> con <code>TP_REPLICA_KEY</code>, cada 10 s. Incluye PII en claro entre hosts: usa HTTPS si la LAN no es de confianza.</div></li>
+  <li><div><b>Nube → host</b>: <code>GET /api/export?since=</code> con <code>x-tatami-key</code>; el host lo consume en <code>POST /sync/cloud/pull</code> (idempotente por id de inscripción: lo nuevo crea, lo cambiado actualiza sin re-emitir, lo repetido no hace nada) y reporta de vuelta con <code>POST /api/host-report</code>.</div></li>
+</ol>
+<div class="tbl"><table><thead><tr><th>Tipo</th><th>Regla de conflicto</th><th>Por qué</th></tr></thead><tbody>
+<tr><td><code>ScanEvent</code></td><td>No hay conflicto: se guardan todos.</td><td>Son hechos.</td></tr>
+<tr><td><code>Revocation</code></td><td>LWW por hora del host; ambas quedan en el log.</td><td>Revocar es irreversible; se "des-revoca" re-emitiendo.</td></tr>
+<tr><td><code>CredentialState</code></td><td>Solo lo calcula el host a partir de los escaneos ordenados.</td><td>Evita que dos scanners discutan.</td></tr>
+<tr><td><code>ConfigChange</code></td><td>LWW por hora del host; <code>configVersion</code> monotónica.</td><td>Cupos, zonas, roles.</td></tr>
+<tr><td>Credencial nueva desde la nube con versión mayor</td><td>Se actualiza y se genera revocación automática de la anterior.</td><td>Re-emisión.</td></tr>
+</tbody></table></div>
+<p class="small">Para añadir un tipo de evento de extremo a extremo: <code>npx tsx scripts/agent/new-event-type.ts &lt;tipo&gt; "&lt;Nombre&gt;" --campos …</code> y la skill <code>tatami-sync-protocolo</code>.</p>
+</article>
+
+<article class="sub" id="s6-token">
+<h3><span class="n">6.3</span>Formato del token <span class="chip tech">técnico</span></h3>
+<pre><code>TP1.&lt;payload base64url&gt;.&lt;firma base64url&gt;        # credencial física
+TP1R.&lt;payload base64url&gt;.&lt;firma base64url&gt;       # credencial digital rotativa (GEN / ACOMP), con iat y exp
+
+{"v":1,"e":"nac2026","c":"00123","r":"COMP","z":["G","W","T","P"],"f":"2026-11-20","t":"2026-11-22","n":1,"k":"k1"}</code></pre>
+<div class="tbl compact"><table><thead><tr><th>Clave</th><th>Significado</th></tr></thead><tbody>
+<tr><td><code>v</code></td><td>Versión del esquema (1).</td></tr><tr><td><code>e</code></td><td>Evento. Un token de otro evento se rechaza.</td></tr><tr><td><code>c</code></td><td>Serial de 5 dígitos; el ID corto es <code>TP-2026-&lt;c&gt;-&lt;Luhn mod 36&gt;</code>.</td></tr><tr><td><code>r</code>, <code>z</code></td><td>Rol y zonas permitidas.</td></tr><tr><td><code>f</code>, <code>t</code></td><td>Primer y último día válido.</td></tr><tr><td><code>n</code></td><td>Versión de la credencial; una versión menor que la conocida → <code>SUPERSEDED</code>.</td></tr><tr><td><code>k</code></td><td>ID de clave; desconocida → <code>KEY_UNKNOWN</code>.</td></tr><tr><td><code>iat</code>, <code>exp</code></td><td>Solo rotativo: ventana de 60 s, tolerancia de reloj 5 min.</td></tr>
+</tbody></table></div>
+<p class="small">Orden de verificación en el scanner (se detiene en el primer fallo): prefijo → payload y evento → clave y firma → versión → revocación → fechas → zona del dispositivo → reglas del rol → anti-passback → estado sospechoso (duplicado). ~215 caracteres → QR versión 10–11 con corrección M, legible a 40 mm.</p>
+</article>
+
+<article class="sub" id="s6-api">
+<h3><span class="n">6.4</span>API del host y de la nube <span class="chip tech">técnico</span></h3>
+<p class="small muted">Resumen de <code>docs/31-API-REFERENCIA.md</code> (generado desde el JSDoc; 58 rutas del host, 13 de la nube). Auth: <code>Authorization: Bearer</code> con el token de <code>POST /auth/login</code> o el <code>deviceToken</code> de un scanner. Errores: <code>{ error: "frase en español" }</code>.</p>
+<div class="tbl"><table><thead><tr><th>Grupo (31 §)</th><th>Rutas principales</th><th>Quién</th></tr></thead><tbody>
+<tr><td>Sesión y usuarios</td><td><code>POST /auth/login</code> · <code>GET /auth/me</code> · <code>GET|POST /users</code> · <code>/users/:id/disable</code> · <code>/reset-password</code></td><td>Admin</td></tr>
+<tr><td>Configuración</td><td><code>GET|PUT /config</code> (con <code>expectedVersion</code>) · <code>POST /config/validate</code></td><td>Admin (lectura: todos)</td></tr>
+<tr><td>Credenciales</td><td><code>GET /credentials</code> (búsqueda, PII por HMAC) · <code>/:id</code> · <code>/:id/token</code> · <code>/:id/revoke</code> · <code>/:id/reissue</code> · <code>/:id/deliver</code> · <code>/:id/pdf</code> · <code>POST /credentials/issue</code> (emisión en sitio)</td><td>Coord, Print, Super (según ruta)</td></tr>
+<tr><td>Scanners</td><td><code>POST /devices/enroll-token</code> (10 min) · <code>POST /devices/enroll</code> (sin sesión, PIN) · <code>GET /devices</code> · <code>PATCH /devices/:id</code> · <code>/disable</code></td><td>Admin, Super</td></tr>
+<tr><td>Puertas en vivo y alertas</td><td><code>GET /live</code> · <code>GET /alerts</code> · <code>/alerts/denied</code> · <code>POST /alerts/:id/resolve</code></td><td>Admin, Coord, Super, Audit</td></tr>
+<tr><td>Impresión</td><td><code>GET|POST /print/batches</code> · <code>/:id</code> · <code>/:id/pdf</code> · <code>/:id/printed</code> · <code>/:id/delivered</code></td><td>Print, Coord</td></tr>
+<tr><td>Reportes y auditoría</td><td><code>GET /reports/gate-summary</code> · <code>/reports/day-close</code> (JSON/CSV) · <code>GET /audit</code> · <code>/audit/verify</code> · <code>/audit/export</code> (SHA-256)</td><td>Admin, Coord, Audit</td></tr>
+<tr><td>Sync y replicación</td><td><code>GET /sync/snapshot</code> · <code>POST|GET /sync/events</code> · <code>GET /replication/snapshot</code> · <code>/replication/changes</code></td><td>Scanner · respaldo</td></tr>
+<tr><td>Nube → host</td><td><code>GET /sync/cloud/status</code> · <code>POST /sync/cloud/pull</code> · <code>/preview</code> · <code>PUT /sync/cloud/settings</code> · <code>GET /registrations/pending</code></td><td>Admin, Coord</td></tr>
+<tr><td>Sistema</td><td><code>GET /health</code> (público) · <code>GET /system/health</code> · <code>GET /backup/list</code> · <code>POST /backup/snapshot</code> · <code>/backup/verify</code> · <code>/backup/restore</code> (RESTAURAR) · <code>POST /system/promote</code> (PROMOVER) · <code>POST /system/purge</code> (nombre del evento)</td><td>Admin</td></tr>
+<tr><td>Nube (31 §2)</td><td><code>GET /api/status</code> · <code>POST /api/register</code> · <code>GET /api/export</code> · <code>POST /api/host-report</code> · <code>POST /api/approve</code> · <code>/api/import/preview|confirm</code> · <code>GET /api/credencial/:token</code> · <code>GET /api/cron/waitlist</code></td><td>Público · <code>x-tatami-key</code> · sesión del panel</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="sub" id="s6-seg">
+<h3><span class="n">6.5</span>Seguridad: ISO 27001, STRIDE y Ley 1581 <span class="chip tech">técnico</span></h3>
+<div class="note">ISO/IEC 27001 certifica organizaciones, no software. Tatami Pass se construye <b>alineado a los controles del Anexo A</b> (27001:2022) y genera la evidencia que una auditoría pediría: registros inmutables, inventario de dispositivos, pruebas de copias, consentimientos, actas. <code>docs/40 §2</code> mapea cada control con quién lo cumple (software, organización o ambos).</div>
+<h4>Amenazas y mitigaciones (STRIDE, 40 §3)</h4>
+<div class="tbl"><table><thead><tr><th>Amenaza</th><th>Mitigación</th><th>Residual</th></tr></thead><tbody>
+<tr><td>QR fotocopiado</td><td>Foto en pantalla, anti-passback, alerta de duplicado &lt; 2 min, holograma, color por rol.</td><td>Bajo</td></tr>
+<tr><td>Pantallazo de credencial digital</td><td>QR rotativo 60 s; anti-passback.</td><td>Bajo</td></tr>
+<tr><td>Credencial prestada</td><td>Foto; anti-passback exige salida registrada; supervisor en zonas T/J/V.</td><td>Medio (depende de registrar salidas)</td></tr>
+<tr><td>Re-emisión fraudulenta por un insider</td><td>Auditoría encadenada con actor; cupos; segregación (quien aprueba ≠ quien imprime); emisión en host exige la passphrase.</td><td>Medio, detectable</td></tr>
+<tr><td>Robo del host</td><td>Disco cifrado, clave privada cifrada aparte, respaldo promovible, scanners siguen solos.</td><td>Bajo</td></tr>
+<tr><td>Scanner perdido</td><td>PIN, sesión 12 h, sin PII a bordo, desactivación en el panel.</td><td>Bajo</td></tr>
+<tr><td>Wi-Fi hostil (evil twin)</td><td>TLS con CA interna (el host falso no tiene el certificado), WPA3, SSID oculto.</td><td>Bajo: lo peor es una desconexión</td></tr>
+<tr><td>Replay de eventos de sync</td><td>Idempotencia por <code>(origin, seq)</code>; token por dispositivo; <code>origin == deviceId</code>.</td><td>Bajo</td></tr>
+<tr><td>Manipulación del registro</td><td>Hash encadenado; copias en respaldo, USB y nube; <code>/audit/verify</code>.</td><td>Bajo</td></tr>
+<tr><td>Filtración de la clave privada</td><td>Clave cifrada, passphrase separada, rotación por evento, runbook de <a href="#s3-claves">3.3</a>.</td><td>Bajo, impacto alto</td></tr>
+</tbody></table></div>
+<h4>Datos personales (Ley 1581/2012 y Decreto 1377/2013)</h4>
+<ul style="margin:6px 0 0;padding-left:18px;font-size:.9rem;display:grid;gap:4px">
+  <li>Finalidad declarada y aviso de privacidad en el formulario (texto modelo en 40 §6.6).</li>
+  <li>Menores: consentimiento del acudiente (checkbox + nombre + documento) obligatorio.</li>
+  <li>Documento, fecha de nacimiento y documento del acudiente cifrados (AES-256-GCM, clave derivada por scrypt de la passphrase + salt por evento); búsqueda por HMAC; el scanner nunca los recibe.</li>
+  <li>Retención 90 días y purga automática (job diario) o manual con doble confirmación; supresión durante el evento = anular credencial y purgar en T+1.</li>
+  <li>Hardening del host (40 §7.1): Ubuntu con LUKS, <code>ufw</code> solo 22/80/443/123, SSH por llave, Docker sin root, logs sin PII con rotación de 7 días.</li>
+</ul>
+</article>
+
+<article class="sub" id="s6-agentes">
+<h3><span class="n">6.6</span>Framework agéntico y de documentación <span class="chip tech">técnico</span></h3>
+<div class="grid2">
+  <div class="card"><h4>CLAUDE.md y AGENTS.md</h4><p>Mapa del monorepo, comandos, invariantes, convenciones y qué verificar antes de terminar. Claude Code lo carga solo; otros agentes leen <code>AGENTS.md</code>. Guías por workspace en <code>packages/core</code>, <code>apps/host</code>, <code>apps/scanner</code>, <code>apps/registration</code>.</p></div>
+  <div class="card"><h4>Subagentes (<code>.claude/agents/</code>)</h4><p><code>revisor-seguridad</code> (STRIDE + docs/40; obligatorio si tocas auth, pii, qr-token, field-crypto, sync, replication, cloud-sync), <code>redactor-docs</code>, <code>qa-e2e</code>, <code>operador-evento</code> (runbooks, solo lectura), <code>arquitecto</code> (ADRs).</p></div>
+  <div class="card"><h4>Comandos (<code>.claude/commands/</code>)</h4><p><code>/nuevo-rol</code>, <code>/nuevo-escenario-demo</code>, <code>/preparar-release</code>, <code>/simulacro</code>, <code>/revisar-pr</code>, <code>/adr</code>. Cada uno es un procedimiento con pasos y verificaciones.</p></div>
+  <div class="card"><h4>Skills (<code>.claude/skills/</code>)</h4><p><code>tatami-ux-writing</code>, <code>tatami-evento-config</code>, <code>tatami-operacion-dia-d</code>, <code>tatami-sync-protocolo</code>. El agente las carga cuando la tarea coincide.</p></div>
+  <div class="card"><h4>MCP del host (<code>.mcp.json</code>)</h4><p><code>scripts/mcp/host-server.ts</code>: <code>health</code>, <code>gate_summary</code>, <code>cloud_status</code>, <code>search_credential</code> (sin PII) y <code>revoke_credential</code> (apagado por defecto; exige <code>TP_MCP_ALLOW_WRITE=1</code> y <code>confirm: "ANULAR &lt;id&gt;"</code>). Usuario por defecto <code>audit</code>, solo lectura.</p></div>
+  <div class="card"><h4>Permisos y hooks</h4><p><code>.claude/settings.json</code> permite test/build/typecheck sin preguntar; pide confirmación para commit, install, docker; <b>niega</b> leer <code>keys/</code>, <code>.env</code>, bases <code>.db</code> y correr purge/restore/promote. Hook: typecheck tras editar; <code>npm test</code> antes de cada commit.</p></div>
+</div>
+<h4>Límites: lo que un agente no hace</h4>
+<p class="small">No decide quién entra; no promueve, restaura ni purga; no ve datos personales; no cambia invariantes sin ADR; no hace commit ni push sin pedirlo; no inventa que algo se probó; no sustituye el simulacro ni al supervisor.</p>
+<h4 style="margin-top:14px">Documentación</h4>
+<ol class="steps">
+  <li><div><b>Numeración</b>: 00 decisiones · 10 PRD · 20 pruebas · 30–36 técnico · 40 seguridad · 50 operación · 60 manuales · 70 UX writing · 80 cómo probar · 85 nube · 86 app de escritorio · 90 montaje · 95 ADR · 99 changelog · <code>_plantillas/</code>. No se renumera.</div></li>
+  <li><div><b>Generados</b>: <code>npm run docs:gen</code> escribe <code>31-API-REFERENCIA.md</code> (desde el JSDoc de las rutas) y <code>32-CONFIG-EVENTO.md</code> (desde los tipos de config). No se editan a mano.</div></li>
+  <li><div><b>Sitio navegable</b>: <code>npm run docs:dev</code> levanta VitePress sobre <code>docs/</code> con búsqueda, Mermaid y barra lateral por público; <code>docs:build</code> lo publica.</div></li>
+  <li><div><b>Regla del PR</b>: código + test + doc en el mismo PR (documento del rango, catálogo de 70 si hay texto visible, 99 bajo <i>Sin publicar</i>, ADR si hay alternativas). <code>npm run check</code> lo verifica, incluidos los enlaces entre documentos (<code>docs:links</code>).</div></li>
+</ol>
+</article>
+</div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="sec" id="s7">
+<div class="sec-head"><span class="num">SECCIÓN 7</span><h2>Cómo hacer las pruebas</h2><p class="muted">De lo automático en el portátil al simulacro en el coliseo. Todo lo de <code>docs/80</code> y <code>docs/20 §6–7</code> que necesitas para decidir "go".</p></div>
+
+<article class="sub" id="s7-portatil">
+<h3><span class="n">7.1</span>En el portátil <span class="chip tech">técnico</span> <span class="chip time">30 min</span></h3>
+<div class="tech">
+<ol class="steps">
+  <li><div><b>Instalar y verificar todo</b> (Node ≥ 20, npm 10):
+  <pre><code>git clone &lt;repo&gt; tatami-pass &amp;&amp; cd tatami-pass
+npm install            # compila packages/core (hook prepare)
+npm test               # core ≈111 tests con cobertura · host 59 de integración · scanner · registration
+npm run build          # core → host → host-admin → print → registration → scanner</code></pre></div></li>
+  <li><div><b>Simulación de carga</b>: <code>npm run simulate</code> → 2.000 credenciales, 8 puertas, pico de ingreso y corte de red. Debe imprimir p95 muy por debajo de 300 ms, <code>30/30 revocadas denegadas</code>, <code>100/100 anti-passback denegados</code>, <code>80/80 salidas</code>, duplicados detectados y la línea <code>… → CONSISTENTE</code>.</div></li>
+  <li><div><b>Host con datos de demo</b>: <code>npm run seed &amp;&amp; npm run dev:host</code> → <code>http://localhost:8787/admin</code>, usuarios <code>admin</code>, <code>coord</code>, <code>print</code>, <code>club</code>, <code>control</code>, <code>super</code>, <code>audit</code> (contraseña <code>&lt;usuario&gt;123</code>). Scanner: <code>npm run dev:scanner</code> → <code>http://localhost:5173</code>; en localhost la cámara abre sin HTTPS.</div></li>
+  <li><div><b>End-to-end</b> (Playwright, Chromium):
+  <pre><code>npx playwright install chromium     # una vez
+npm run preflight                   # Node, puertos, builds, disco
+npm run e2e:smoke                   # flujo maestro "día del evento" + inscripción de menor · ≈30 s + builds
+npm run e2e                         # 44 pruebas trazadas a TC · ≈2,5 min + builds
+npm run e2e:perf                    # @perf: 500 escaneos por API p95 &lt; 50 ms, snapshot de 2.000 &lt; 2 s
+E2E_SKIP_BUILD=1 npx playwright test --project=full tc-062 -w e2e   # una spec</code></pre>
+  Levanta host real sobre base temporal con un proxy que se puede "apagar", scanner en modo prueba (<code>window.__tpScan</code>) y nube con base temporal. Las specs corren en serie porque comparten estado (anti-passback real entre specs).</div></li>
+  <li><div><b>Antes de dar por terminado un cambio</b>: <code>npm run check</code> (test + build + typecheck + <code>docs:gen</code> sin diff + enlaces) y, si tocaste un flujo de usuario, <code>npm run e2e:smoke</code>.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li><code>npm test</code> termina con <code>Test Files … passed</code> en cada workspace y sin <code>failed</code>; <code>npm run e2e</code> dice <code>N passed</code>; <code>npm run check</code> termina con "Todo en verde".</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li><code>better-sqlite3</code> no instala: faltan <code>python3 make g++</code> o usa Node 20/22 LTS.</li><li>Fallo e2e: mira <code>e2e/test-results/</code> (captura, vídeo, trace) o <code>npm run e2e:report</code>. En el flujo maestro el primer rojo es la causa.</li></ul></div>
+</div>
+</div>
+<div class="only-tech-hint">Pruebas automáticas (técnico). Como organizador te basta saber que, antes del simulacro, el técnico debe mostrarte "Todo en verde" y el informe de las pruebas end-to-end.</div>
+</article>
+
+<article class="sub" id="s7-casa">
+<h3><span class="n">7.2</span>Prueba en casa: 1 portátil + 2 celulares <span class="chip org">todos</span> <span class="chip time">30 min · T−14</span></h3>
+<p class="who"><b>Objetivo:</b> ver todo el flujo sin coliseo. Portátil con el host (app de escritorio con Caddy activado, o Docker; el camino rápido por <code>http</code> con <code>chrome://flags</code> solo sirve en Android y solo para esta prueba) y dos celulares en el mismo Wi-Fi, con el certificado instalado.</p>
+<div class="tbl"><table><thead><tr><th>Min</th><th>Paso</th><th>Salió bien si</th></tr></thead><tbody>
+<tr><td>0–3</td><td>Portátil: host arriba, panel abierto como <code>admin</code>. Muestra en pantalla (Credenciales › una › <b>Ver QR</b>) 3 credenciales: una COMP, una GEN, una STAFF.</td><td>3 QR a la vista.</td></tr>
+<tr><td>3–8</td><td>Celular 1: certificado, PWA instalada, enrola como "Casa-T", zona <b>T</b>, rol Control.</td><td>"Conectado", credenciales = 2000.</td></tr>
+<tr><td>8–11</td><td>Celular 2: igual, "Casa-G", zona <b>G</b>, rol Supervisor.</td><td>Ambos "conectado" en Dispositivos.</td></tr>
+<tr><td>11–13</td><td>Celular 1 escanea la COMP → verde. La vuelve a escanear → rojo anti-passback con hora.</td><td>Puertas en vivo: 1 ingreso en T, 1 rechazo.</td></tr>
+<tr><td>13–15</td><td>Celular 2 escanea la <b>misma</b> COMP (zona G) en menos de 2 min → ámbar "posible duplicado".</td><td>Alertas: 1 abierta DUPLICATE; resuélvela con nota.</td></tr>
+<tr><td>15–18</td><td>Panel: <b>Anular</b> la GEN ("prueba"). Celular 2 escanea la GEN.</td><td>Rojo "credencial anulada" en ≤ 15 s.</td></tr>
+<tr><td>18–22</td><td>Celular 1 en <b>modo avión</b>: STAFF (verde), GEN (rojo), COMP en modo Salida (PIN del supervisor).</td><td>"Pendientes: 3". Sin modo avión → 0 en ≤ 15 s; el panel muestra los 3.</td></tr>
+<tr><td>22–25</td><td>Celular 1: <b>Ingreso manual</b> con el ID corto de la STAFF, motivo "QR no se lee".</td><td>Verde; Alertas › ingreso manual con motivo.</td></tr>
+<tr><td>25–28</td><td>Celular 2: <b>Terminar turno</b> → resumen.</td><td>Totales coinciden con lo hecho.</td></tr>
+<tr><td>28–30</td><td>Sistema › <b>Hacer copia ahora</b>; Auditoría › <b>Verificar cadena</b>.</td><td>"Copia creada"; "Registro íntegro hasta el número N".</td></tr>
+</tbody></table></div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Las 10 filas en verde y ninguna rareza anotada.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Anota tiempos y rarezas en un reporte de defecto (<a href="#s7-reportes">7.5</a>). Lo más común: certificado sin confianza total en iPhone, celulares en otra red, QR mostrado con brillo bajo.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s7-simulacro">
+<h3><span class="n">7.3</span>Simulacro a 7 días: guion de 2 h y go/no-go <span class="chip org">todos</span> <span class="chip time">3 h · T−7 · obligatorio</span></h3>
+<p class="who"><b>Dónde:</b> la sede real, con 4 puertas marcadas y zonas G, W, T con cinta. <b>Quién:</b> director del simulacro (inyecta fallos, cronometra, decide), administrador, coordinador, operador de impresión, 2 supervisores, 4 porteros (+2), auditor, ≥ 20 personas de "público" con 200 credenciales de prueba, 2 "atacantes" con 50 QR fraudulentos y 10 fotocopias, 2 observadores. <b>Material:</b> todo lo de <a href="#s2">la instalación</a> montado de verdad, sobres de modo degradado, USB de copias, cronómetros, hojas de observación.</p>
+<div class="tbl"><table><thead><tr><th>Tiempo</th><th>Actividad</th><th>Fallo inyectado</th><th>Qué se mide</th></tr></thead><tbody>
+<tr><td>T−30</td><td>Montaje; enrolar 6 scanners (uno con código vencido a propósito); smoke.</td><td>Código expirado</td><td>Cobertura por puerta</td></tr>
+<tr><td>T+0</td><td>Apertura: 200 credenciales entran por 4 puertas lo más rápido posible.</td><td>—</td><td>≤ 15 min; p95 &lt; 300 ms</td></tr>
+<tr><td>T+10</td><td>Atacantes meten 20 QR fraudulentos en las filas.</td><td>Fraude</td><td>0 aceptados</td></tr>
+<tr><td>T+15</td><td>60 competidores pasan G → W → T; 10 intentan entrar a T dos veces; 10 GEN intentan T.</td><td>Anti-passback, zona</td><td>Todos rechazados</td></tr>
+<tr><td>T+25</td><td>Fotocopias de 5 credenciales válidas en puertas distintas, &lt; 2 min.</td><td>Duplicado</td><td>5 alertas en el panel</td></tr>
+<tr><td>T+30</td><td><b>Corte de Wi-Fi</b> en puertas 3 y 4 (apagar nodo) durante 20 min.</td><td>Sin red</td><td>Las puertas siguen; pendientes suben</td></tr>
+<tr><td>T+35</td><td>Coordinador anula 10 y re-emite 5; atacantes usan las viejas en todas las puertas, incluidas las sin red.</td><td>Revocación offline</td><td>Rechazadas (en las sin red, con lo que tenían)</td></tr>
+<tr><td>T+45</td><td>Un portero bloquea su scanner con 5 PIN malos; otro scanner cambia de puerta.</td><td>PIN, cambio de zona</td><td>Bloqueo 15 min; zona nueva en pantalla</td></tr>
+<tr><td>T+50</td><td>Reconectar Wi-Fi de 3 y 4.</td><td>Reconciliación</td><td>0 perdidos, 0 duplicados, &lt; 30 s</td></tr>
+<tr><td>T+55</td><td><b>Caída del host principal</b> (desconectar sin UPS). Promover el respaldo.</td><td>Caída de host</td><td>&lt; 60 s; scanners reconectan solos</td></tr>
+<tr><td>T+65</td><td>15 min normales con el respaldo como principal; salidas y reingresos por la puerta 1.</td><td>—</td><td>—</td></tr>
+<tr><td>T+70</td><td>10 personas con QR "dañado": ingreso manual por ID; 5 con dígito verificador malo.</td><td>Manual</td><td>Verificador detecta los 5</td></tr>
+<tr><td>T+80</td><td><b>Corte total de energía</b> 10 min; una puerta en modo degradado con planilla a propósito.</td><td>Corte total</td><td>Puertas en local; planilla llena</td></tr>
+<tr><td>T+95</td><td>Vuelve la luz; restaurar desde USB en un portátil limpio; reconectar; capturar la planilla; verificar cadena.</td><td>Recuperación</td><td>&lt; 10 min; cadena OK</td></tr>
+<tr><td>T+105</td><td>Reportes: ingresos por zona y puerta, incidencias, trazabilidad de 3 credenciales, exportación. El auditor verifica.</td><td>—</td><td>—</td></tr>
+<tr><td>T+120</td><td>Cierre: encuesta a porteros (6 preguntas), observaciones, decisión go/no-go.</td><td>—</td><td>≥ 90 % de tareas sin ayuda</td></tr>
+</tbody></table></div>
+<h4>Checklist go/no-go (20 §7.5)</h4>
+<p class="small muted">Go exige <b>todos</b> en verde. Los marcados † admiten ámbar con plan de corrección antes de T−2.</p>
+<div class="tbl"><table><thead><tr><th>#</th><th>Ítem</th><th>Verde</th><th>Ámbar</th></tr></thead><tbody>
+<tr><td>1</td><td>Validación sin red</td><td>Todos los scanners validan sin red</td><td>—</td></tr>
+<tr><td>2</td><td>Fraude</td><td>0 aceptados; duplicados 5/5</td><td>† 1 alerta tardía por red</td></tr>
+<tr><td>3</td><td>Anti-passback</td><td>Correcto con y sin red</td><td>—</td></tr>
+<tr><td>4</td><td>Reconciliación</td><td>0 perdidos, 0 duplicados, &lt; 30 s</td><td>† &gt; 30 s pero completa</td></tr>
+<tr><td>5</td><td>Promoción del respaldo</td><td>&lt; 60 s, scanners solos</td><td>† &lt; 3 min</td></tr>
+<tr><td>6</td><td>Restauración desde USB</td><td>&lt; 10 min, 0 perdidos</td><td>† &lt; 20 min</td></tr>
+<tr><td>7</td><td>Auditoría</td><td>Cadena OK al cierre</td><td>—</td></tr>
+<tr><td>8</td><td>Impresión y entrega</td><td>500 &lt; 60 s; QR legibles ≥ 98 %</td><td>† 90–98 %</td></tr>
+<tr><td>9</td><td>Latencia</td><td>p95 &lt; 300 ms</td><td>† &lt; 500 ms</td></tr>
+<tr><td>10</td><td>200 personas por 4 puertas</td><td>≤ 15 min</td><td>† ≤ 20 min</td></tr>
+<tr><td>11</td><td>Usabilidad</td><td>≥ 90 % sin ayuda</td><td>† 75–90 % con ajustes de textos</td></tr>
+<tr><td>12</td><td>Cobertura Wi-Fi</td><td>Todas las puertas &gt; −70 dBm</td><td>† 1 puerta débil con plan</td></tr>
+<tr><td>13</td><td>Hardware (UPS, USB, impresora, power banks)</td><td>Todo probado y cargado</td><td>—</td></tr>
+<tr><td>14</td><td>Defectos</td><td>0 P1 abiertos</td><td>† P2 con fecha ≤ T−2</td></tr>
+<tr><td>15</td><td>Config congelada</td><td>Firmada por la federación</td><td>—</td></tr>
+<tr><td>16</td><td>Datos personales</td><td>Política publicada; consentimientos de menores completos; campos cifrados</td><td>—</td></tr>
+</tbody></table></div>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Acta de simulacro (<code>docs/_plantillas/acta-simulacro.md</code>) con los tiempos medidos y la decisión firmada.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Cada rojo abre un <code>DEF-nnn</code> P1 que se corrige y se re-verifica con el mismo caso de prueba antes de T−2. Sin eso, no hay go.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s7-smoke">
+<h3><span class="n">7.4</span>Smoke test D−1 <span class="chip org">todos</span> <span class="chip time">45 min · T−1</span></h3>
+<ol class="steps">
+  <li><div>Host principal y respaldo arrancan; verificar cadena OK; USB montada; UPS cargado.</div></li>
+  <li><div>Un scanner por puerta + 1 reserva enrolados; cada uno escanea una credencial de prueba de cada rol (verde o rojo según la zona).</div></li>
+  <li><div>Promover el respaldo y volver a dejar el principal (fuera de hora pico, con calma).</div></li>
+  <li><div>Medir cobertura en cada puerta y anotar.</div></li>
+  <li><div>Imprimir 5 credenciales de prueba y leerlas.</div></li>
+  <li><div>Anular y re-emitir una de prueba; verificar en 2 scanners.</div></li>
+  <li><div>Borrar las credenciales de prueba y confirmar que la cadena sigue OK.</div></li>
+</ol>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Checklist del día D (<code>docs/_plantillas/checklist-dia-d.md</code>) completo para H−2 y firmado.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Lo que falle aquí se arregla hoy; si no se puede, se documenta el workaround en la sala técnica y se avisa a los supervisores.</li></ul></div>
+</div>
+</article>
+
+<article class="sub" id="s7-reportes">
+<h3><span class="n">7.5</span>Qué mirar en los reportes y cómo reportar un defecto <span class="chip org">todos</span></h3>
+<h4>Reportes del host</h4>
+<ul style="margin:6px 0 10px;padding-left:18px;font-size:.9rem;display:grid;gap:4px">
+  <li><b>Puertas en vivo</b>: ritmo de ingreso, pendientes por scanner, alertas abiertas, "dentro ahora" por zona. Si pendientes crece en una puerta, es red.</li>
+  <li><b>Alertas</b>: duplicados, ingresos manuales (¿muchos en un mismo scanner?), scanners sin conexión, rechazos por puerta y motivo.</li>
+  <li><b>Reporte de cierre</b> (Reportes › cierre del día, CSV): entradas y salidas por zona y puerta, negados por motivo, credenciales por rol.</li>
+  <li><b>Auditoría</b>: "Registro íntegro hasta el número N" cada noche; exportación con huella SHA-256 para el comité.</li>
+  <li><b>Sistema</b>: última copia, segundo destino, lag del respaldo, nube, reloj, disco, cifrado.</li>
+</ul>
+<h4>Informe de las pruebas automáticas <span class="chip tech">técnico</span></h4>
+<p class="small tech"><code>npm run e2e:report</code> abre <code>e2e/playwright-report</code>: por prueba, pasos, errores con captura, vídeo y traza (<code>npx playwright show-trace …/trace.zip</code>). Las <code>@perf</code> imprimen p50/p95/p99. En CI, <code>playwright-report</code> se adjunta al job.</p>
+<h4>Plantilla de reporte de defecto (<code>docs/_plantillas/reporte-defecto.md</code>)</h4>
+<pre><code>DEF-nnn · &lt;título corto en una línea&gt;
+
+Severidad:      P1 bloqueante / P2 alta / P3 media
+Módulo:         inscripción | sportdata | emisión | impresión | scanner | host | antifraude | roles |
+                enrolamiento | auditoría | backups | digital | nube | panel
+RF afectado:    RF-xxx          TC que falló: TC-xxx (paso N)
+Entorno:        DEV | LAB | SIM | PROD · versión · dispositivo (modelo, SO, navegador) · con red / sin red
+Fecha y hora:   AAAA-MM-DD HH:MM · quien lo encontró
+
+Precondiciones:        &lt;credencial, zona, modo, dispositivos, principal o respaldo&gt;
+Pasos para reproducir: 1. … 2. … 3. …
+Resultado obtenido:    &lt;qué pasó; captura, diagnóstico del scanner (menú ⋯), GET /audit, logs&gt;
+Resultado esperado:    &lt;según el criterio del RF; texto exacto del catálogo de docs/70 si es un mensaje&gt;
+Impacto en el evento:  &lt;qué pasaría en una puerta real&gt;
+Reproducible:          siempre / a veces (N de M) / una vez
+Workaround:            &lt;si existe; se añade a 50 §11 si sirve el día D&gt;
+Estado: nuevo → confirmado → en corrección → corregido → verificado (TC re-ejecutado) → cerrado</code></pre>
+<div class="outcome">
+  <div class="box ok"><h4>✓ Cómo sé que salió bien</h4><ul><li>Cada defecto tiene un test que lo reproduce antes de corregirlo, entrada en el changelog bajo <i>Corregido</i> y re-verificación en el entorno donde falló.</li></ul></div>
+  <div class="box fail"><h4>! Si algo falla</h4><ul><li>Un P1 sin re-verificar deja el ítem del go/no-go en rojo. No se "asume" corregido.</li></ul></div>
+</div>
+</article>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="sec" id="s8">
+<div class="sec-head"><span class="num">SECCIÓN 8</span><h2>Problemas frecuentes, glosario y documentos</h2></div>
+
+<article class="sub" id="s8-problemas">
+<h3><span class="n">8.1</span>Problemas frecuentes <span class="chip org">todos</span></h3>
+<div class="tbl"><table><thead><tr><th>Síntoma</th><th>Causa probable</th><th>Qué hacer</th></tr></thead><tbody>
+<tr><td>El scanner no abre la cámara ("no es seguro")</td><td>Certificado raíz no instalado (en iPhone falta la confianza total) o se abrió por <code>http://</code>.</td><td>Repite <a href="#s2d">2d</a> paso 2; abre siempre <code>https://</code>; comprueba <code>/health</code> sin aviso.</td></tr>
+<tr><td>"Sin conexión" con el Wi-Fi conectado</td><td>Otra red; aislamiento de clientes activo; host caído.</td><td>Verifica el SSID; <code>curl -k https://10.10.0.2/health</code> desde el portátil; si el host no vuelve en 2 min, promueve el respaldo.</td></tr>
+<tr><td>"Pendientes" no baja de N</td><td>Sin cobertura en esa puerta; scanner desactivado en el panel.</td><td>Mide RSSI, mueve un nodo; revisa Dispositivos. Mientras tanto se sigue escaneando.</td></tr>
+<tr><td>Todo sale rojo "Clave desconocida"</td><td>El scanner no tiene la clave pública (snapshot incompleto) o se rotó la clave.</td><td>Menú ⋯ › Actualizar datos; si no, desenrolar y enrolar de nuevo.</td></tr>
+<tr><td>Credencial recién impresa sale "No reconozco esta credencial"</td><td>El host no la tiene (sin "Traer ahora") o el scanner no la ha bajado.</td><td>Nube › Traer ahora; esperar el sync; o emitir en sitio.</td></tr>
+<tr><td>"Ya entró" y la persona dice que es su primera vez</td><td>Entró por otra puerta sin salir; o alguien usó una copia.</td><td>Supervisor: documento; si es legítimo, excepción con motivo; si hay duda, el panel muestra dónde y cuándo entró.</td></tr>
+<tr><td>El QR no se lee</td><td>Dañado, reflejo del plástico, poca luz, lente sucio.</td><td>Limpia el lente, inclina la credencial, linterna; ingreso manual por ID corto; reimprime si está dañado.</td></tr>
+<tr><td>Franja ámbar de reloj en el scanner</td><td>Hora del celular desviada más de 5 min.</td><td>Ajustes › hora automática. El host es el reloj de la LAN.</td></tr>
+<tr><td>Panel responde 409 "Este equipo es el de respaldo"</td><td>Estás en el respaldo (<code>10.10.0.3</code>).</td><td>Usa el principal; o promueve si el principal cayó.</td></tr>
+<tr><td>"Promover" falla con lag &gt; 0</td><td>El respaldo no estaba al día.</td><td>Promover con fuerza; los scanners reenvían lo pendiente.</td></tr>
+<tr><td>Dos "principales" tras una promoción</td><td>Reencendieron el viejo como principal.</td><td>Apaga uno ya; arráncalo como respaldo del nuevo; revisa duplicados en Auditoría.</td></tr>
+<tr><td>Impresión borrosa o colores raros</td><td>Modo borrador, tóner bajo, papel inadecuado.</td><td>Calidad alta, 600 dpi, papel 200 g o PVC láser; prueba lectura antes del lote.</td></tr>
+<tr><td>Formulario dice "cupo lleno" y el admin ve cupo</td><td>Cupo de la categoría o del rol lleno, no el aforo total.</td><td>Revisa cupos por rol y categoría; amplía si procede (queda en auditoría).</td></tr>
+<tr><td>Importación SportData duplica personas</td><td>Mapeo de columnas distinto entre importaciones.</td><td>Reusa el mapeo guardado del lote anterior; el dedupe es nombre + fecha de nacimiento + club.</td></tr>
+<tr><td>"Sin conexión a la nube, se reintenta en N min"</td><td>Hotspot caído o clave distinta.</td><td><code>curl -H "x-tatami-key: …" https://&lt;nube&gt;/api/status</code>; compara <code>TP_CLOUD_KEY</code>. El evento sigue.</td></tr>
+<tr><td>Copia "también en el segundo destino" falla</td><td>USB no montada.</td><td>Monta la USB; la copia local sigue.</td></tr>
+<tr><td>El host no arranca ("disco bloqueado")</td><td>El cifrado de disco pide la passphrase.</td><td>Monitor y teclado al host; escribe la passphrase. Por eso el host necesita monitor a mano.</td></tr>
+<tr><td>UPS pita sin corte</td><td>Batería vieja; sobrecarga (¿la impresora?).</td><td>Prueba de autonomía en T−1; impresora a la pared.</td></tr>
+<tr><td>La app de escritorio no abre ("desarrollador no identificado" / SmartScreen)</td><td>App sin firma de tienda.</td><td>Mac: clic derecho › Abrir. Windows: Más información › Ejecutar de todas formas.</td></tr>
+</tbody></table></div>
+</article>
+
+<article class="sub" id="s8-glosario">
+<h3><span class="n">8.2</span>Glosario <span class="chip org">todos</span></h3>
+<dl class="gloss">
+  <dt>Acompañante (ACOMP)</dt><dd>Persona que entra con un participante a Gradería; credencial digital, sin foto, cuenta para el aforo.</dd>
+  <dt>Aforo total</dt><dd><code>totalCapacity</code>: personas con credencial en todo el evento (2.000 por defecto).</dd>
+  <dt>Anti-passback</dt><dd>Regla que impide entrar dos veces a una zona sin registrar salida.</dd>
+  <dt>Anular (revocar)</dt><dd>Dejar una credencial inservible en todos los scanners. No se deshace: se re-emite.</dd>
+  <dt>Cadena de auditoría</dt><dd>Registro donde cada fila lleva el hash de la anterior; una edición rompe la cadena y se detecta.</dd>
+  <dt>Certificado raíz (CA)</dt><dd>Archivo que se instala una vez en cada celular para que confíe en el HTTPS del host (Caddy).</dd>
+  <dt>Copia de seguridad</dt><dd>Snapshot de la base del host cada 5 min (<code>VACUUM INTO</code>), en su carpeta y en una USB cifrada.</dd>
+  <dt>Credencial digital</dt><dd>Página en el celular del público con QR que cambia cada 60 s.</dd>
+  <dt>Enrolar</dt><dd>Atar un celular al host con un QR de 10 min, una zona, un rol y un PIN.</dd>
+  <dt>Equipo de respaldo (standby)</dt><dd>Segundo portátil con copia completa que se puede "promover" a principal.</dd>
+  <dt>Excepción</dt><dd>Autorización del supervisor con su PIN para dejar pasar pese a un rojo; queda registrada.</dd>
+  <dt>Host</dt><dd>El computador de la sede (mini PC o portátil) con el panel; la fuente de verdad del evento.</dd>
+  <dt>ID corto</dt><dd><code>TP-2026-00123-C</code>: número impreso bajo el QR; el último carácter es un dígito verificador.</dd>
+  <dt>Ingreso manual</dt><dd>Registrar una entrada escribiendo el ID corto o el apellido, con motivo del catálogo.</dd>
+  <dt>Modo degradado</dt><dd>Puerta sin scanner: lista impresa + planilla; se captura después.</dd>
+  <dt>Modo (del scanner)</dt><dd>Entrada, Salida o Entrada + Salida.</dd>
+  <dt>Passphrase</dt><dd>Frase larga que descifra la clave de firma y los datos personales; sin ella no hay recuperación.</dd>
+  <dt>Pendientes</dt><dd>Escaneos guardados en el celular que todavía no subieron al host. Suben solos.</dd>
+  <dt>Promover</dt><dd>Convertir el respaldo en principal cuando el principal cae (PROMOVER).</dd>
+  <dt>Purga</dt><dd>Borrado de datos personales a los 90 días (quedan escaneos y auditoría sin nombres).</dd>
+  <dt>PWA</dt><dd>La app del scanner: una web que se instala desde el navegador y funciona sin red.</dd>
+  <dt>Re-emitir</dt><dd>Emitir una versión nueva de una credencial; la anterior queda anulada.</dd>
+  <dt>Rol de acceso (tipo de entrada)</dt><dd>GEN, COMP, COACH… define zonas, cupo, foto, color.</dd>
+  <dt>Rol del sistema</dt><dd>Administrador, Coordinador, Operador, Inscriptor, Control, Supervisor, Auditor.</dd>
+  <dt>Scanner</dt><dd>Celular o tablet con la app en una puerta.</dd>
+  <dt>Snapshot</dt><dd>Copia completa de credenciales y reglas que baja un scanner al enrolar.</dd>
+  <dt>Sync</dt><dd>Intercambio entre scanner y host: subir escaneos, bajar anulaciones y cambios.</dd>
+  <dt>Token (del QR)</dt><dd>El texto firmado que contiene el QR: <code>TP1.&lt;payload&gt;.&lt;firma&gt;</code>.</dd>
+  <dt>Zona</dt><dd>Área con control de acceso: Gradería (G), Calentamiento (W), Tatamis (T), Pesaje (P), Jueces (J), Palco (V), Hospitalidad (H), Stands (S), Prensa (M).</dd>
+</dl>
+</article>
+
+<article class="sub" id="s8-docs">
+<h3><span class="n">8.3</span>Documentos del repositorio <span class="chip org">todos</span></h3>
+<div class="tbl"><table><thead><tr><th>Documento</th><th>Qué contiene</th><th>Para quién</th></tr></thead><tbody>
+<tr><td><code>docs/README.md</code></td><td>Mapa por público, convención de numeración, reglas de estilo, proceso código + test + doc.</td><td>Todos</td></tr>
+<tr><td><code>00-DECISIONES.md</code></td><td>El contrato: qué es, principio rector, stack, credencial y QR, roles, red, energía, seguridad, UX, alcance.</td><td>Directivos, todos</td></tr>
+<tr><td><code>10-PRD.md</code></td><td>Problema, objetivos y métricas, usuarios, alcance, requisitos funcionales (RF-xxx), flujos, modelo de datos, riesgos, fases.</td><td>Producto, federación</td></tr>
+<tr><td><code>20-RF-TEST.md</code></td><td>Estrategia de pruebas, matriz RF ↔ TC, casos detallados, pruebas de campo, simulacro D−7, go/no-go, criterios de release.</td><td>QA, director del simulacro</td></tr>
+<tr><td><code>30-ARQUITECTURA.md</code></td><td>Niveles, sync, modelo de datos, formato del token, enrolamiento, HTTPS en LAN, despliegue, observabilidad, trade-offs.</td><td>Desarrollo, técnico</td></tr>
+<tr><td><code>31-API-REFERENCIA.md</code></td><td>Generado: todas las rutas del host y de la nube con quién puede y qué hacen.</td><td>Desarrollo</td></tr>
+<tr><td><code>32-CONFIG-EVENTO.md</code></td><td>Generado: <code>event.config.json</code> campo por campo con defaults y validaciones.</td><td>Administrador, técnico</td></tr>
+<tr><td><code>36-AGENTES.md</code></td><td>Trabajar con agentes: subagentes, comandos, skills, MCP, flujos probados y límites.</td><td>Desarrollo</td></tr>
+<tr><td><code>40-SEGURIDAD-ISO27001.md</code></td><td>Mapeo Anexo A, STRIDE, antifraude en capas, claves, Ley 1581, hardening, runbooks de incidente, checklist T−7.</td><td>Auditor, técnico</td></tr>
+<tr><td><code>50-OPERACION.md</code></td><td>Lista de compras, plano de red, instalación del host, config, energía, copias, modo degradado, cronograma, turnos, problemas.</td><td>Administrador, técnico, coordinador</td></tr>
+<tr><td><code>60-MANUALES-POR-ROL.md</code></td><td>Un manual imprimible por rol: qué haces, qué necesitas, paso a paso, si algo sale mal, qué no debes hacer.</td><td>Cada rol</td></tr>
+<tr><td><code>70-UX-WRITING.md</code></td><td>Voz, glosario humano y catálogo de todos los textos visibles.</td><td>Diseño, desarrollo</td></tr>
+<tr><td><code>80-COMO-PROBAR.md</code></td><td>Comandos verificados: instalar, host, panel, respaldo, cifrado, copias, purga, scanner, nube, e2e, dispositivos reales, simplificaciones honestas.</td><td>QA, desarrollo</td></tr>
+<tr><td><code>85-DESPLIEGUE-NUBE.md</code></td><td>Vercel + Neon + Blob + Resend paso a paso, variables, dominio, clave compartida, credencial digital, cron, checklist.</td><td>Técnico</td></tr>
+<tr><td><code>86-APP-ESCRITORIO.md</code></td><td>App de escritorio del host (Mac/Windows): instalación, asistente, dónde quedan los datos, USB, promover, Caddy.</td><td>Administrador, técnico</td></tr>
+<tr><td><code>90-MONTAJE-ECOSISTEMA.md</code></td><td>De cero a simulacro: entorno, nube, host, red, scanners, impresión, prueba en casa, simulacro, día D, problemas.</td><td>Técnico</td></tr>
+<tr><td><code>95-ADR/</code></td><td>Una decisión por archivo (0001–0008) y plantilla.</td><td>Arquitectura</td></tr>
+<tr><td><code>99-CHANGELOG.md</code></td><td>Qué cambió en cada versión (0.1.0, 0.2.0, sin publicar).</td><td>Todos</td></tr>
+<tr><td><code>_plantillas/</code></td><td>Acta de simulacro, checklist día D, reporte de defecto, runbook de incidente, acta de purga.</td><td>Operación</td></tr>
+<tr><td><code>CLAUDE.md</code> · <code>AGENTS.md</code></td><td>Guía para agentes de código: mapa, comandos, invariantes, convenciones.</td><td>Desarrollo, agentes</td></tr>
+<tr><td><code>design/</code></td><td>Diseño del producto, demo interactiva, flujo del evento y este manual; capturas en <code>screenshots/</code>.</td><td>Todos</td></tr>
+</tbody></table></div>
+<p class="small muted" style="margin-top:14px">Manual generado a partir de la documentación del repositorio en su versión del 15 de octubre de 2026 (0.2.0 + sin publicar). Si algo aquí contradice un documento numerado, manda el documento.</p>
+</article>
+</section>
+
+</div>
+</main>
+</div>
+<button class="back" id="backTop" aria-label="Volver arriba">↑</button>
+
+<script>
+/* ===== TPBadge: plantilla de credencial "Nacional 2026" (anverso + reverso), configurable en vivo. Misma idea que packages/core/src/badge-template.ts: la plantilla recibe un objeto de configuración y datos; nada está fijo en el dibujo. ===== */
+window.TPBadge = (function(){
+  'use strict';
+  var DEFAULT = {
+    name:'Nacional 2026', primary:'#0F2A6B', accent:'#E6007E', gold:'#C9A227', tower:'#DCE6F5',
+    edition:'21', eventName:'CAMPEONATO NACIONAL', eventSub:'TAEKWON-DO ITF', year:'2026', city:'POPAYÁN', dates:'14 AL 16 DE NOVIEMBRE DE 2026',
+    showDoc:true, showEps:true, showEmergency:true, showTower:true,
+    logos:['ITF','Federación Colombiana ITF','Alcaldía de Popayán','Secretaría de Deporte y Recreación'],
+    sponsors:['Patrocinador 1','Patrocinador 2','Patrocinador 3','Patrocinador 4'],
+    info:['Uso personal e intransferible.','Válida únicamente durante el evento.','Presentar esta acreditación para el ingreso a las sedes.','Prohibida su reproducción total o parcial.','En caso de pérdida, reportar de inmediato al comité organizador.'],
+    bandText:{}, accessText:{}
+  };
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var S = function(d, extra){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(extra||'')+'>'+d+'</svg>'; };
+  var ICON = {
+    COMP: S('<circle cx="15" cy="4" r="2"/><path d="M13 7l-4 4 2 4-3 6M13 7l3 4 5-1M9 11l-5-1M11 15l5 2"/>'),
+    COACH: S('<circle cx="9" cy="15" r="5"/><path d="M12 11l9-5v4l-7 3M9 15h.01"/>'),
+    JUR: S('<path d="M4 20h9M9 8l7 7M13 4l7 7-3 3-7-7zM3 14l7-7"/>'),
+    VIP: S('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'),
+    SPON: S('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>'),
+    PRESS: S('<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>'),
+    MED: S('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+    STAFF: S('<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>'),
+    GEN: S('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    ACOMP: S('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20a5 5 0 0 1 6.5-4.8"/>')
+  };
+  var INFO_ICONS = [
+    S('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    S('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+    S('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.5"/><path d="M14 10h4M14 14h4"/>'),
+    S('<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'),
+    S('<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/>')
+  ];
+  var LOCK = S('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/>');
+  var HASH = S('<path d="M5 9h14M5 15h14M10 4l-2 16M16 4l-2 16"/>');
+  var PHONE = S('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>');
+  var PLUS = S('<circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/><path d="M12 8v8M8 12h8" stroke="#fff"/>');
+  var STAR = S('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z" fill="currentColor"/>');
+  var SIL = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>';
+
+  /* franjas diagonales (navy / magenta / gris) · viewBox en mm */
+  function deco(){
+    var L = function(x1,y1,x2,y2,c,w,o){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+w+'"'+(o?' opacity="'+o+'"':'')+'/>'; };
+    return '<svg class="deco" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+      L(10,-4,-14,44,'var(--gr)',7,.45)+L(19,-4,-5,44,'var(--p)',2.4)+L(24,-4,0,44,'var(--a)',1.6)+L(31,-4,7,44,'var(--gr)',3,.35)+
+      L(36,-4,12,44,'var(--gr)',1.2,.4)+
+      L(26,52,-14,132,'var(--gr)',5,.22)+
+      L(112,86,66,178,'var(--gr)',7,.4)+L(118,92,74,180,'var(--p)',2.6)+L(123,96,79,184,'var(--a)',1.8)+L(129,100,87,184,'var(--gr)',3,.35)+
+      '</svg>';
+  }
+  /* silueta propia de la torre de la catedral de Popayán (simplificada) */
+  function tower(){
+    return '<svg class="tower" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMaxYMin meet">'+
+      '<g fill="currentColor"><path d="M34 60V30h26v30z"/><path d="M19 60V22h16v38z"/><path d="M21 22V14h12v8z"/><path d="M22 14a5 5 0 0 1 10 0z"/><path d="M26 9h2v5h-2z"/></g>'+
+      '<path d="M27 3v6M25 5h4" stroke="currentColor" stroke-width="1" fill="none"/>'+
+      '<g fill="#fff"><path d="M24.5 32a2.5 2.5 0 0 1 5 0v8h-5z"/><path d="M24.5 46a2.5 2.5 0 0 1 5 0v8h-5z"/><path d="M25.5 16a1.5 1.5 0 0 1 3 0v4h-3z"/><path d="M40 40a3 3 0 0 1 6 0v8h-6z"/><path d="M50 40a3 3 0 0 1 6 0v8h-6z"/><rect x="19" y="26" width="16" height=".9"/><rect x="19" y="42" width="16" height=".9"/><rect x="34" y="34" width="26" height=".9"/></g>'+
+      '</svg>';
+  }
+  function qrSvg(text){
+    if (typeof qrcode === 'undefined'){ return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#fff"/><text x="50" y="52" font-size="7" text-anchor="middle" fill="#64748B">QR</text></svg>'; }
+    var q = qrcode(0,'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), m = 1, size = n+m*2, d='';
+    for (var r=0;r<n;r++) for (var c=0;c<n;c++) if (q.isDark(r,c)) d += 'M'+(c+m)+' '+(r+m)+'h1v1h-1z';
+    return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código QR firmado"><rect width="'+size+'" height="'+size+'" fill="#fff"/><path d="'+d+'" fill="#111827"/></svg>';
+  }
+  /* Code 128, juego B: tabla de anchos (barra, espacio, barra, ...) por símbolo; 103 = inicio B, 106 = parada */
+  var C128 = ('212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 114131 311141 411131 211412 211214 211232 2331112').split(' ');
+  function code128B(text){
+    var vals = [104], sum = 104;
+    for (var i=0;i<text.length;i++){ var v = text.charCodeAt(i)-32; if (v<0||v>95) v = 0; vals.push(v); sum += v*(i+1); }
+    vals.push(sum%103); vals.push(106);
+    var widths = []; vals.forEach(function(v){ C128[v].split('').forEach(function(w){ widths.push(+w); }); });
+    return widths;
+  }
+  function barcodeSvg(text, height){
+    var w = code128B(text), total = w.reduce(function(a,b){return a+b;},0), quiet = 10, x = quiet, d='';
+    for (var i=0;i<w.length;i++){ if (i%2===0) d += 'M'+x+' 0h'+w[i]+'v'+(height||40)+'h-'+w[i]+'z'; x += w[i]; }
+    return '<svg viewBox="0 0 '+(total+quiet*2)+' '+(height||40)+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código de barras '+esc(text)+'"><path d="'+d+'" fill="#111827"/></svg>';
+  }
+  function splitYear(y){ y = String(y); var h = Math.ceil(y.length/2); return '<span>'+esc(y.slice(0,h))+'</span><span>'+esc(y.slice(h))+'</span>'; }
+  function header(cfg){
+    var t = String(cfg.eventName||'').split(/\s+/);
+    return '<div class="hdr"><div class="ed">'+esc(cfg.edition)+'</div><div class="ttl">'+t.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'<small>'+esc(cfg.eventSub)+'</small></div><div class="yr"><div>'+splitYear(cfg.year)+'</div></div></div>'+
+      '<div class="city">'+esc(cfg.city)+'</div><div class="dates">'+esc(cfg.dates)+'</div>';
+  }
+  function footer(cfg){
+    return '<div class="foot">'+(cfg.logos||[]).map(function(l,i){ return '<div class="lg'+(i===0||i===3?' w':'')+'">'+esc(l)+'</div>'; }).join('')+'</div>';
+  }
+  function accessFor(cfg, role){
+    if (cfg.accessText && cfg.accessText[role.code]) return cfg.accessText[role.code];
+    return role.access || 'Zonas autorizadas';
+  }
+  function front(cfg, role, p, token){
+    var band = (cfg.bandText && cfg.bandText[role.code]) || role.name;
+    var fields = '<div class="f"><b>Nombre completo</b><span>'+esc(p.name)+'</span></div>'+
+      (cfg.showDoc ? '<div class="f"><b>Documento</b><span>'+esc(p.doc||'—')+'</span></div>' : '')+
+      '<div class="f long"><b>Academia</b><span>'+esc(p.club)+'</span></div>'+
+      '<div class="f ac"><b>Delegación</b><span>'+esc(p.delegation||'—')+'</span></div>';
+    return deco()+(cfg.showTower!==false?tower():'')+'<div class="inner">'+header(cfg)+
+      '<div class="idrow"><div class="photo">'+SIL+'</div><div class="fields">'+fields+'</div></div>'+
+      '<div class="band'+(band.length>11?' sm':'')+'">'+(ICON[role.code]||ICON.GEN)+'<span>'+esc(band)+'</span></div>'+
+      '<div class="acc"><div class="col">'+
+        '<div class="c">'+LOCK+'<div style="min-width:0"><b>Acceso:</b><span>'+esc(accessFor(cfg,role))+'</span></div></div>'+
+        '<div class="c">'+HASH+'<div style="min-width:0"><b>Acreditación No.</b><div class="id">'+esc(p.id)+'</div></div></div>'+
+      '</div><div class="qrc">'+qrSvg(token)+'</div></div>'+
+      footer(cfg)+'</div>';
+  }
+  function back(cfg, role, p){
+    var info = (cfg.info||[]).map(function(t,i){ return '<li>'+(INFO_ICONS[i]||INFO_ICONS[0])+'<span>'+esc(t)+'</span></li>'; }).join('');
+    var two = '';
+    if (cfg.showEmergency) two += '<div class="c">'+PHONE+'<div style="min-width:0"><b>Contacto de emergencia</b><span>'+esc(p.emergency&&p.emergency.name||'—')+'<br>'+esc(p.emergency&&p.emergency.phone||'')+'</span></div></div>';
+    if (cfg.showEps) two += '<div class="c">'+PLUS+'<div style="min-width:0"><b>EPS</b><span>'+esc(p.eps&&p.eps.name||'—')+'<br>'+esc(p.eps&&p.eps.regime||'')+'</span></div></div>';
+    return deco()+(cfg.showTower!==false?tower():'')+'<div class="inner">'+header(cfg)+
+      '<div class="info"><h5><i>i</i>Información importante</h5><ul>'+info+'</ul></div>'+
+      (two?'<div class="two">'+two+'</div>':'')+
+      '<div class="spon"><b>'+STAR+'Patrocinadores</b><div class="row">'+(cfg.sponsors||[]).map(function(s){return '<div class="lg">'+esc(s)+'</div>';}).join('')+'</div></div>'+
+      '<div class="bar">'+barcodeSvg(p.id, 40)+'<span>'+esc(p.id)+'</span></div>'+
+      footer(cfg)+'</div>';
+  }
+  function applyVars(el, cfg, role){
+    el.style.setProperty('--p', cfg.primary); el.style.setProperty('--a', cfg.accent); el.style.setProperty('--g', cfg.gold||DEFAULT.gold); el.style.setProperty('--tower', cfg.tower||DEFAULT.tower);
+    el.style.setProperty('--role', role.code==='COMP' ? cfg.accent : role.color); el.style.setProperty('--role-ink', role.text||'#fff');
+  }
+  function varsStyle(cfg, role){
+    return '--p:'+cfg.primary+';--a:'+cfg.accent+';--g:'+(cfg.gold||DEFAULT.gold)+';--tower:'+(cfg.tower||DEFAULT.tower)+';--role:'+(role.code==='COMP'?cfg.accent:role.color)+';--role-ink:'+(role.text||'#fff');
+  }
+  function render(el, side, cfg, role, p, token){
+    el.classList.add('nb'); el.classList.toggle('nb-back', side==='back'); applyVars(el, cfg, role);
+    el.innerHTML = side==='back' ? back(cfg, role, p) : front(cfg, role, p, token);
+  }
+  return { DEFAULT:DEFAULT, clone:clone, ICON:ICON, render:render, varsStyle:varsStyle, front:front, back:back, applyVars:applyVars, barcodeSvg:barcodeSvg, code128B:code128B, qrSvg:qrSvg };
+})();
+</script>
+<script>
+(function(){
+  /* ---- credencial de ejemplo (plantilla Nacional 2026) ---- */
+  try{
+    var payload='eyJ2IjoxLCJlIjoibmFjMjAyNiIsImMiOiIwMDEyMyIsInIiOiJDT01QIiwieiI6WyJHIiwiVyIsIlQiLCJQIl0sImYiOiIyMDI2LTExLTE0IiwidCI6IjIwMjYtMTEtMTYiLCJuIjoxLCJrIjoiazEifQ';
+    var sig='';for(var i=0;i<86;i++){sig+='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'[(i*7+3)%64]}
+    var role={code:'COMP',name:'Competidor',color:'#E6007E',text:'#fff',access:'Área de competencia\nZonas autorizadas'};
+    var person={name:'Juan Pérez',doc:'1.061.234.567',club:'Academia Gran Maestro',delegation:'Bogotá D.C. - Cundinamarca',id:'TP-2026-00123-C',emergency:{name:'María Fernanda Pérez',phone:'+57 310 234 5678'},eps:{name:'EPS Sura',regime:'Régimen contributivo'}};
+    var f=document.getElementById('badge-fig-front'), b=document.getElementById('badge-fig-back');
+    if(f&&b&&window.TPBadge){ TPBadge.render(f,'front',TPBadge.DEFAULT,role,person,'TP1.'+payload+'.'+sig); TPBadge.render(b,'back',TPBadge.DEFAULT,role,person); }
+    function fitBadges(){ document.querySelectorAll('.badge-fig .fit').forEach(function(box){ var c=box.firstElementChild; if(!c) return; var s=Math.min(1, box.clientWidth/378); c.style.transform='scale('+s+')'; box.style.height=(567*s)+'px'; }); }
+    window.addEventListener('resize',fitBadges); fitBadges(); setTimeout(fitBadges,300);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitBadges);
+  }catch(e){}
+})();
+</script>
+<script>
+(function(){
+  var root=document.documentElement;
+  var $=function(s,c){return (c||document).querySelector(s)};
+  var $$=function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+
+  /* ---- público ---- */
+  var audOrg=$('#audOrg'),audTech=$('#audTech');
+  function setAud(a,save){
+    root.setAttribute('data-aud',a);
+    audOrg.setAttribute('aria-pressed',String(a==='org'));
+    audTech.setAttribute('aria-pressed',String(a==='tech'));
+    if(save){try{localStorage.setItem('tp-manual-aud',a)}catch(e){}}
+    runSearch();
+  }
+  audOrg.addEventListener('click',function(){setAud('org',true)});
+  audTech.addEventListener('click',function(){setAud('tech',true)});
+
+  /* ---- buscador ---- */
+  var q=$('#q'),qClear=$('#qClear'),state=$('#searchState');
+  var subs=$$('article.sub'),secs=$$('section.sec');
+  var subText=subs.map(function(a){return a.textContent.replace(/\s+/g,' ').toLowerCase()});
+  function norm(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+  var subNorm=subText.map(norm);
+  function isTechHidden(el){return root.getAttribute('data-aud')==='org'&&(el.classList.contains('tech')||!!el.closest('.tech'))}
+  function runSearch(){
+    var term=norm(q.value.trim());
+    qClear.hidden=!term;
+    if(!term){
+      root.classList.remove('searching');
+      subs.forEach(function(a){a.hidden=false});
+      secs.forEach(function(s){s.hidden=false});
+      state.textContent='';
+      return;
+    }
+    root.classList.add('searching');
+    var words=term.split(/\s+/).filter(Boolean);
+    var hits=0,hiddenTech=0;
+    subs.forEach(function(a,i){
+      var ok=words.every(function(w){return subNorm[i].indexOf(w)>=0});
+      a.hidden=!ok;
+      if(ok){ if(isTechHidden(a)) hiddenTech++; else hits++; }
+    });
+    secs.forEach(function(s){
+      var any=$$('article.sub',s).some(function(a){return !a.hidden&&!isTechHidden(a)});
+      s.hidden=!any;
+    });
+    var msg=hits?hits+(hits===1?' apartado coincide':' apartados coinciden')+' con «'+q.value.trim()+'».':'Ningún apartado coincide con «'+q.value.trim()+'». Prueba con otra palabra (p. ej. "certificado", "cupo", "promover").';
+    if(hiddenTech) msg+=' Hay '+hiddenTech+(hiddenTech===1?' apartado técnico oculto':' apartados técnicos ocultos')+': cambia a «Soy técnico» para verlo'+(hiddenTech===1?'':'s')+'.';
+    state.textContent=msg;
+  }
+  var t;
+  q.addEventListener('input',function(){clearTimeout(t);t=setTimeout(runSearch,80)});
+  qClear.addEventListener('click',function(){q.value='';runSearch();q.focus()});
+  q.addEventListener('keydown',function(e){if(e.key==='Escape'){q.value='';runSearch()}});
+
+  /* ---- imprimir ---- */
+  $('#printBtn').addEventListener('click',function(){window.print()});
+
+  /* ---- índice móvil ---- */
+  var side=$('#side'),scrim=$('#scrim'),menuBtn=$('#menuBtn');
+  function openSide(o){side.classList.toggle('open',o);scrim.hidden=!o;menuBtn.setAttribute('aria-expanded',String(o))}
+  menuBtn.addEventListener('click',function(){openSide(!side.classList.contains('open'))});
+  $('#sideClose').addEventListener('click',function(){openSide(false)});
+  scrim.addEventListener('click',function(){openSide(false)});
+  $$('a',side).forEach(function(a){a.addEventListener('click',function(){openSide(false)})});
+
+  /* ---- sección activa ---- */
+  var links=$$('#toc a');
+  var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+  var targets=$$('section.sec, article.sub');
+  if('IntersectionObserver' in window){
+    var current=null;
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          var id=en.target.id;
+          if(byId[id]){ if(current) current.classList.remove('active'); current=byId[id]; current.classList.add('active'); }
+        }
+      });
+    },{rootMargin:'-20% 0px -70% 0px'});
+    targets.forEach(function(el){io.observe(el)});
+  }
+
+  /* ---- volver arriba ---- */
+  var back=$('#backTop');
+  window.addEventListener('scroll',function(){back.classList.toggle('show',window.scrollY>900)},{passive:true});
+  back.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+
+  /* ---- público inicial (después de definir el buscador) ---- */
+  var savedAud='org';
+  try{savedAud=localStorage.getItem('tp-manual-aud')||'org'}catch(e){}
+  setAud(savedAud==='tech'?'tech':'org',false);
+
+  /* ---- QR de ejemplo (token ilustrativo; la firma no es real) ---- */
+  try{
+    if(window.qrcode){
+      var payload='eyJ2IjoxLCJlIjoibmFjMjAyNiIsImMiOiIwMDEyMyIsInIiOiJDT01QIiwieiI6WyJHIiwiVyIsIlQiLCJQIl0sImYiOiIyMDI2LTExLTIwIiwidCI6IjIwMjYtMTEtMjIiLCJuIjoxLCJrIjoiazEifQ';
+      var sig='';for(var i=0;i<86;i++){sig+='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'[(i*7+3)%64]}
+      var qr=window.qrcode(0,'M');qr.addData('TP1.'+payload+'.'+sig);qr.make();
+      $('#qrDemo').innerHTML=qr.createSvgTag({cellSize:2,margin:0,scalable:true});
+    } else { throw new Error('sin librería'); }
+  }catch(e){
+    var box=$('#qrDemo'); if(box){ box.innerHTML='<div style="display:grid;place-items:center;height:100%;text-align:center;font:600 .72rem Inter,system-ui,sans-serif;color:#5B6B82;padding:8px">QR de ejemplo<br><span style="font-family:JetBrains Mono,monospace">TP-2026-00123-C</span></div>'; }
+  }
+})();
+</script>
+</body>
+</html>

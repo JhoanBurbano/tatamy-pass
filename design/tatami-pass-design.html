@@ -1,0 +1,1691 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tatami Pass</title>
+<meta name="description" content="Diseño de producto de Tatami Pass: credencial física y digital, pantallas del scanner, radio por la red local, inscripción, panel del host y sistema de diseño.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* Layout: hoja de producto por secciones; franjas diagonales tipo cinturón separan bloques; mockups a escala fija dentro de cajas que se reescalan. */
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#EEF2F8; --fg:#0F172A; --muted:#5B6B82; --line:#DDE3EC;
+  --blue:#1C4FD1; --blue-ink:#133A9C; --blue-soft:#E4EBFB;
+  --red:#E0323B; --red-soft:#FCE6E7; --green:#16A34A; --green-soft:#DEF7E6;
+  --amber:#D97706; --amber-soft:#FCEFD6; --lime:#C8F560; --lime-ink:#5B7A00;
+  /* PTT (radio): escuchando · hablando · ocupado · emergencia */
+  --ptt-listen:#1C4FD1; --ptt-talk:#C8F560; --ptt-talk-ink:#0F172A; --ptt-talk-border:#5B7A00; --ptt-busy:#D97706; --ptt-emerg:#E0323B;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 12px 32px -12px rgba(28,79,209,.18);
+  --shadow-lg:0 2px 4px rgba(15,23,42,.06),0 30px 60px -24px rgba(28,79,209,.30);
+  --font-display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:14px; --t:180ms;
+  /* roles */
+  --r-GEN:#64748B; --r-COMP:#1C4FD1; --r-COACH:#0F2A6B; --r-JUR:#111827; --r-VIP:#6D28D9; --r-SPON:#9CCB2A; --r-PRESS:#EA7A1C; --r-MED:#16A34A; --r-STAFF:#E0323B; --gold:#D4A72C;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --ptt-listen:#5B86F0; --ptt-talk:#C8F560; --ptt-talk-ink:#0F172A; --ptt-talk-border:#D5F77E; --ptt-busy:#F0A33A; --ptt-emerg:#F0636A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 4px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.7);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --ptt-listen:#5B86F0; --ptt-talk:#C8F560; --ptt-talk-ink:#0F172A; --ptt-talk-border:#D5F77E; --ptt-busy:#F0A33A; --ptt-emerg:#F0636A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 4px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.5vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;letter-spacing:-.015em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+a{color:var(--blue)}
+code,.mono{font-family:var(--font-mono)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+section.block{padding-block:64px}
+.eyebrow{font-family:var(--font-display);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.lead{color:var(--muted);max-width:62ch;font-size:1.05rem}
+.sec-head{display:grid;gap:10px;margin-bottom:32px}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:18px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:-.01em;white-space:nowrap}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#4C7DF5);position:relative;overflow:hidden;box-shadow:0 4px 10px -4px rgba(28,79,209,.6)}
+.brand .mark::after{content:"";position:absolute;inset:-4px;background:linear-gradient(115deg,transparent 46%,var(--lime) 46%,var(--lime) 60%,transparent 60%)}
+.nav-links{display:flex;gap:4px;overflow-x:auto;min-width:0;flex:1;scrollbar-width:none;margin-left:auto;-webkit-overflow-scrolling:touch}
+.nav-links::-webkit-scrollbar{display:none}
+@media (min-width:700px){.nav-links{justify-content:flex-end}}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:600;padding:8px 12px;border-radius:999px;white-space:nowrap;transition:background var(--t),color var(--t)}
+.nav-links a:hover,.nav-links a.active{background:var(--blue-soft);color:var(--blue)}
+
+/* belt stripe divider */
+.belt{height:14px;background:repeating-linear-gradient(-55deg,var(--blue) 0 28px,var(--lime) 28px 36px,var(--red) 36px 64px,var(--surface) 64px 72px);opacity:.9}
+.belt.thin{height:6px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:72px 64px;background:
+  radial-gradient(900px 420px at 10% -10%,color-mix(in srgb,var(--blue) 18%,transparent),transparent 60%),
+  radial-gradient(700px 360px at 95% 10%,color-mix(in srgb,var(--lime) 35%,transparent),transparent 60%),var(--bg)}
+.hero::before{content:"";position:absolute;right:-20%;top:-40%;width:70%;height:200%;background:linear-gradient(115deg,transparent 48%,color-mix(in srgb,var(--blue) 10%,transparent) 48%,color-mix(in srgb,var(--blue) 10%,transparent) 52%,transparent 52%,transparent 58%,color-mix(in srgb,var(--red) 9%,transparent) 58%,color-mix(in srgb,var(--red) 9%,transparent) 61%,transparent 61%);pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+.hero h1 .tag{display:block;font-size:.45em;font-weight:600;color:var(--muted);letter-spacing:0;margin-top:10px}
+.hero .claim{font-size:1.2rem;color:var(--muted);max-width:56ch}
+.facts{min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;max-width:760px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:center;transition:transform var(--t),box-shadow var(--t)}
+.fact:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.fact .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);flex:none}
+.fact b{font-family:var(--font-display);font-size:1.05rem;display:block}
+.fact span{color:var(--muted);font-size:.85rem}
+
+/* generic cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;border:1px solid transparent;font:600 .95rem var(--font-body);cursor:pointer;transition:transform var(--t),box-shadow var(--t),background var(--t),color var(--t);text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 20px -8px rgba(28,79,209,.6)}
+.btn-primary:hover{background:var(--blue-ink)}
+.btn-secondary{background:var(--surface);color:var(--fg);border-color:var(--line)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-lime{background:var(--lime);color:#0F172A}
+.btn-lime:hover{filter:brightness(.95)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--blue)}
+
+/* role chips */
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--rc,var(--blue))}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:#fff;opacity:.85}
+.chip.light{color:#0F172A}
+
+/* ===== CREDENCIAL FÍSICA ===== */
+.role-picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.role-picker button{height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font:600 .85rem var(--font-body);cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:border-color var(--t),transform var(--t),box-shadow var(--t)}
+.role-picker button .sw{width:12px;height:12px;border-radius:4px;background:var(--rc)}
+.role-picker button:hover{transform:translateY(-1px);border-color:var(--rc)}
+.role-picker button[aria-pressed="true"]{border-color:var(--rc);box-shadow:0 0 0 3px color-mix(in srgb,var(--rc) 25%,transparent)}
+.cred-stage{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:860px){.cred-stage{grid-template-columns:1fr}}
+.cred-info{display:grid;gap:18px;align-content:start}
+.cred-info dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font-size:.92rem}
+.cred-info dt{color:var(--muted)}
+.cred-info dd{margin:0;overflow-wrap:anywhere}
+.cred-info .token{font-size:.72rem;line-height:1.5;background:var(--surface-2);padding:10px 12px;border-radius:10px;word-break:break-all;border:1px solid var(--line)}
+.cred-info .token i{font-style:normal;color:var(--blue)}
+.cred-info .token u{text-decoration:none;color:var(--muted)}
+
+/* scaled boxes */
+.fit{position:relative;width:100%;overflow:visible}
+div.fit>*{transform-origin:top left;position:absolute;left:0;top:0}
+
+/* ===== Credencial "Nacional 2026" (plantilla configurable) · unidades en mm, escala real ===== */
+/* La credencial es un objeto impreso: sus colores son fijos (papel blanco) en ambos temas; la plantilla los recibe como variables. */
+.nb{--p:#0F2A6B;--a:#E6007E;--g:#C9A227;--gr:#C7CCD6;--ink:#0F2A6B;--role:#E6007E;--role-ink:#fff;--tower:#DCE6F5;
+  width:100mm;height:150mm;background:#fff;color:var(--ink);border-radius:4mm;position:relative;overflow:hidden;box-shadow:var(--shadow-lg,0 2px 4px rgba(15,23,42,.06),0 30px 60px -24px rgba(15,23,42,.3));
+  font-family:"Inter",ui-sans-serif,system-ui,sans-serif;line-height:1.15;box-sizing:border-box}
+.nb *{box-sizing:border-box}
+.nb .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.nb .tower{position:absolute;right:0;top:0;width:36mm;height:34mm;color:var(--tower);pointer-events:none}
+.nb .inner{position:absolute;inset:0;padding:5mm 5mm 4.5mm;display:flex;flex-direction:column}
+/* cabecera */
+.nb .hdr{display:flex;align-items:flex-start;gap:1.6mm;height:16mm}
+.nb .ed{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:17mm;line-height:.82;letter-spacing:-.01em;color:var(--p);
+  background:repeating-linear-gradient(180deg,var(--p) 0 1.6mm,transparent 1.6mm 1.95mm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.4mm}
+.nb .ttl{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;text-transform:uppercase;color:var(--p);font-size:6.1mm;line-height:.9;letter-spacing:-.01em;display:flex;flex-direction:column}
+.nb .ttl small{font-size:2.5mm;font-weight:700;letter-spacing:.1em;margin-top:.9mm;line-height:1}
+.nb .yr{align-self:stretch;display:flex;align-items:center;gap:1.4mm;padding-left:1.4mm;border-left:.35mm solid var(--g);font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:5.2mm;line-height:.92;color:var(--a);letter-spacing:.02em;margin-top:.6mm}
+.nb .yr span{display:block}
+.nb .city{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:5mm;letter-spacing:.32em;color:var(--p);text-align:center;margin-top:1.2mm;line-height:1}
+.nb .dates{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:2.7mm;letter-spacing:.2em;color:var(--p);text-align:center;margin-top:1mm;line-height:1;padding-bottom:1.3mm;border-bottom:.3mm solid var(--g)}
+.nb.nb-back .hdr{height:14mm}
+.nb.nb-back .ed{font-size:14mm}
+.nb.nb-back .ttl{font-size:5.4mm}
+.nb.nb-back .city{font-size:4.2mm;margin-top:.8mm}
+/* identidad */
+.nb .idrow{display:flex;gap:2.5mm;margin-top:3mm;align-items:stretch}
+.nb .photo{width:30mm;height:41mm;flex:none;border-radius:1.6mm;border:.4mm solid #D4DBE6;background:linear-gradient(180deg,#E9EEF6,#D5DDEA);display:grid;place-items:center;overflow:hidden}
+.nb .photo svg{width:20mm;height:20mm;color:#94A3B8}
+.nb .fields{flex:1;min-width:0;display:grid;gap:1.6mm;align-content:stretch}
+.nb .f{border:.3mm solid #D9DEE8;border-radius:1.3mm;padding:1mm 2mm .9mm;min-width:0;display:flex;flex-direction:column;justify-content:center;background:rgba(255,255,255,.92)}
+.nb .f b{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.2mm;letter-spacing:.14em;text-transform:uppercase;color:var(--p);font-weight:700;line-height:1}
+.nb .f.ac b{color:var(--a)}
+.nb .f span{display:block;font-size:3.3mm;font-weight:600;color:#111827;line-height:1.15;margin-top:.5mm;overflow-wrap:anywhere}
+.nb .f.long span{font-size:2.9mm}
+/* banda de rol */
+.nb .band{margin-top:3mm;height:12mm;border-radius:1.4mm;background:var(--role);color:var(--role-ink);display:flex;align-items:center;gap:2.5mm;padding:0 3mm;position:relative;overflow:hidden}
+.nb .band svg{width:7.5mm;height:7.5mm;flex:none}
+.nb .band span{font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:800;font-size:8.6mm;letter-spacing:.02em;text-transform:uppercase;line-height:1;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb .band.sm span{font-size:6.4mm}
+/* tarjetas de acceso + QR */
+.nb .acc{display:flex;gap:2mm;margin-top:3mm}
+.nb .acc .col{flex:1;min-width:0;display:grid;gap:2mm;align-content:stretch}
+.nb .c{border:.3mm solid #D9DEE8;border-radius:1.4mm;padding:1.8mm 2mm;display:flex;gap:2mm;align-items:center;background:rgba(255,255,255,.92);min-width:0}
+.nb .c svg{width:5.5mm;height:5.5mm;flex:none;color:var(--a)}
+.nb .c b{display:block;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.6mm;letter-spacing:.1em;text-transform:uppercase;color:var(--a);font-weight:700;line-height:1}
+.nb .c span{display:block;font-size:2.9mm;color:#111827;line-height:1.2;margin-top:.5mm;font-weight:500;white-space:pre-line}
+.nb .c .id{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:3.9mm;letter-spacing:.01em;color:var(--p);margin-top:.6mm;white-space:nowrap}
+.nb .qrc{width:31mm;flex:none;border:.3mm solid #D9DEE8;border-radius:1.4mm;background:#fff;padding:1.2mm;display:grid;place-items:center}
+.nb .qrc svg{width:100%;height:auto;display:block}
+/* pie de logos */
+.nb .foot{margin-top:auto;padding-top:1.6mm;border-top:.3mm solid var(--g);display:flex;align-items:center;justify-content:space-between;gap:1.2mm}
+.nb .lg{flex:1;min-width:0;height:10mm;border:.25mm dashed #B6BFCD;border-radius:1mm;display:grid;place-items:center;text-align:center;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-weight:700;font-size:1.95mm;line-height:1.05;letter-spacing:.04em;text-transform:uppercase;color:#64748B;padding:0 .8mm;overflow:hidden}
+.nb .lg.w{flex:1.25}
+/* reverso */
+.nb .info{margin-top:2.4mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:2mm 2.4mm;background:rgba(255,255,255,.92)}
+.nb .info h5{margin:0;display:flex;align-items:center;gap:2mm;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:4.2mm;letter-spacing:.1em;text-transform:uppercase;color:var(--p);font-weight:800;line-height:1}
+.nb .info h5 i{width:5mm;height:5mm;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-style:normal;font-family:"Barlow Condensed","Sora",sans-serif;font-size:3.6mm;font-weight:800;flex:none}
+.nb .info ul{list-style:none;margin:2mm 0 0;padding:0;display:grid;gap:1.6mm}
+.nb .info li{display:flex;gap:2mm;align-items:flex-start;font-size:2.75mm;color:#111827;line-height:1.25;font-weight:500}
+.nb .info li svg{width:4mm;height:4mm;flex:none;color:var(--p);margin-top:.1mm}
+.nb .two{display:flex;gap:2mm;margin-top:2.5mm}
+.nb .two .c{flex:1;align-items:flex-start}
+.nb .two .c svg{margin-top:.4mm}
+.nb .two .c span{font-size:2.8mm}
+.nb .spon{margin-top:2.5mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:1.6mm 2.4mm 2mm;background:rgba(255,255,255,.92)}
+.nb .spon b{display:flex;align-items:center;gap:1.5mm;font-family:"Barlow Condensed","Sora",ui-sans-serif,system-ui,sans-serif;font-size:2.9mm;letter-spacing:.12em;text-transform:uppercase;color:var(--a);font-weight:800;line-height:1}
+.nb .spon b svg{width:3.4mm;height:3.4mm;color:var(--p)}
+.nb .spon .row{display:flex;gap:1.5mm;margin-top:1.4mm}
+.nb .spon .lg{height:11mm;font-size:2.2mm}
+.nb .bar{margin-top:2.5mm;border:.3mm solid #D9DEE8;border-radius:1.6mm;padding:1.4mm 2mm 1mm;background:#fff;text-align:center}
+.nb .bar svg{display:block;width:100%;height:9mm}
+.nb .bar span{display:block;font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:3.1mm;color:#111827;letter-spacing:.06em;margin-top:.6mm}
+/* vistas */
+.nb-pair{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.nb-pair>div{flex:1 1 230px;min-width:0;max-width:378px}
+.nb-side{display:grid;gap:4px;text-align:center;font-size:.8rem;color:var(--muted)}
+/* ===== fin credencial ===== */
+/* panel "es una plantilla" */
+.tpl-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:28px;align-items:start;margin-top:28px}
+@media (max-width:900px){.tpl-panel{grid-template-columns:1fr}}
+.ctl{display:grid;gap:14px;padding:22px}
+.ctl h4{font-size:1rem}
+.ctl .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.ctl label{display:grid;gap:5px;font-size:.78rem;font-weight:600;color:var(--muted);min-width:0}
+.ctl input[type="text"],.ctl select{height:40px;border:1.5px solid var(--line);border-radius:10px;padding:0 10px;font:500 .9rem var(--font-body);background:var(--surface);color:var(--fg);min-width:0;width:100%}
+.ctl input[type="text"]:focus,.ctl select:focus,.ctl input[type="color"]:focus{outline:2px solid var(--blue);outline-offset:1px}
+.ctl .color{display:flex;align-items:center;gap:8px;height:40px;border:1.5px solid var(--line);border-radius:10px;padding:0 8px;background:var(--surface);font-family:var(--font-mono);font-size:.8rem;color:var(--fg)}
+.ctl input[type="color"]{width:28px;height:28px;border:0;padding:0;background:none;border-radius:6px;cursor:pointer}
+.ctl .tg{display:flex;flex-wrap:wrap;gap:8px 16px}
+.ctl .tg label{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;color:var(--fg);cursor:pointer}
+.ctl input[type="checkbox"]{width:18px;height:18px;accent-color:var(--blue)}
+.ctl .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tpl-note{font-size:.85rem;color:var(--muted);line-height:1.5}
+.tpl-note code{font-size:.8em}
+.cred-grid{margin-top:48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px}
+.cred-grid .mini{display:grid;gap:10px;cursor:pointer;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit}
+.cred-grid .mini .fit{border-radius:8px;transition:transform var(--t)}
+.cred-grid .mini:hover .fit{transform:translateY(-4px)}
+.cred-grid .mini .lab{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600}
+.cred-grid .mini .lab i{width:12px;height:12px;border-radius:4px;background:var(--rc)}
+.cred-grid .mini .lab span{color:var(--muted);font-weight:500;margin-left:auto;font-family:var(--font-mono);font-size:.75rem}
+
+/* ===== PHONE FRAME ===== */
+.phone{width:390px;height:844px;background:#0F172A;border-radius:48px;padding:12px;box-shadow:var(--shadow-lg),inset 0 0 0 2px #334155;position:relative}
+.phone .screen{width:100%;height:100%;border-radius:38px;background:#F6F8FB;color:#0F172A;overflow:hidden;position:relative;font-family:var(--font-body);display:flex;flex-direction:column}
+.phone .notch{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:120px;height:34px;border-radius:20px;background:#0F172A;z-index:3}
+.phone .status{height:54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 6px;font-size:14px;font-weight:600}
+.phone .status .t{font-variant-numeric:tabular-nums}
+.phone .status .r{display:flex;gap:6px;align-items:center}
+.phone .status .r i{display:block;width:22px;height:11px;border:1.5px solid currentColor;border-radius:3px;position:relative}
+.phone .status .r i::after{content:"";position:absolute;inset:2px;right:30%;background:currentColor;border-radius:1px}
+.phone .app{flex:1;display:flex;flex-direction:column;padding:12px 20px 24px;gap:14px;min-height:0}
+.phone .bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.phone .bar .zone{font-family:var(--font-display);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.phone .bar .zone i{width:10px;height:10px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.2)}
+.phone .bar .pill{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:#E4EBFB;color:#1C4FD1}
+.phone .bar .pill.off{background:#F1F5F9;color:#5B6B82}
+.phone .h{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.phone .p{color:#475569;font-size:15px;line-height:1.45}
+.phone .pbtn{min-height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:17px;border:0;font-family:var(--font-body);cursor:pointer;transition:transform var(--t),filter var(--t)}
+.phone .pbtn:hover{filter:brightness(.96)}
+.phone .pbtn:active{transform:scale(.98)}
+.phone .pbtn.pri{background:#1C4FD1;color:#fff;box-shadow:0 8px 20px -8px rgba(28,79,209,.7)}
+.phone .pbtn.sec{background:#fff;color:#0F172A;border:1.5px solid #DDE3EC}
+.phone .pbtn.lime{background:#C8F560;color:#0F172A}
+.phone .spacer{flex:1}
+.phone .stack{display:grid;gap:10px}
+.phone .foot-note{text-align:center;font-size:12px;color:#5B6B82}
+/* enrol */
+.enrol-qr{width:220px;height:220px;margin:12px auto 0;border-radius:18px;background:#fff;display:grid;place-items:center;padding:12px;box-shadow:0 10px 30px -14px rgba(28,79,209,.5)}
+.enrol-qr svg{width:100%;height:100%}
+.cam-frame{margin:10px auto 0;width:260px;height:260px;position:relative;border-radius:22px;background:linear-gradient(135deg,#1E293B,#0F172A);display:grid;place-items:center;overflow:hidden}
+.cam-frame::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.08),transparent 55%)}
+.cam-frame .corner{position:absolute;width:40px;height:40px;border:4px solid #C8F560}
+.cam-frame .c1{top:14px;left:14px;border-right:0;border-bottom:0;border-radius:10px 0 0 0}
+.cam-frame .c2{top:14px;right:14px;border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+.cam-frame .c3{bottom:14px;left:14px;border-right:0;border-top:0;border-radius:0 0 0 10px}
+.cam-frame .c4{bottom:14px;right:14px;border-left:0;border-top:0;border-radius:0 0 10px 0}
+.cam-frame .laser{position:absolute;left:20px;right:20px;height:3px;background:linear-gradient(90deg,transparent,#C8F560,transparent);top:30%;animation:laser 1.6s ease-in-out infinite alternate;box-shadow:0 0 14px #C8F560}
+@keyframes laser{to{top:70%}}
+.cam-frame svg{width:150px;height:150px;opacity:.55;filter:invert(1)}
+/* PIN */
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-top:8px}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid #1C4FD1}
+.pin-dots i.on{background:#1C4FD1}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.keypad button{height:62px;border-radius:14px;border:0;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.08);font:600 24px var(--font-display);color:#0F172A;cursor:pointer;transition:transform var(--t),background var(--t)}
+.keypad button:hover{background:#E4EBFB}
+.keypad button:active{transform:scale(.96)}
+.keypad button.soft{background:transparent;box-shadow:none;font-size:15px;font-family:var(--font-body);color:#5B6B82}
+/* zone list */
+.zlist{display:grid;gap:10px}
+.zlist label{display:flex;align-items:center;gap:12px;min-height:60px;padding:0 14px;background:#fff;border:1.5px solid #DDE3EC;border-radius:14px;cursor:pointer;transition:border-color var(--t),background var(--t)}
+.zlist label:hover{border-color:#1C4FD1}
+.zlist label.sel{border-color:#1C4FD1;background:#E4EBFB}
+.zlist .zi{width:38px;height:38px;border-radius:10px;background:#F6F8FB;display:grid;place-items:center;flex:none}
+.zlist .zi svg{width:22px;height:22px}
+.zlist label.sel .zi{background:#1C4FD1;color:#fff}
+.zlist b{display:block;font-size:15px}
+.zlist small{color:#5B6B82;font-size:12px}
+.zlist .radio{margin-left:auto;width:22px;height:22px;border-radius:50%;border:2px solid #CBD5E1;flex:none}
+.zlist label.sel .radio{border:7px solid #1C4FD1}
+/* results */
+.phone .screen.ok{background:#16A34A;color:#fff}
+.phone .screen.no{background:#E0323B;color:#fff}
+.phone .screen.warn{background:#F59E0B;color:#0F172A}
+.phone .screen.ok .status,.phone .screen.no .status{color:#fff}
+.res{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding-top:6px}
+.res .big{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.22);font-family:var(--font-display);font-weight:800;font-size:72px;line-height:1;animation:pop .4s cubic-bezier(.2,.9,.3,1.3) both}
+.screen.warn .res .big{background:rgba(15,23,42,.12)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.res .verdict{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.res .why{font-size:16px;line-height:1.4;opacity:.95;max-width:300px}
+.res .what{font-size:15px;line-height:1.4;background:rgba(255,255,255,.18);padding:10px 14px;border-radius:12px;max-width:310px}
+.screen.warn .res .what{background:rgba(15,23,42,.1)}
+.person{display:flex;gap:14px;align-items:center;background:rgba(255,255,255,.16);border-radius:16px;padding:12px;width:100%;text-align:left}
+.person .ph{width:68px;height:84px;border-radius:10px;background:#E6ECF5;display:grid;place-items:center;flex:none;overflow:hidden}
+.person .ph svg{width:48px;height:48px;color:#94A3B8}
+.person .ph.badge{position:relative}
+.person b{display:block;font-family:var(--font-display);font-size:19px;line-height:1.1}
+.person .rl{display:inline-block;margin-top:5px;background:#fff;color:#1C4FD1;font-size:11px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:6px}
+.person .zt{margin-top:6px;font-size:13px;opacity:.95;font-variant-numeric:tabular-nums}
+.res-actions{width:100%;display:grid;gap:10px;margin-top:auto}
+.res-actions .pbtn{background:rgba(255,255,255,.95);color:#0F172A}
+.res-actions .pbtn.ghost{background:transparent;color:inherit;border:2px solid rgba(255,255,255,.5)}
+.screen.warn .res-actions .pbtn.ghost{border-color:rgba(15,23,42,.3)}
+/* pending list */
+.pend-card{background:#fff;border-radius:16px;padding:16px;display:grid;gap:8px;border:1.5px solid #DDE3EC}
+.pend-card .n{font-family:var(--font-display);font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pend-card .n small{font-size:15px;font-weight:600;color:#5B6B82;margin-left:6px;font-family:var(--font-body)}
+.pend-card .st{display:flex;align-items:center;gap:8px;color:#5B6B82;font-size:14px}
+.pend-card .st i{width:9px;height:9px;border-radius:50%;background:#94A3B8}
+.plist{display:grid;gap:8px}
+.plist div{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:12px 14px;font-size:14px;border:1px solid #E6EBF2}
+.plist div b{font-family:var(--font-mono);font-weight:500;font-size:13px}
+.plist div span{color:#5B6B82;font-variant-numeric:tabular-nums}
+.plist div .ok{color:#16A34A;font-weight:700}
+.scanner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px}
+.scanner-grid figure{margin:0;display:grid;gap:12px}
+.scanner-grid figcaption{font-size:.9rem;color:var(--muted)}
+.scanner-grid figcaption b{color:var(--fg);display:block;font-family:var(--font-display)}
+
+/* ===== RADIO · voz por la red local (Tatami Radio) ===== */
+/* Estados del PTT: escuchando azul · hablando lima con borde · ocupado ámbar · emergencia rojo. Pantallas del teléfono con colores fijos, como el resto del scanner. */
+.rd-tabs{display:flex;gap:6px}
+.rd-tabs span{flex:1;min-width:0;height:36px;border-radius:10px;background:#fff;border:1.5px solid #DDE3EC;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+.rd-tabs span.on{background:#1C4FD1;color:#fff;border-color:#1C4FD1}
+.rd-tabs span.em{color:#B91C1C;border-color:#F3C4C6}
+.rd-tabs span.em.on{background:#E0323B;border-color:#E0323B;color:#fff}
+.rd-tabs span i{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.8;flex:none}
+.rd-peers{display:flex;flex-wrap:wrap;gap:6px}
+.rd-peers span{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid #DDE3EC;font-size:12px;font-weight:600;color:#334155;white-space:nowrap}
+.rd-peers span i{width:8px;height:8px;border-radius:50%;background:#16A34A;flex:none}
+.rd-peers span.me{border-color:#1C4FD1;color:#1C4FD1}
+.rd-peers span.talk{background:#C8F560;border-color:#5B7A00;color:#0F172A}
+.rd-peers span.talk i{background:#5B7A00}
+.rd-peers span.off{color:#94A3B8}.rd-peers span.off i{background:#CBD5E1}
+.rd-state{text-align:center;display:grid;gap:4px}
+.rd-state b{font-family:var(--font-display);font-size:22px;letter-spacing:-.02em;line-height:1.15}
+.rd-state span{font-size:14px;color:#475569}
+.ptt{width:196px;height:196px;border-radius:50%;margin:0 auto;display:grid;place-items:center;align-content:center;text-align:center;font-family:var(--font-display);font-weight:800;font-size:18px;line-height:1.15;border:0;cursor:pointer;position:relative;color:#fff;transition:transform var(--t),box-shadow var(--t);user-select:none;padding:0;flex:none}
+.ptt small{display:block;font:600 12px var(--font-body);opacity:.85;margin-top:4px;padding:0 18px;line-height:1.25}
+.ptt svg{width:40px;height:40px;margin-bottom:6px}
+.ptt.listen{background:#1C4FD1;box-shadow:0 14px 34px -12px rgba(28,79,209,.7)}
+.ptt.talk{background:#C8F560;color:#0F172A;border:6px solid #5B7A00;box-shadow:0 0 0 10px rgba(200,245,96,.35),0 14px 34px -12px rgba(91,122,0,.6);transform:scale(1.03)}
+.ptt.talk small{opacity:.75}
+.ptt.busy{background:#D97706;box-shadow:0 14px 34px -12px rgba(217,119,6,.6)}
+.ptt.emerg{background:#E0323B;box-shadow:0 0 0 10px rgba(224,50,59,.18),0 14px 34px -12px rgba(224,50,59,.7)}
+.ptt .ring{position:absolute;inset:-16px;border-radius:50%;border:3px solid #5B7A00;opacity:.5;animation:ptt-ring 1.2s ease-out infinite;pointer-events:none}
+@keyframes ptt-ring{from{transform:scale(.92);opacity:.6}to{transform:scale(1.12);opacity:0}}
+.wave{display:flex;gap:4px;align-items:center;justify-content:center;height:36px}
+.wave i{width:5px;border-radius:3px;background:#5B7A00;height:10px;animation:wave .9s ease-in-out infinite}
+.wave.amber i{background:#D97706}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.48s}.wave i:nth-child(6){animation-delay:.6s}.wave i:nth-child(7){animation-delay:.72s}
+@keyframes wave{0%,100%{height:8px}50%{height:32px}}
+.rd-log{display:grid;gap:6px}
+.rd-log div{display:flex;justify-content:space-between;gap:8px;background:#fff;border:1px solid #E6EBF2;border-radius:10px;padding:8px 12px;font-size:12.5px;color:#334155;min-width:0}
+.rd-log div b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rd-log div span{color:#5B6B82;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rd-log div.em{border-color:#F3C4C6;background:#FCE6E7;color:#991B1B}
+.rd-queue{background:#FCEFD6;color:#7C3A00;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.35;display:flex;gap:10px;align-items:center}
+.rd-queue i{font-style:normal;font-weight:800;width:24px;height:24px;border-radius:7px;background:#D97706;color:#fff;display:grid;place-items:center;flex:none}
+.rd-queue.off{background:#EEF2F8;color:#334155}.rd-queue.off i{background:#64748B}
+/* orden recibida (pantalla completa) */
+.phone .screen.emerg{background:#E0323B;color:#fff}
+.phone .screen.order{background:#1C4FD1;color:#fff}
+.ord{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;flex:1;min-height:0;padding-top:4px}
+.ord .lbl{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.ord .big{width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;animation:pop .4s cubic-bezier(.2,.9,.3,1.3) both;flex:none}
+.ord .big svg{width:48px;height:48px}
+.ord .verdict{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.ord .why{font-size:16px;opacity:.95;max-width:300px;line-height:1.4}
+.ord .cues{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ord .cues span{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.ord .cues span svg{width:14px;height:14px}
+/* panel Radio del host */
+.rd-ch{display:grid;gap:8px}
+.rd-ch .c{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:12px;align-items:center;background:#fff;border:1px solid #DDE3EC;border-radius:12px;padding:10px 14px;font-size:13px}
+.rd-ch .c.on{border-color:#5B7A00;box-shadow:0 0 0 2px #C8F560}
+.rd-ch .c.em{border-color:#F3C4C6}
+.rd-ch .c b{font-family:var(--font-display);display:grid;grid-template-columns:auto 1fr;align-items:center;gap:1px 8px;min-width:0}
+.rd-ch .c b i{width:10px;height:10px;border-radius:3px;background:#1C4FD1;flex:none}
+.rd-ch .c.em b i{background:#E0323B}
+.rd-ch .c small{grid-column:2;display:block;color:#5B6B82;font-size:11.5px;font-family:var(--font-body);font-weight:500}
+.rd-ch .c .rd-who{display:flex;align-items:center;gap:8px;min-width:0;color:#334155}
+.rd-ch .c .rd-who .wave{height:20px}.rd-ch .c .rd-who .wave i{width:3px;animation-duration:.8s}
+.rd-ch .c .rd-who .wave i{height:6px}
+@keyframes wave-sm{0%,100%{height:5px}50%{height:18px}}
+.rd-ch .c .rd-who .wave i{animation-name:wave-sm}
+.rd-ord{display:grid;gap:8px}
+.rd-ord .sel{height:38px;border:1.5px solid #DDE3EC;border-radius:10px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:13px;background:#fff;font-weight:600}
+.rd-ord .sel.focus{border-color:#1C4FD1;box-shadow:0 0 0 3px rgba(28,79,209,.18)}
+.rd-ord .chips{display:flex;flex-wrap:wrap;gap:6px}
+.rd-ord .chips span{height:30px;padding:0 10px;border-radius:999px;border:1.5px solid #DDE3EC;background:#fff;display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:#334155;white-space:nowrap}
+.rd-ord .chips span.on{background:#1C4FD1;border-color:#1C4FD1;color:#fff}
+.rd-ord .chips span.em{color:#B91C1C;border-color:#F3C4C6}
+.rd-ack{display:grid;gap:6px}
+.rd-ack div{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:12.5px;padding:8px 10px;border-radius:10px;background:#F6F8FB;border:1px solid #EEF2F8}
+.rd-ack div i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px;color:#fff;background:#16A34A;flex:none}
+.rd-ack div.wait{background:#FCEFD6;border-color:#F6DFB5;color:#7C3A00}.rd-ack div.wait i{background:#D97706}
+.rd-ack div.em i{background:#E0323B}
+.rd-ack div span{white-space:nowrap;color:#5B6B82;font-variant-numeric:tabular-nums}
+.rd-ack div b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phone .pbtn.emg{background:#fff;color:#B91C1C;border:2px solid #E0323B;min-height:48px;font-size:15px}
+
+/* diseño: muestras del PTT en el sistema */
+.ptt-sw{display:inline-flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;font-weight:700;font-size:.9rem;background:var(--surface-2);color:var(--fg);border:1px solid var(--line)}
+.ptt-sw i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.ptt-sw i svg{width:18px;height:18px}
+.ptt-sw.listen i{background:var(--ptt-listen)}
+.ptt-sw.talk i{background:var(--ptt-talk);color:var(--ptt-talk-ink);border:3px solid var(--ptt-talk-border)}
+.ptt-sw.busy i{background:var(--ptt-busy)}
+.ptt-sw.emerg i{background:var(--ptt-emerg)}
+.ptt-sw code{font-size:.72rem;color:var(--muted);font-weight:500}
+
+/* digital */
+.digital-stage{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:760px){.digital-stage{grid-template-columns:1fr}}
+.dq{display:grid;gap:14px;place-items:center;text-align:center;padding-top:6px}
+.dq .qrbox{width:250px;height:250px;background:#fff;border-radius:22px;padding:14px;box-shadow:0 14px 36px -16px rgba(28,79,209,.5);position:relative}
+.dq .qrbox svg{width:100%;height:100%;display:block}
+.dq .qrbox::after{content:"";position:absolute;inset:-5px;border-radius:26px;border:2px solid #C8F560;opacity:0;transition:opacity .4s}
+.dq .qrbox.flash::after{opacity:1}
+.ring{position:relative;width:76px;height:76px}
+.ring svg{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring .bgc{stroke:#DDE3EC}
+.ring .fgc{stroke:#1C4FD1;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-size:20px;font-variant-numeric:tabular-nums}
+.dcard{background:linear-gradient(135deg,#64748B,#475569);color:#fff;border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;width:100%;text-align:left}
+.dcard .ph{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.2);display:grid;place-items:center}
+.dcard .ph svg{width:28px;height:28px}
+.dcard b{display:block;font-family:var(--font-display);font-size:17px}
+.dcard small{opacity:.9;font-size:12px}
+.dcard .code{margin-left:auto;font-family:var(--font-mono);font-size:12px;text-align:right;line-height:1.3}
+.steps{display:grid;gap:14px}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step .n{width:34px;height:34px;border-radius:10px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;flex:none}
+.step b{display:block;font-family:var(--font-display)}
+.step p{color:var(--muted);font-size:.92rem}
+
+/* ===== desktop mockup (browser chrome) ===== */
+.browser{width:1100px;background:#fff;color:#0F172A;border-radius:14px;box-shadow:var(--shadow-lg);overflow:hidden;border:1px solid #DDE3EC;font-family:var(--font-body)}
+.browser .top{height:42px;background:#EEF2F8;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid #DDE3EC}
+.browser .top i{width:11px;height:11px;border-radius:50%;background:#CBD5E1}
+.browser .top .url{margin-left:12px;flex:1;max-width:460px;height:26px;background:#fff;border-radius:8px;font-size:12px;color:#5B6B82;display:flex;align-items:center;padding:0 12px;font-family:var(--font-mono)}
+.browser .top .url b{color:#16A34A;margin-right:6px}
+.mock-stage{display:grid;gap:36px}
+.mock-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:36px;align-items:start}
+@media (max-width:900px){.mock-two{grid-template-columns:1fr}}
+
+/* registration form */
+.reg{display:grid;grid-template-columns:1fr 340px;min-height:620px}
+.reg .form{padding:36px 40px;display:grid;gap:20px;align-content:start}
+.reg .side{background:#F6F8FB;border-left:1px solid #DDE3EC;padding:32px 28px;display:grid;gap:16px;align-content:start}
+.reg h3{font-size:1.5rem;letter-spacing:-.02em}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:grid;gap:6px}
+.field label{font-size:13px;font-weight:600;color:#334155}
+.field .in{height:46px;border:1.5px solid #DDE3EC;border-radius:10px;padding:0 12px;display:flex;align-items:center;font-size:14px;background:#fff;gap:8px}
+.field .in.focus{border-color:#1C4FD1;box-shadow:0 0 0 3px rgba(28,79,209,.18)}
+.field .in.auto{background:#EEF2F8;color:#334155;justify-content:space-between}
+.field .in.auto b{font-family:var(--font-display);color:#1C4FD1}
+.field .in .ph{color:#94A3B8}
+.field .help{font-size:12px;color:#5B6B82}
+.field .in.err{border-color:#E0323B}
+.field .help.err{color:#E0323B;font-weight:600}
+.phone-sm .field .in{height:50px}
+.notice{border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.4}
+.notice i{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-family:var(--font-display)}
+.notice.full{background:#FCEFD6;color:#7C3A00}
+.notice.full i{background:#F59E0B;color:#fff}
+.notice.info{background:#E4EBFB;color:#133A9C}
+.notice.info i{background:#1C4FD1;color:#fff}
+.notice.ok{background:#DEF7E6;color:#14532D}
+.notice.ok i{background:#16A34A;color:#fff}
+.consent{background:#fff;border:1.5px solid #DDE3EC;border-radius:12px;padding:14px 16px;display:grid;gap:12px}
+.consent .chk{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.4}
+.consent .chk i{flex:none;width:22px;height:22px;border-radius:6px;border:2px solid #1C4FD1;background:#1C4FD1;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800}
+.quota{display:grid;gap:8px}
+.quota .row{display:flex;justify-content:space-between;font-size:13px}
+.quota .track{height:8px;background:#DDE3EC;border-radius:999px;overflow:hidden}
+.quota .track i{display:block;height:100%;border-radius:999px;background:#1C4FD1}
+.quota .track i.full{background:#E0323B}
+.btn-mock{height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.btn-mock.pri{background:#1C4FD1;color:#fff}
+.btn-mock.lime{background:#C8F560;color:#0F172A}
+.btn-mock.sec{background:#fff;color:#0F172A;border:1.5px solid #DDE3EC}
+.btn-mock.dis{background:#E2E8F0;color:#94A3B8}
+.phone .app.scroll{overflow:hidden}
+
+/* ===== host panel ===== */
+.host{width:1200px;background:#F6F8FB;color:#0F172A;border-radius:14px;box-shadow:var(--shadow-lg);overflow:hidden;border:1px solid #DDE3EC;font-family:var(--font-body);display:grid;grid-template-columns:220px 1fr;min-height:720px}
+.host .sb{background:#0F172A;color:#CBD5E1;padding:22px 18px;display:grid;gap:6px;align-content:start}
+.host .sb .brand{color:#fff;margin-bottom:14px}
+.host .sb a{color:#CBD5E1;text-decoration:none;font-size:14px;font-weight:500;padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px}
+.host .sb a.on{background:#1C4FD1;color:#fff}
+.host .sb .st{margin-top:auto;font-size:12px;color:#94A3B8;line-height:1.5;padding-top:18px;border-top:1px solid #1E293B}
+.host .main{padding:26px 28px;display:grid;gap:22px;align-content:start}
+.host .main .hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.host .main h3{font-size:22px;letter-spacing:-.02em}
+.host .main .hd .live{display:inline-flex;align-items:center;gap:8px;background:#DEF7E6;color:#14532D;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.host .main .hd .live i{width:8px;height:8px;border-radius:50%;background:#16A34A;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}60%{box-shadow:0 0 0 8px rgba(22,163,74,0)}}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:#fff;border:1px solid #DDE3EC;border-radius:14px;padding:16px 18px;display:grid;gap:4px}
+.kpi span{font-size:12px;color:#5B6B82;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.kpi b{font-family:var(--font-display);font-size:28px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi small{font-size:12px;color:#5B6B82}
+.kpi.warn b{color:#D97706}
+.kpi.bad b{color:#E0323B}
+.host-grid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+.tbl{background:#fff;border:1px solid #DDE3EC;border-radius:14px;overflow:auto}
+.tbl table{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{white-space:nowrap;text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#5B6B82;padding:11px 10px;background:#F6F8FB;border-bottom:1px solid #DDE3EC;font-weight:700}
+.tbl td{white-space:nowrap;padding:11px 10px;border-bottom:1px solid #EEF2F8;vertical-align:middle;font-variant-numeric:tabular-nums}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .door{font-weight:700;display:flex;align-items:center;gap:10px}
+.tbl .door i{width:10px;height:10px;border-radius:50%;background:#16A34A}
+.tbl .door i.warn{background:#D97706}
+.tbl .door i.off{background:#94A3B8}
+.spark{display:inline-flex;gap:2px;align-items:flex-end;height:22px;margin-right:8px;vertical-align:middle}
+.spark i{width:3px;background:#1C4FD1;border-radius:2px;opacity:.85}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:6px}
+.tag.ok{background:#DEF7E6;color:#14532D}
+.tag.warn{background:#FCEFD6;color:#7C3A00}
+.tag.bad{background:#FCE6E7;color:#991B1B}
+.tag.off{background:#EEF2F8;color:#5B6B82}
+.side-cards{display:grid;gap:14px}
+.scard{background:#fff;border:1px solid #DDE3EC;border-radius:14px;padding:16px 18px;display:grid;gap:10px}
+.scard h4{font-size:14px;display:flex;align-items:center;justify-content:space-between}
+.batt{display:flex;align-items:center;gap:10px}
+.batt .b{width:52px;height:24px;border:2px solid #0F172A;border-radius:6px;position:relative;padding:3px}
+.batt .b::after{content:"";position:absolute;right:-6px;top:7px;width:4px;height:8px;background:#0F172A;border-radius:0 2px 2px 0}
+.batt .b i{display:block;height:100%;width:100%;background:#16A34A;border-radius:2px}
+.batt b{font-family:var(--font-display);font-size:20px}
+.batt small{color:#5B6B82;font-size:12px}
+.line-item{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #EEF2F8}
+.line-item:last-child{border-bottom:0}
+.line-item .ok{color:#16A34A;font-weight:700}
+.alert-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.35;padding:8px 10px;border-radius:10px;background:#FCEFD6;color:#7C3A00}
+.alert-item.bad{background:#FCE6E7;color:#991B1B}
+.alert-item b{font-family:var(--font-mono);font-weight:500}
+.alert-item i{flex:none;width:20px;height:20px;border-radius:6px;background:#D97706;color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;font-style:normal}
+.alert-item.bad i{background:#E0323B}
+
+/* ===== design system ===== */
+.ds{display:grid;gap:40px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.sw i{display:block;height:64px}
+.sw div{padding:10px 12px;font-size:.8rem}
+.sw div b{display:block;font-family:var(--font-display)}
+.sw div code{color:var(--muted);font-size:.72rem}
+.type-row{display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
+.type-row:last-child{border-bottom:0}
+.type-row small{color:var(--muted);font-family:var(--font-mono);font-size:.72rem}
+.space-row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.space-row div{display:grid;gap:6px;justify-items:center;font-size:.72rem;color:var(--muted);font-family:var(--font-mono)}
+.space-row i{display:block;background:var(--blue);border-radius:4px;opacity:.85}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.comp{padding:20px;display:grid;gap:14px;align-content:start}
+.comp h4{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.state{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;font-weight:700;font-size:.9rem}
+.state i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:#fff;background:var(--c)}
+.state i b{color:#fff;font-family:var(--font-display)}
+.state.ok{--c:var(--green);background:var(--green-soft);color:var(--green)}
+.state.no{--c:var(--red);background:var(--red-soft);color:var(--red)}
+.state.warn{--c:var(--amber);background:var(--amber-soft);color:var(--amber)}
+.state.sync{--c:var(--blue);background:var(--blue-soft);color:var(--blue)}
+.state span{color:var(--fg)}
+.ux{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.ux .pair{padding:16px 18px;display:grid;gap:10px}
+.ux .pair h4{font-size:.95rem}
+.ux .ex{display:grid;gap:8px;font-size:.9rem}
+.ux .ex div{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px}
+.ux .ex .bad{background:var(--red-soft)}
+.ux .ex .good{background:var(--green-soft)}
+.ux .ex i{font-style:normal;font-weight:800;flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:12px}
+.ux .ex .bad i{background:var(--red)}
+.ux .ex .good i{background:var(--green)}
+.ux .ex del{color:var(--muted)}
+
+/* reveal */
+.rv{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{transform:translateY(14px);opacity:.4}to{transform:none;opacity:1}}
+.fade{animation:fade .45s ease both}
+@keyframes fade{from{opacity:.2}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+footer{padding:40px 0 60px;color:var(--muted);font-size:.85rem;text-align:center}
+
+/* print: only the selected credential at real size */
+@media print{
+  @page{size:A4 portrait;margin:15mm}
+  body{background:#fff}
+  body>*:not(#print-root){display:none!important}
+  #print-root{display:block!important}
+  #print-root .nb{box-shadow:none;border:.2mm solid #CBD5E1;border-radius:0;page-break-inside:avoid;break-inside:avoid;margin:0}
+  #print-root .nb+.nb{page-break-before:always;break-before:page}
+}
+#print-root{display:none}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Secciones">
+  <div class="wrap">
+    <div class="brand"><span class="mark"></span>Tatami Pass</div>
+    <div class="nav-links">
+      <a href="#credencial">Credencial</a>
+      <a href="#digital">Digital</a>
+      <a href="#scanner">Scanner</a>
+      <a href="#radio">Radio</a>
+      <a href="#inscripcion">Inscripción</a>
+      <a href="#host">Host</a>
+      <a href="#sistema">Sistema</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Diseño de producto · v1.0</div>
+    <h1>Tatami Pass<span class="tag">Acreditación y accesos · Campeonato Nacional de Taekwondo ITF 2026</span></h1>
+    <p class="claim">Cada persona con su credencial, cada puerta con su scanner. Funciona aunque se caiga internet, la luz o la nube.</p>
+    <div class="facts">
+      <div class="fact"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor"/><path d="M3 3l18 18"/></svg></div><div><b>Funciona sin internet</b><span>Scanner, host y nube; cada capa sola</span></div></div>
+      <div class="fact"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><b>QR firmado Ed25519</b><span>No es una URL; se valida offline</span></div></div>
+      <div class="fact"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20a5 5 0 0 1 6.5-4.8"/></svg></div><div><b>2.000 personas</b><span>Hasta 8 puertas, pico de 25 ingresos/min</span></div></div>
+    </div>
+  </div>
+</header>
+<div class="belt"></div>
+
+<!-- ============ CREDENCIAL FÍSICA ============ -->
+<section class="block" id="credencial">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Credencial física · 100 × 150 mm · plantilla Nacional 2026</div>
+      <h2>Anverso y reverso, a tamaño real</h2>
+      <p class="lead">Formato vertical para lanyard, impreso a dos caras. Cabecera del evento con la torre de la catedral, foto, datos de la persona, banda de color por rol, zonas de acceso, número de acreditación y QR firmado al frente; información importante, contacto de emergencia, EPS, patrocinadores y código de barras al dorso. Elige un rol para verla.</p>
+    </div>
+
+    <div class="role-picker" id="role-picker" role="group" aria-label="Elegir rol"></div>
+
+    <div class="cred-stage">
+      <div class="nb-pair">
+        <div><div class="fit" id="cred-fit" data-w="378" data-h="567"><div class="nb" id="cred-main"></div></div><div class="nb-side" style="margin-top:10px">Anverso</div></div>
+        <div><div class="fit" id="cred-fit-back" data-w="378" data-h="567"><div class="nb nb-back" id="cred-back"></div></div><div class="nb-side" style="margin-top:10px">Reverso</div></div>
+      </div>
+      <div class="cred-info card" style="padding:24px">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">Qué lleva impreso</div>
+          <h3 id="ci-title">Competidor</h3>
+          <p class="muted small" id="ci-notes">Se importa de SportData. Control de edad por categoría.</p>
+        </div>
+        <dl>
+          <dt>Acreditación No.</dt><dd class="mono" id="ci-id">TP-2026-00123-C</dd>
+          <dt>Acceso</dt><dd id="ci-zones">—</dd>
+          <dt>Vigencia</dt><dd id="ci-days">14 · 15 · 16 nov 2026</dd>
+          <dt>Versión</dt><dd id="ci-n">n = 3 (re-emisiones anteriores revocadas)</dd>
+          <dt>Reverso</dt><dd id="ci-back">Contacto de emergencia, EPS y código de barras Code 128 con el mismo ID.</dd>
+        </dl>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Token dentro del QR</div>
+          <div class="token mono" id="ci-token"></div>
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Payload (JSON firmado)</div>
+          <div class="token mono" id="ci-payload"></div>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" id="btn-print" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>Imprimir muestra</button>
+          <span class="small muted">Sale a 100 × 150 mm reales en A4: anverso en una página, reverso en la siguiente.</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:56px">Es una plantilla, no un diseño fijo</h3>
+    <p class="muted small" style="margin-top:6px;max-width:70ch">Todo lo que ves arriba sale de un objeto de configuración: colores, edición, ciudad, fechas, textos de la banda, qué datos personales se imprimen. El administrador lo edita en <b>Panel › Impresión › Diseño de la credencial</b> sin tocar código. Cambia algo aquí y mira la credencial.</p>
+    <div class="tpl-panel">
+      <div class="card ctl" id="tpl-ctl">
+        <h4>Controles de la plantilla</h4>
+        <div class="g">
+          <label>Color primario<span class="color"><input type="color" id="tpl-primary" value="#0F2A6B"><span id="tpl-primary-v">#0F2A6B</span></span></label>
+          <label>Color de acento<span class="color"><input type="color" id="tpl-accent" value="#E6007E"><span id="tpl-accent-v">#E6007E</span></span></label>
+          <label>Número de edición<input type="text" id="tpl-edition" value="21" maxlength="3" inputmode="numeric"></label>
+          <label>Año<input type="text" id="tpl-year" value="2026" maxlength="4" inputmode="numeric"></label>
+        </div>
+        <div class="g">
+          <label>Nombre del evento<input type="text" id="tpl-event" value="CAMPEONATO NACIONAL"></label>
+          <label>Subtítulo<input type="text" id="tpl-sub" value="TAEKWON-DO ITF"></label>
+        </div>
+        <div class="g">
+          <label>Ciudad<input type="text" id="tpl-city" value="POPAYÁN"></label>
+          <label>Fechas<input type="text" id="tpl-dates" value="14 AL 16 DE NOVIEMBRE DE 2026"></label>
+        </div>
+        <div class="g">
+          <label>Texto de la banda para <span id="tpl-role-name">Competidor</span><input type="text" id="tpl-band" value="COMPETIDOR"></label>
+          <label>Texto de acceso para <span id="tpl-role-name-2">Competidor</span><input type="text" id="tpl-access" value=""></label>
+        </div>
+        <div class="tg">
+          <label><input type="checkbox" id="tpl-doc" checked>Imprimir documento</label>
+          <label><input type="checkbox" id="tpl-eps" checked>Imprimir EPS</label>
+          <label><input type="checkbox" id="tpl-emerg" checked>Contacto de emergencia</label>
+          <label><input type="checkbox" id="tpl-tower" checked>Silueta de la catedral</label>
+        </div>
+        <div class="row">
+          <button class="btn btn-secondary" id="tpl-reset" type="button">Restablecer piloto</button>
+          <span class="small muted" id="tpl-status">Plantilla Nacional 2026 (piloto)</span>
+        </div>
+        <p class="tpl-note">Documento, EPS y contacto de emergencia son datos personales (Ley 1581): se imprimen solo si el evento lo decide y la persona lo consintió en la inscripción. El QR nunca los lleva.</p>
+      </div>
+      <div>
+        <div class="small muted" style="margin-bottom:8px">Configuración que recibe la plantilla (<code>badge-template.ts</code>)</div>
+        <div class="token mono" id="tpl-json" style="font-size:.72rem;line-height:1.5;background:var(--surface-2);padding:12px 14px;border-radius:10px;border:1px solid var(--line);white-space:pre-wrap;word-break:break-word"></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:56px">Los 10 roles</h3>
+    <p class="muted small" style="margin-top:6px">Definidos en <code>event.config.json</code>; el administrador puede crear más sin tocar código. Cada rol tiene su color de banda, su icono y su texto de acceso.</p>
+    <div class="cred-grid" id="cred-grid"></div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ============ CREDENCIAL DIGITAL ============ -->
+<section class="block" id="digital">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Credencial digital · solo rol General</div>
+      <h2>QR que cambia cada 60 segundos</h2>
+      <p class="lead">El público puede llevar su entrada en el celular. El token incluye una marca de tiempo firmada (<code>exp</code>), así que un pantallazo deja de servir en un minuto. Los roles acreditados siguen usando credencial física.</p>
+    </div>
+    <div class="digital-stage">
+      <div class="fit" data-w="390" data-h="844" data-max="0.8"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">9:41</span><span class="r"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 10h2V7H1zm4 0h2V4H5zm4 0h2V2H9zm4 0h2V0h-2z" fill="currentColor"/></svg><i></i></span></div>
+        <div class="app">
+          <div class="bar"><div class="zone"><i></i>Entrada General</div><div class="pill">Día 1 · vie 20</div></div>
+          <div class="dq">
+            <div class="qrbox" id="dq-box"><div id="dq-qr"></div></div>
+            <div class="ring"><svg width="76" height="76"><circle class="bgc" cx="38" cy="38" r="32"></circle><circle class="fgc" id="dq-ring" cx="38" cy="38" r="32" stroke-dasharray="201" stroke-dashoffset="0"></circle></svg><b id="dq-count">60</b></div>
+            <p class="p">Nuevo código en <b id="dq-count2">60</b> s. Sube el brillo al mostrarlo.</p>
+            <div class="dcard"><div class="ph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg></div><div><b>Laura Gómez</b><small>GENERAL · Gradería</small></div><div class="code">TP-2026<br>00502-8</div></div>
+          </div>
+          <div class="spacer"></div>
+          <button class="pbtn sec" type="button">Ver mi entrada en texto</button>
+          <p class="foot-note">Si no tienes señal, igual funciona.</p>
+        </div>
+      </div></div></div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div><b>El servidor firma el token con <code>exp</code></b><p>Cada 60 s el teléfono recibe (o calcula, si tiene la clave de sesión) un token con vencimiento. El QR que ves aquí se regenera en vivo.</p></div></div>
+        <div class="step"><div class="n">2</div><div><b>El scanner tolera ±5 min de deriva</b><p>El host es el reloj NTP de la red. Si un QR está vencido, el scanner lo dice en ámbar y pide mostrar el ID corto.</p></div></div>
+        <div class="step"><div class="n">3</div><div><b>Un pantallazo no sirve</b><p>Y aunque sirviera un minuto, el anti-passback impide que la misma credencial entre dos veces sin salir.</p></div></div>
+        <div class="card" style="padding:16px 18px"><div class="eyebrow" style="margin-bottom:6px">Token rotativo de ejemplo</div><div class="token mono small" id="dq-token" style="word-break:break-all;color:var(--muted);font-size:.72rem"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ============ SCANNER ============ -->
+<section class="block" id="scanner">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Scanner · PWA en celular o tablet</div>
+      <h2>Verde, rojo o ámbar. Nada más que leer.</h2>
+      <p class="lead">Quien controla la puerta no toma decisiones técnicas: la app le dice si pasa, por qué no, y qué hacer. Color, ícono, sonido y vibración distintos para cada caso. Botones de 48 px o más, pensados para guantes y sol.</p>
+    </div>
+    <div class="scanner-grid" id="scanner-grid">
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">8:02</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="h">Enrola este dispositivo</div>
+          <p class="p">Escanea el código que te muestra el supervisor en el host. Vale por 10 minutos.</p>
+          <div class="enrol-qr" id="enrol-qr"></div>
+          <p class="foot-note">Instala el certificado si es la primera vez.</p>
+          <div class="spacer"></div>
+          <button class="pbtn pri" type="button">Abrir cámara</button>
+          <button class="pbtn sec" type="button">Escribir el código a mano</button>
+        </div>
+      </div></div></div><figcaption><b>Enrolar dispositivo</b>Token único, caduca en 10 min. Queda ligado a dispositivo, rol y zona.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">8:05</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="h">Escribe tu PIN</div>
+          <p class="p">Dispositivo <b>Puerta 3 · Tablet B</b>. Tu sesión dura 12 horas.</p>
+          <div class="pin-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          <div class="spacer"></div>
+          <div class="keypad">
+            <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+            <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+            <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+            <button type="button" class="soft">Olvidé mi PIN</button><button type="button">0</button><button type="button" class="soft">Borrar</button>
+          </div>
+        </div>
+      </div></div></div><figcaption><b>PIN de 6 dígitos</b>Teclado grande, sin distracciones. "Olvidé mi PIN" lleva al supervisor.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">8:06</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="h">¿En qué zona estás?</div>
+          <p class="p">Solo validarás accesos a esta zona.</p>
+          <div class="zlist" id="zlist"></div>
+          <div class="spacer"></div>
+          <button class="pbtn pri" type="button">Empezar a escanear</button>
+        </div>
+      </div></div></div><figcaption><b>Elegir zona</b>El supervisor puede cambiarla después desde el host.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">8:58</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="bar"><div class="zone"><i></i>Tatamis · Puerta 3</div><div class="pill">Sincronizado</div></div>
+          <div class="cam-frame"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><span class="laser"></span><div id="cam-qr"></div></div>
+          <p class="p" style="text-align:center">Apunta al QR de la credencial.</p>
+          <div class="spacer"></div>
+          <div class="stack">
+            <button class="pbtn sec" type="button">Escribir el ID corto</button>
+            <button class="pbtn sec" type="button">Ingreso manual con motivo</button>
+          </div>
+          <p class="foot-note">Hoy: 214 ingresos · 0 pendientes</p>
+        </div>
+      </div></div></div><figcaption><b>Cámara escaneando</b>Validación en menos de 300 ms, sin red. Fallback por ID corto.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen ok">
+        <div class="status"><span class="t">9:02</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="res">
+            <div class="big">✓</div>
+            <div class="verdict">Adelante, Juan Pérez</div>
+            <div class="person"><div class="ph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg></div><div><b>Juan Pérez</b><span class="rl">COMPETIDOR</span><div class="zt">Academia Caucana de Taekwondo · Popayán</div><div class="zt">Tatamis · 9:02 · Puerta 3</div></div></div>
+            <p class="why">Compara la foto con la persona.</p>
+          </div>
+          <div class="res-actions"><button class="pbtn" type="button">Siguiente</button></div>
+          <p class="foot-note" style="color:rgba(255,255,255,.8)">Se cierra sola en 3 s</p>
+        </div>
+      </div></div></div><figcaption><b>Resultado verde</b>Nombre, rol, foto, zona y hora. Un solo botón.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen no">
+        <div class="status"><span class="t">9:21</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="res">
+            <div class="big">✕</div>
+            <div class="verdict">No puede entrar</div>
+            <p class="why">Esta credencial ya entró a Tatamis a las 9:14.</p>
+            <div class="person"><div class="ph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg></div><div><b>Juan Pérez</b><span class="rl" style="color:#E0323B">COMPETIDOR</span><div class="zt">TP-2026-00123-C</div></div></div>
+            <p class="what">Pide que salga y vuelva a escanear, o llama al supervisor.</p>
+          </div>
+          <div class="res-actions">
+            <button class="pbtn" type="button">Siguiente</button>
+            <button class="pbtn ghost" type="button">Llamar al supervisor</button>
+          </div>
+        </div>
+      </div></div></div><figcaption><b>Resultado rojo</b>Motivo en lenguaje humano y qué hacer. Anti-passback.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen warn">
+        <div class="status"><span class="t">9:33</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="res">
+            <div class="big">!</div>
+            <div class="verdict">Revisa con el supervisor</div>
+            <p class="why">Este QR se escaneó en Puerta 3 hace 40 segundos.</p>
+            <div class="person" style="background:rgba(15,23,42,.1)"><div class="ph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg></div><div><b>María Ruiz</b><span class="rl" style="color:#B45309">COACH</span><div class="zt">Posible copia del QR</div></div></div>
+            <p class="what">No la dejes pasar todavía. Pide el documento y avisa.</p>
+          </div>
+          <div class="res-actions">
+            <button class="pbtn" type="button">Avisar al supervisor</button>
+            <button class="pbtn ghost" type="button">Siguiente</button>
+          </div>
+        </div>
+      </div></div></div><figcaption><b>Resultado ámbar</b>Alerta de duplicado (< 2 min en dos puertas). No decide por ti; escala.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">10:12</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="bar"><div class="zone"><i style="background:#94A3B8;box-shadow:0 0 0 3px rgba(148,163,184,.25)"></i>Tatamis · Puerta 3</div><div class="pill off">Sin conexión</div></div>
+          <div class="pend-card">
+            <div class="n">12<small>pendientes por enviar</small></div>
+            <div class="st"><i></i>Sin conexión al host. Se enviarán solos cuando vuelva.</div>
+          </div>
+          <p class="p">Puedes seguir escaneando con normalidad. Nada se pierde.</p>
+          <div class="plist">
+            <div><b>TP-2026-00310-F</b><span>10:11 · <span class="ok">✓</span></span></div>
+            <div><b>TP-2026-00077-1</b><span>10:11 · <span class="ok">✓</span></span></div>
+            <div><b>TP-2026-00045-8</b><span>10:10 · ✕</span></div>
+            <div><b>TP-2026-00088-Y</b><span>10:09 · <span class="ok">✓</span></span></div>
+          </div>
+          <div class="spacer"></div>
+          <button class="pbtn sec" type="button">Reintentar ahora</button>
+          <button class="pbtn pri" type="button">Volver a escanear</button>
+        </div>
+      </div></div></div><figcaption><b>Bandeja de pendientes</b>Tono calmado: sin conexión no es una emergencia.</figcaption></figure>
+
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ============ RADIO · VOZ POR LA RED LOCAL ============ -->
+<section class="block" id="radio">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Radio · voz por la red local</div>
+      <h2>Mantén pulsado, habla, suelta. Uno a la vez por canal.</h2>
+      <p class="lead">Tatami Radio es un panel deslizable dentro del scanner: voz en tiempo real entre puertas, supervisores y acreditación por la Wi-Fi del staff, sin internet. Cuatro canales, un botón grande para hablar, cola cuando alguien ya tiene la palabra y órdenes predefinidas del supervisor que suenan, vibran, se leen en voz alta y se confirman con "Recibido". Emergencia interrumpe todo. No se graba audio: solo quién habló y cuándo.</p>
+    </div>
+    <div class="scanner-grid" id="radio-grid">
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">10:38</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="bar"><div class="zone"><i></i>Radio · Puerta 3</div><div class="pill">● Conectado</div></div>
+          <div class="rd-tabs"><span class="on"><i></i>Puertas</span><span>Supervisores</span><span>Acreditación</span><span class="em">Emergencia</span></div>
+          <div class="rd-peers"><span><i></i>Puerta 1</span><span><i></i>Puerta 2</span><span class="me"><i></i>Puerta 3 · tú</span><span><i></i>Puerta 4</span><span><i></i>Puerta 5</span><span><i></i>Supervisor</span></div>
+          <div class="spacer"></div>
+          <div class="rd-state"><b>Nadie habla ahora</b><span>Conectada · 6 en el canal</span></div>
+          <button class="ptt listen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>Escuchando<small>Mantén pulsado para hablar</small></button>
+          <div class="spacer"></div>
+          <button class="pbtn emg" type="button">Emergencia · mantén pulsado</button>
+          <div class="rd-log"><div><b>Supervisor · Puertas</b><span>10:31 · 6 s</span></div><div><b>Puerta 1 · Puertas</b><span>10:29 · 4 s</span></div></div>
+        </div>
+      </div></div></div><figcaption><b>Escuchando · azul</b>Canal Puertas con 6 en el canal. El botón ocupa el centro: se usa con guantes y sin mirar. El botón rojo habla a todos.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">10:39</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="bar"><div class="zone"><i></i>Radio · Puerta 3</div><div class="pill">● Conectado</div></div>
+          <div class="rd-tabs"><span class="on"><i></i>Puertas</span><span>Supervisores</span><span>Acreditación</span><span class="em">Emergencia</span></div>
+          <div class="rd-peers"><span><i></i>Puerta 1</span><span><i></i>Puerta 2</span><span class="talk"><i></i>Puerta 3 · tú</span><span><i></i>Puerta 4</span><span><i></i>Puerta 5</span><span><i></i>Supervisor</span></div>
+          <div class="spacer"></div>
+          <div class="rd-state"><b>Estás hablando</b><span>Conectada · 6 en el canal</span></div>
+          <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <button class="ptt talk" type="button"><span class="ring"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>Hablando<small>Suelta para terminar</small></button>
+          <div class="spacer"></div>
+          <p class="foot-note">Un tono corto al concederte la palabra. Te oyen los 5 del canal.</p>
+        </div>
+      </div></div></div><figcaption><b>Hablando · lima con borde</b>Onda animada mientras tienes la palabra. Nadie más habla en el canal hasta que sueltes.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">10:40</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="bar"><div class="zone"><i></i>Radio · Puerta 3</div><div class="pill">● Conectado</div></div>
+          <div class="rd-tabs"><span class="on"><i></i>Puertas</span><span>Supervisores</span><span>Acreditación</span><span class="em">Emergencia</span></div>
+          <div class="rd-peers"><span><i></i>Puerta 1</span><span class="talk"><i></i>Puerta 2</span><span class="me"><i></i>Puerta 3 · tú</span><span><i></i>Puerta 4</span><span><i></i>Puerta 5</span><span><i></i>Supervisor</span></div>
+          <div class="spacer"></div>
+          <div class="rd-state"><b>Puerta 2 hablando</b><span>Conectada · 6 en el canal</span></div>
+          <div class="wave amber"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <button class="ptt busy" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Ocupado<small>Puerta 2 está hablando · sigue pulsando y te toca</small></button>
+          <div class="spacer"></div>
+          <div class="rd-queue"><i>1</i>Estás en la cola. Si sueltas, sales de ella.</div>
+        </div>
+      </div></div></div><figcaption><b>Ocupado · ámbar</b>Un solo hablante por canal. Si sigues pulsando entras en cola y el micrófono se abre solo cuando te toca.</figcaption></figure>
+
+      <figure><div class="fit" data-w="390" data-h="844"><div class="phone"><div class="notch"></div><div class="screen emerg">
+        <div class="status"><span class="t">11:02</span><span class="r"><i></i></span></div>
+        <div class="app">
+          <div class="bar" style="opacity:.9"><div class="zone" style="color:inherit"><i style="background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)"></i>Emergencia · Puerta 3</div><div class="pill" style="background:rgba(255,255,255,.22);color:inherit">Interrumpe todo</div></div>
+          <div class="ord">
+            <div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17.5v.5"/></svg></div>
+            <div class="lbl">Orden · Emergencia</div>
+            <div class="verdict">Evacuación</div>
+            <p class="why">Supervisor · 11:02. Deja salir a todos sin escanear y guía a la gente al punto de encuentro.</p>
+            <div class="cues"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Se leyó en voz alta</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3h8l1 4-1 14H8L7 7zM3 8v8M21 8v8"/></svg>Vibración larga</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>Sirena de dos tonos</span></div>
+          </div>
+          <div class="res-actions">
+            <button class="pbtn" type="button">Recibido</button>
+            <button class="pbtn ghost" type="button">Volver a oír</button>
+          </div>
+          <p class="foot-note" style="color:rgba(255,255,255,.85)">Se leyó: "Emergencia. Evacuación". El supervisor ve tu Recibido en el panel.</p>
+        </div>
+      </div></div></div><figcaption><b>Orden en Emergencia · rojo</b>Interrumpe todos los canales: sirena, vibración y lectura en voz alta. Un solo botón: Recibido.</figcaption></figure>
+
+    </div>
+
+    <div style="margin-top:40px">
+      <div class="sec-head" style="margin-bottom:20px">
+        <div class="eyebrow">Panel Radio del host</div>
+        <h3 style="font-size:1.35rem">Canales, presencia, quién habla, órdenes y acuses</h3>
+        <p class="muted" style="max-width:62ch">El host solo presta la señalización: avisa quién entra, quién sale y quién pidió el canal. El audio va directo entre equipos. Si el host cae, los que ya estaban hablando se siguen oyendo.</p>
+      </div>
+      <div class="fit" data-w="1200" data-h="860"><div class="host" id="host-radio">
+        <aside class="sb">
+          <div class="brand"><span class="mark"></span>Tatami Pass</div>
+          <a href="#radio">▣ &nbsp;Puertas en vivo</a>
+          <a href="#radio">☷ &nbsp;Credenciales</a>
+          <a href="#radio">⎙ &nbsp;Impresión</a>
+          <a class="on" href="#radio">◉ &nbsp;Radio</a>
+          <a href="#radio">⚠ &nbsp;Alertas</a>
+          <a href="#radio">⚙ &nbsp;Evento y roles</a>
+          <a href="#radio">≡ &nbsp;Auditoría</a>
+          <div class="st">host-primario · 192.168.10.2<br>Radio: 11 equipos conectados<br>audio: directo entre equipos</div>
+        </aside>
+        <div class="main">
+          <div class="hd"><h3>Radio · En vivo · 10:41</h3><span class="live"><i></i>Radio: 11 equipos conectados</span></div>
+          <div class="kpis">
+            <div class="kpi"><span>Canales</span><b>4</b><small>Puertas · Supervisores · Acreditación · Emergencia</small></div>
+            <div class="kpi"><span>Equipos conectados</span><b>11</b><small>de 12 enrolados · Puerta 6 sin radio</small></div>
+            <div class="kpi"><span>Hablando</span><b style="font-size:20px">Puerta 2</b><small>en Puertas · en espera: Puerta 3</small></div>
+            <div class="kpi warn"><span>Órdenes sin acuse</span><b>1</b><small>Abrir Puerta 3 · enviada hace 9 s</small></div>
+          </div>
+          <div class="host-grid">
+            <div style="display:grid;gap:14px;min-width:0">
+              <div class="rd-ch">
+                <div class="c on"><b><i></i>Puertas<small>6 equipos</small></b><div class="rd-who"><div class="wave"><i></i><i></i><i></i><i></i><i></i></div><span><b style="font-family:var(--font-body)">Puerta 2</b> hablando · en espera: Puerta 3</span></div><span class="tag ok">en uso</span></div>
+                <div class="c"><b><i></i>Supervisores<small>3 equipos</small></b><div class="rd-who">Nadie habla · último: Supervisor, 10:31</div><span class="tag off">libre</span></div>
+                <div class="c"><b><i></i>Acreditación<small>2 equipos</small></b><div class="rd-who">Nadie habla · último: Mesa 1, 9:58</div><span class="tag off">libre</span></div>
+                <div class="c em"><b><i></i>Emergencia<small>11 equipos · interrumpe todo</small></b><div class="rd-who">Sin uso hoy</div><span class="tag off">libre</span></div>
+              </div>
+              <div class="tbl"><table>
+                <thead><tr><th>Hora</th><th>Canal</th><th>Qué pasó</th><th>Acuse</th></tr></thead>
+                <tbody>
+                  <tr><td>10:41:02</td><td>Puertas</td><td>Puerta 2 habla (en curso)</td><td>—</td></tr>
+                  <tr><td>10:40:53</td><td>Puertas</td><td>Orden "Abrir Puerta 3" de Supervisor → Puerta 3</td><td><span class="tag warn">sin acuse</span></td></tr>
+                  <tr><td>10:40:12</td><td>Puertas</td><td>Supervisor habló 6,0 s</td><td>—</td></tr>
+                  <tr><td>10:35:40</td><td>Puertas</td><td>Orden "Abrir Puerta 2" de Supervisor → Puerta 2</td><td><span class="tag ok">Puerta 2 recibió 10:35</span></td></tr>
+                  <tr><td>10:29:18</td><td>Puertas</td><td>Puerta 1 habló 4,2 s</td><td>—</td></tr>
+                  <tr><td>9:58:05</td><td>Acreditación</td><td>Mesa 1 habló 11,4 s</td><td>—</td></tr>
+                </tbody>
+              </table></div>
+              <p style="font-size:12px;color:#5B6B82">No se graba audio. El historial guarda quién habló, en qué canal y cuánto duró; las órdenes guardan quién las envió y quién las recibió.</p>
+            </div>
+            <div class="side-cards">
+              <div class="scard">
+                <h4>Enviar orden</h4>
+                <div class="rd-ord">
+                  <div class="sel focus">Puerta 3 · Tablet B<span style="color:#5B6B82">▾</span></div>
+                  <div class="chips"><span class="on">Abrir Puerta {n}</span><span>Cerrar Puerta {n}</span><span>Pausar ingreso</span><span>Reanudar ingreso</span><span>Supervisor a Puerta {n}</span><span class="em">Evacuación</span></div>
+                  <div class="btn-mock pri" style="height:40px;font-size:14px">Enviar orden a Puerta 3</div>
+                  <p style="font-size:12px;color:#5B6B82">Toast al enviar: "Orden enviada: Abrir Puerta 3". El scanner suena, vibra y la lee en voz alta. Evacuación sale por Emergencia a todos.</p>
+                </div>
+              </div>
+              <div class="scard">
+                <h4>Acuses en vivo</h4>
+                <div class="rd-ack">
+                  <div class="wait"><i>…</i><b>Abrir Puerta 3 → Puerta 3</b><span>sin acuse · 9 s</span></div>
+                  <div><i>✓</i><b>Abrir Puerta 2 → Puerta 2</b><span>Puerta 2 recibió 10:35</span></div>
+                  <div><i>✓</i><b>Pausar ingreso → Puertas</b><span>5 de 5 recibieron 9:12</span></div>
+                </div>
+              </div>
+              <div class="scard">
+                <h4>Presencia <span class="tag ok">11 de 12</span></h4>
+                <div class="rd-peers"><span><i></i>Puerta 1</span><span class="talk"><i></i>Puerta 2</span><span><i></i>Puerta 3</span><span><i></i>Puerta 4</span><span><i></i>Puerta 5</span><span class="off"><i></i>Puerta 6</span><span><i></i>Puerta 7</span><span><i></i>Supervisor</span><span><i></i>Sup. pabellón B</span><span><i></i>Mesa 1</span><span><i></i>Mesa 2</span><span><i></i>Coordinación</span></div>
+                <p style="font-size:12px;color:#5B6B82">Puerta 6 sin radio: el scanner está en segundo plano o sin micrófono. Llámala por radio física.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ============ INSCRIPCIÓN ============ -->
+<section class="block" id="inscripcion">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Inscripción online · nube</div>
+      <h2>Formulario que calcula la categoría y cuida los cupos</h2>
+      <p class="lead">La edad se calcula al primer día del evento. Si no corresponde a la categoría elegida, el formulario lo explica antes de enviar. Cupo lleno ofrece lista de espera. Los menores necesitan consentimiento del acudiente (Ley 1581 de 2012).</p>
+    </div>
+    <div class="mock-two">
+      <div class="fit" data-w="1100" data-h="700"><div class="browser">
+        <div class="top"><i></i><i></i><i></i><div class="url"><b>🔒</b>tatamipass.co/nac2026/inscribir</div></div>
+        <div class="reg">
+          <div class="form">
+            <div><div class="eyebrow" style="margin-bottom:4px">Campeonato Nacional ITF 2026 · 20 al 22 de noviembre</div><h3>Inscribir competidor</h3><p class="muted small">Academia Caucana de Taekwondo · Popayán · inscribes como delegación</p></div>
+            <div class="f-row">
+              <div class="field"><label>Nombres y apellidos</label><div class="in">Santiago Muñoz Pérez</div></div>
+              <div class="field"><label>Documento</label><div class="in">TI · 1 061 ••• •••</div></div>
+            </div>
+            <div class="f-row">
+              <div class="field"><label>Fecha de nacimiento</label><div class="in focus">14 / 03 / 2011</div><div class="help">Tendrá 15 años el 20 de noviembre de 2026.</div></div>
+              <div class="field"><label>Categoría por edad</label><div class="in auto">Juvenil (14–17) <b>calculada</b></div><div class="help">Se asigna sola; no se puede cambiar.</div></div>
+            </div>
+            <div class="f-row">
+              <div class="field"><label>Modalidad</label><div class="in err">Combate · Juvenil femenino −55 kg</div><div class="help err">Esta modalidad es femenina. Elige una masculina o corrige el sexo.</div></div>
+              <div class="field"><label>Grado</label><div class="in">2.º Dan</div></div>
+            </div>
+            <div class="consent">
+              <b style="font-size:14px">Consentimiento del acudiente</b>
+              <div class="chk"><i>✓</i><span>Autorizo la participación del menor y el tratamiento de sus datos para la acreditación del evento, según la Ley 1581 de 2012. Los datos se borran 90 días después del evento.</span></div>
+              <div class="f-row">
+                <div class="field"><label>Nombre del acudiente</label><div class="in">Claudia Pérez Rojas</div></div>
+                <div class="field"><label>Documento del acudiente</label><div class="in"><span class="ph">CC · número</span></div></div>
+              </div>
+            </div>
+            <div class="consent" style="gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b style="font-size:14px">Acompañantes</b><span class="tag warn">2 de 2</span></div>
+              <div class="f-row">
+                <div class="field"><label>Nombre</label><div class="in">Claudia Pérez Rojas</div></div>
+                <div class="field"><label>Documento</label><div class="in">34567890</div></div>
+              </div>
+              <div class="f-row">
+                <div class="field"><label>Nombre</label><div class="in">Jorge Pérez</div></div>
+                <div class="field"><label>Documento</label><div class="in">10234567</div></div>
+              </div>
+              <div class="row"><div class="btn-mock dis" style="padding:0 18px;height:40px;font-size:14px">Agregar acompañante</div><span style="font-size:13px;color:#B45309;font-weight:600">Este participante ya tiene 2 acompañantes, el máximo permitido.</span></div>
+              <div class="help" style="font-size:12px;color:#5B6B82">El límite por participante y el aforo total se configuran en el evento; pueden dejarse sin límite. Cada acompañante recibe credencial digital de rol Acompañante (Gradería).</div>
+            </div>
+            <div class="row"><div class="btn-mock pri" style="padding:0 24px">Guardar y seguir</div><div class="btn-mock sec" style="padding:0 20px">Cancelar</div></div>
+          </div>
+          <div class="side">
+            <div class="notice full"><i>!</i><div><b>Cupo lleno en Combate Juvenil.</b><br>Puedes dejar a Santiago en lista de espera. Te avisamos por correo si se libera un lugar.</div></div>
+            <div class="btn-mock lime">Anotar en lista de espera</div>
+            <div class="quota">
+              <div class="row" style="justify-content:space-between;font-size:13px"><b>Cupos del evento</b><span class="muted">actualizado hace 1 min</span></div>
+              <div class="row" style="justify-content:space-between;font-size:13px"><span>Combate Juvenil</span><span class="mono">120 / 120</span></div><div class="track"><i class="full" style="width:100%"></i></div>
+              <div class="row" style="justify-content:space-between;font-size:13px"><span>Tul Juvenil</span><span class="mono">84 / 120</span></div><div class="track"><i style="width:70%"></i></div>
+              <div class="row" style="justify-content:space-between;font-size:13px"><span>Coaches · Academia Caucana</span><span class="mono">2 / 3</span></div><div class="track"><i style="width:66%"></i></div>
+            </div>
+            <div class="notice info"><i>i</i><div>Flujo: inscrito → validado → aprobado → credencial emitida → impresa → entregada.</div></div>
+          </div>
+        </div>
+      </div></div>
+
+      <div class="fit" data-w="390" data-h="844" data-max="0.78"><div class="phone"><div class="notch"></div><div class="screen">
+        <div class="status"><span class="t">16:20</span><span class="r"><i></i></span></div>
+        <div class="app phone-sm">
+          <div class="eyebrow">Inscripción · paso 2 de 3</div>
+          <div class="h">Datos del competidor</div>
+          <div class="field"><label>Fecha de nacimiento</label><div class="in">02 / 07 / 2018</div><div class="help">Tendrá 8 años el 20 de noviembre.</div></div>
+          <div class="field"><label>Categoría por edad</label><div class="in auto">Infantil A (6–9) <b>calculada</b></div></div>
+          <div class="notice full"><i>!</i><div><b>Cupo lleno en Infantil A.</b> Puedes anotarlo en lista de espera.</div></div>
+          <div class="consent" style="padding:12px 14px"><div class="chk"><i>✓</i><span style="font-size:13px">Soy el acudiente y autorizo la participación y el uso de datos (Ley 1581/2012).</span></div></div>
+          <div class="spacer"></div>
+          <div class="btn-mock lime" style="height:56px">Anotar en lista de espera</div>
+          <div class="btn-mock sec" style="height:56px">Elegir otra modalidad</div>
+        </div>
+      </div></div></div>
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ============ HOST ============ -->
+<section class="block" id="host">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Panel del host · mini PC en la sede</div>
+      <h2>Lo que mira el supervisor cada cinco minutos</h2>
+      <p class="lead">Resumen por puerta, dispositivos con sincronización pendiente, alertas de duplicado, energía y backups. Sin gráficas decorativas: lo que importa, grande.</p>
+    </div>
+    <div class="fit" data-w="1200" data-h="820"><div class="host">
+      <aside class="sb">
+        <div class="brand"><span class="mark"></span>Tatami Pass</div>
+        <a class="on" href="#host">▣ &nbsp;Puertas en vivo</a>
+        <a href="#host">☷ &nbsp;Credenciales</a>
+        <a href="#host">⎙ &nbsp;Impresión</a>
+        <a href="#host">⚠ &nbsp;Alertas</a>
+        <a href="#host">⚙ &nbsp;Evento y roles</a>
+        <a href="#host">≡ &nbsp;Auditoría</a>
+        <div class="st">host-primario · 192.168.10.2<br>standby: portátil-02 · replicando<br>nube: sincronizada hace 2 min</div>
+      </aside>
+      <div class="main">
+        <div class="hd"><h3>Puertas en vivo · viernes 20 nov · 9:36</h3><span class="live"><i></i>7 scanners conectados · 1 sin conexión</span></div>
+        <div class="kpis">
+          <div class="kpi"><span>Ingresos hoy</span><b>1 184</b><small>de 1 920 acreditados</small></div>
+          <div class="kpi"><span>Ritmo actual</span><b>19 /min</b><small>pico 27 /min a las 8:40</small></div>
+          <div class="kpi warn"><span>Pendientes de sync</span><b>12</b><small>todos en Puerta 3 · Tablet B</small></div>
+          <div class="kpi bad"><span>Alertas de duplicado</span><b>2</b><small>1 resuelta · 1 abierta</small></div>
+        </div>
+        <div class="host-grid">
+          <div class="tbl"><table>
+            <thead><tr><th>Puerta</th><th>Zona</th><th>Ritmo /min</th><th>Hoy</th><th>Pendientes</th><th>Estado</th></tr></thead>
+            <tbody id="doors"></tbody>
+          </table></div>
+          <div class="side-cards">
+            <div class="scard">
+              <h4>Energía <span class="tag ok">Red eléctrica</span></h4>
+              <div class="batt"><div class="b"><i style="width:100%"></i></div><div><b>UPS 100 %</b><br><small>autonomía 48 min · host + router + switch</small></div></div>
+              <div class="line-item"><span>Standby (portátil-02)</span><span class="ok">batería 91 %</span></div>
+              <div class="line-item"><span>Repetidor pabellón B</span><span class="ok">mini-UPS OK</span></div>
+            </div>
+            <div class="scard">
+              <h4>Backups <span class="tag ok">al día</span></h4>
+              <p style="font-size:14px;font-weight:600">último backup hace 3 min · USB OK · standby OK</p>
+              <div class="line-item"><span>Snapshot SQLite cada 5 min</span><span class="ok">9:33</span></div>
+              <div class="line-item"><span>USB cifrado (LUKS)</span><span class="ok">48 snapshots</span></div>
+              <div class="line-item"><span>Réplica al standby</span><span class="ok">en caliente</span></div>
+              <div class="line-item"><span>Subida a nube</span><span class="muted">hace 2 min</span></div>
+            </div>
+            <div class="scard">
+              <h4>Nube <span class="tag ok">conectada</span></h4>
+              <p style="font-size:14px;font-weight:600">Última actualización hace 4 min · cada 5 min</p>
+              <div class="line-item"><span>Último ciclo</span><span class="ok">sin cambios</span></div>
+              <div class="line-item"><span>Si cae internet</span><span class="muted">reintenta · las puertas siguen</span></div>
+              <div class="btn-mock pri" style="height:40px;font-size:14px">Traer ahora</div>
+            </div>
+            <div class="scard">
+              <h4>Alertas abiertas</h4>
+              <div class="alert-item"><i>!</i><div><b>TP-2026-00064-8</b> · María Ruiz (COACH)<br>Escaneada en Puerta 3 y Puerta 5 con 40 s de diferencia.</div></div>
+              <div class="alert-item bad"><i>✕</i><div><b>Puerta 6 · Celular C</b><br>Sin conexión hace 6 min. Sigue validando offline.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ============ SISTEMA DE DISEÑO ============ -->
+<section class="block" id="sistema">
+  <div class="wrap ds">
+    <div class="sec-head" style="margin-bottom:0">
+      <div class="eyebrow">Sistema de diseño</div>
+      <h2>Tokens, tipografía, componentes y voz</h2>
+      <p class="lead">Light, deportivo y limpio. El color semántico (ok / no / alerta) nunca se mezcla con el acento. Contraste AA, botones de 48 px, lectura en exteriores.</p>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:14px">Color</h3>
+      <div class="swatches">
+        <div class="sw"><i style="background:#F6F8FB;border-bottom:1px solid #DDE3EC"></i><div><b>Fondo</b><code>#F6F8FB · --bg</code></div></div>
+        <div class="sw"><i style="background:#1C4FD1"></i><div><b>Azul dobok</b><code>#1C4FD1 · --blue</code></div></div>
+        <div class="sw"><i style="background:#E0323B"></i><div><b>Rojo cinturón</b><code>#E0323B · --red</code></div></div>
+        <div class="sw"><i style="background:#16A34A"></i><div><b>Verde ok</b><code>#16A34A · --green</code></div></div>
+        <div class="sw"><i style="background:#0F172A"></i><div><b>Texto</b><code>#0F172A · --fg</code></div></div>
+        <div class="sw"><i style="background:#C8F560"></i><div><b>Lima energía</b><code>#C8F560 · --lime</code></div></div>
+        <div class="sw"><i style="background:#D97706"></i><div><b>Ámbar alerta</b><code>#D97706 · --amber</code></div></div>
+        <div class="sw"><i style="background:#5B6B82"></i><div><b>Texto secundario</b><code>#5B6B82 · --muted</code></div></div>
+      </div>
+      <h4 style="margin:22px 0 10px;font-size:.9rem">Colores por rol</h4>
+      <div class="row" id="role-chips"></div>
+    </div>
+
+    <div class="card" style="padding:22px 24px">
+      <h3 style="margin-bottom:6px">Tipografía</h3>
+      <p class="muted small" style="margin-bottom:10px">Sora para titulares y números grandes; Inter para texto; JetBrains Mono para IDs y tokens. Escala 1.25.</p>
+      <div class="type-row"><small>Display · 48/800</small><div style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-.02em">Adelante, Juan</div></div>
+      <div class="type-row"><small>H2 · 32/700</small><div style="font-family:var(--font-display);font-size:2rem;font-weight:700;letter-spacing:-.015em">Puertas en vivo</div></div>
+      <div class="type-row"><small>H3 · 20/700</small><div style="font-family:var(--font-display);font-size:1.25rem;font-weight:700">Credencial emitida</div></div>
+      <div class="type-row"><small>Cuerpo · 16/400</small><div>Esta credencial ya entró a Tatamis a las 9:14. Pide que salga y vuelva a escanear.</div></div>
+      <div class="type-row"><small>Etiqueta · 12/700</small><div class="eyebrow">Pendientes de sync</div></div>
+      <div class="type-row"><small>Mono · 20/700</small><div class="mono" style="font-size:1.25rem;font-weight:700">TP-2026-00123-C</div></div>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:14px">Espaciado y radios</h3>
+      <div class="space-row">
+        <div><i style="width:4px;height:4px"></i>4</div>
+        <div><i style="width:8px;height:8px"></i>8</div>
+        <div><i style="width:12px;height:12px"></i>12</div>
+        <div><i style="width:16px;height:16px"></i>16</div>
+        <div><i style="width:24px;height:24px"></i>24</div>
+        <div><i style="width:32px;height:32px"></i>32</div>
+        <div><i style="width:48px;height:48px"></i>48</div>
+        <div><i style="width:64px;height:64px"></i>64</div>
+        <div><i style="width:48px;height:48px;border-radius:12px;background:var(--surface);border:2px solid var(--blue)"></i>radio 12</div>
+        <div><i style="width:48px;height:48px;border-radius:14px;background:var(--surface);border:2px solid var(--blue)"></i>tarjeta 14</div>
+        <div><i style="width:48px;height:30px;border-radius:999px;background:var(--surface);border:2px solid var(--blue)"></i>píldora</div>
+      </div>
+      <p class="muted small" style="margin-top:10px">Transiciones de 150–250 ms con <code>cubic-bezier(.2,.7,.2,1)</code>. Sombras azuladas, nunca grises puras.</p>
+    </div>
+
+    <div class="comp-grid">
+      <div class="card comp">
+        <h4>Botones · altura mínima 48 px</h4>
+        <div class="row"><button class="btn btn-primary" type="button">Siguiente</button><button class="btn btn-secondary" type="button">Cancelar</button><button class="btn btn-lime" type="button">Anotar en lista de espera</button></div>
+        <div class="row"><button class="btn btn-danger" type="button">Revocar credencial</button><button class="btn btn-ghost" type="button">Ver detalle</button><button class="btn btn-primary" type="button" disabled style="opacity:.45;cursor:not-allowed">Guardando…</button></div>
+      </div>
+      <div class="card comp">
+        <h4>Estados · color + ícono + palabra</h4>
+        <div class="row">
+          <span class="state ok"><i><b>✓</b></i><span>Adelante</span></span>
+          <span class="state no"><i><b>✕</b></i><span>No puede entrar</span></span>
+          <span class="state warn"><i><b>!</b></i><span>Revisa con el supervisor</span></span>
+          <span class="state sync"><i><b>↻</b></i><span>12 pendientes</span></span>
+        </div>
+        <p class="muted small">Sonido y vibración distintos para cada uno. El color nunca va solo.</p>
+      </div>
+      <div class="card comp">
+        <h4>Estados del PTT · radio</h4>
+        <div class="row">
+          <span class="ptt-sw listen"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></i>Escuchando <code>--ptt-listen</code></span>
+          <span class="ptt-sw talk"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h2M8 8v8M12 5v14M16 8v8M20 11v2"/></svg></i>Hablando <code>--ptt-talk</code></span>
+          <span class="ptt-sw busy"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></i>Ocupado <code>--ptt-busy</code></span>
+          <span class="ptt-sw emerg"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 4l8 14H4z"/><path d="M12 10v3M12 15.5v.5"/></svg></i>Emergencia <code>--ptt-emerg</code></span>
+        </div>
+        <p class="muted small">Azul escucha, lima con borde habla, ámbar espera turno, rojo interrumpe todo. Siempre con texto, como en el scanner: "Escuchando · Mantén pulsado para hablar", "Hablando · Suelta para terminar", "Ocupado · Puerta 2 está hablando · sigue pulsando y te toca", "Emergencia".</p>
+      </div>
+      <div class="card comp">
+        <h4>Chips de rol</h4>
+        <div class="row" id="role-chips-2"></div>
+        <p class="muted small">Texto blanco salvo Patrocinador (lima), que usa texto oscuro.</p>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:6px">UX writing</h3>
+      <p class="muted small" style="margin-bottom:14px">Español neutro, tuteo, frases cortas, sin jerga. Primero el veredicto, después el motivo, al final qué hacer.</p>
+      <div class="ux">
+        <div class="card pair"><h4>Veredicto antes que detalle</h4><div class="ex"><div class="bad"><i>✕</i><span><del>Error 409: anti-passback violation (zone T)</del></span></div><div class="good"><i>✓</i><span>No puede entrar. Esta credencial ya entró a Tatamis a las 9:14.</span></div></div></div>
+        <div class="card pair"><h4>Siempre decir qué hacer</h4><div class="ex"><div class="bad"><i>✕</i><span><del>Credencial inválida.</del></span></div><div class="good"><i>✓</i><span>Pide que salga y vuelva a escanear, o llama al supervisor.</span></div></div></div>
+        <div class="card pair"><h4>Sin conexión no es alarma</h4><div class="ex"><div class="bad"><i>✕</i><span><del>¡ATENCIÓN! Fallo de red. 12 eventos no sincronizados.</del></span></div><div class="good"><i>✓</i><span>12 pendientes por enviar · sin conexión al host. Se enviarán solos cuando vuelva.</span></div></div></div>
+        <div class="card pair"><h4>Nombrar lo que la persona reconoce</h4><div class="ex"><div class="bad"><i>✕</i><span><del>Token expirado (exp &lt; now)</del></span></div><div class="good"><i>✓</i><span>Este código venció. Pide que actualice la pantalla o muestra el ID corto.</span></div></div></div>
+        <div class="card pair"><h4>Botones con verbo</h4><div class="ex"><div class="bad"><i>✕</i><span><del>OK · Aceptar · Submit</del></span></div><div class="good"><i>✓</i><span>Siguiente · Anotar en lista de espera · Llamar al supervisor</span></div></div></div>
+        <div class="card pair"><h4>Nada de culpa</h4><div class="ex"><div class="bad"><i>✕</i><span><del>Ingresaste una categoría incorrecta.</del></span></div><div class="good"><i>✓</i><span>Con 15 años la categoría es Juvenil. La asignamos por ti.</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">Tatami Pass · diseño v1.0 · coherente con <code>docs/00-DECISIONES.md</code> · Campeonato Nacional de Taekwondo ITF 2026</div></footer>
+
+<div id="print-root"></div>
+<script>
+/* ===== TPBadge: plantilla de credencial "Nacional 2026" (anverso + reverso), configurable en vivo. Misma idea que packages/core/src/badge-template.ts: la plantilla recibe un objeto de configuración y datos; nada está fijo en el dibujo. ===== */
+window.TPBadge = (function(){
+  'use strict';
+  var DEFAULT = {
+    name:'Nacional 2026', primary:'#0F2A6B', accent:'#E6007E', gold:'#C9A227', tower:'#DCE6F5',
+    edition:'21', eventName:'CAMPEONATO NACIONAL', eventSub:'TAEKWON-DO ITF', year:'2026', city:'POPAYÁN', dates:'14 AL 16 DE NOVIEMBRE DE 2026',
+    showDoc:true, showEps:true, showEmergency:true, showTower:true,
+    logos:['ITF','Federación Colombiana ITF','Alcaldía de Popayán','Secretaría de Deporte y Recreación'],
+    sponsors:['Patrocinador 1','Patrocinador 2','Patrocinador 3','Patrocinador 4'],
+    info:['Uso personal e intransferible.','Válida únicamente durante el evento.','Presentar esta acreditación para el ingreso a las sedes.','Prohibida su reproducción total o parcial.','En caso de pérdida, reportar de inmediato al comité organizador.'],
+    bandText:{}, accessText:{}
+  };
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var S = function(d, extra){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(extra||'')+'>'+d+'</svg>'; };
+  var ICON = {
+    COMP: S('<circle cx="15" cy="4" r="2"/><path d="M13 7l-4 4 2 4-3 6M13 7l3 4 5-1M9 11l-5-1M11 15l5 2"/>'),
+    COACH: S('<circle cx="9" cy="15" r="5"/><path d="M12 11l9-5v4l-7 3M9 15h.01"/>'),
+    JUR: S('<path d="M4 20h9M9 8l7 7M13 4l7 7-3 3-7-7zM3 14l7-7"/>'),
+    VIP: S('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'),
+    SPON: S('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>'),
+    PRESS: S('<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>'),
+    MED: S('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+    STAFF: S('<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>'),
+    GEN: S('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    ACOMP: S('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20a5 5 0 0 1 6.5-4.8"/>')
+  };
+  var INFO_ICONS = [
+    S('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+    S('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+    S('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.5"/><path d="M14 10h4M14 14h4"/>'),
+    S('<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'),
+    S('<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/>')
+  ];
+  var LOCK = S('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/>');
+  var HASH = S('<path d="M5 9h14M5 15h14M10 4l-2 16M16 4l-2 16"/>');
+  var PHONE = S('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>');
+  var PLUS = S('<circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/><path d="M12 8v8M8 12h8" stroke="#fff"/>');
+  var STAR = S('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z" fill="currentColor"/>');
+  var SIL = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>';
+
+  /* franjas diagonales (navy / magenta / gris) · viewBox en mm */
+  function deco(){
+    var L = function(x1,y1,x2,y2,c,w,o){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+w+'"'+(o?' opacity="'+o+'"':'')+'/>'; };
+    return '<svg class="deco" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+      L(10,-4,-14,44,'var(--gr)',7,.45)+L(19,-4,-5,44,'var(--p)',2.4)+L(24,-4,0,44,'var(--a)',1.6)+L(31,-4,7,44,'var(--gr)',3,.35)+
+      L(36,-4,12,44,'var(--gr)',1.2,.4)+
+      L(26,52,-14,132,'var(--gr)',5,.22)+
+      L(112,86,66,178,'var(--gr)',7,.4)+L(118,92,74,180,'var(--p)',2.6)+L(123,96,79,184,'var(--a)',1.8)+L(129,100,87,184,'var(--gr)',3,.35)+
+      '</svg>';
+  }
+  /* silueta propia de la torre de la catedral de Popayán (simplificada) */
+  function tower(){
+    return '<svg class="tower" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMaxYMin meet">'+
+      '<g fill="currentColor"><path d="M34 60V30h26v30z"/><path d="M19 60V22h16v38z"/><path d="M21 22V14h12v8z"/><path d="M22 14a5 5 0 0 1 10 0z"/><path d="M26 9h2v5h-2z"/></g>'+
+      '<path d="M27 3v6M25 5h4" stroke="currentColor" stroke-width="1" fill="none"/>'+
+      '<g fill="#fff"><path d="M24.5 32a2.5 2.5 0 0 1 5 0v8h-5z"/><path d="M24.5 46a2.5 2.5 0 0 1 5 0v8h-5z"/><path d="M25.5 16a1.5 1.5 0 0 1 3 0v4h-3z"/><path d="M40 40a3 3 0 0 1 6 0v8h-6z"/><path d="M50 40a3 3 0 0 1 6 0v8h-6z"/><rect x="19" y="26" width="16" height=".9"/><rect x="19" y="42" width="16" height=".9"/><rect x="34" y="34" width="26" height=".9"/></g>'+
+      '</svg>';
+  }
+  function qrSvg(text){
+    if (typeof qrcode === 'undefined'){ return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#fff"/><text x="50" y="52" font-size="7" text-anchor="middle" fill="#64748B">QR</text></svg>'; }
+    var q = qrcode(0,'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), m = 1, size = n+m*2, d='';
+    for (var r=0;r<n;r++) for (var c=0;c<n;c++) if (q.isDark(r,c)) d += 'M'+(c+m)+' '+(r+m)+'h1v1h-1z';
+    return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código QR firmado"><rect width="'+size+'" height="'+size+'" fill="#fff"/><path d="'+d+'" fill="#111827"/></svg>';
+  }
+  /* Code 128, juego B: tabla de anchos (barra, espacio, barra, ...) por símbolo; 103 = inicio B, 106 = parada */
+  var C128 = ('212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 114131 311141 411131 211412 211214 211232 2331112').split(' ');
+  function code128B(text){
+    var vals = [104], sum = 104;
+    for (var i=0;i<text.length;i++){ var v = text.charCodeAt(i)-32; if (v<0||v>95) v = 0; vals.push(v); sum += v*(i+1); }
+    vals.push(sum%103); vals.push(106);
+    var widths = []; vals.forEach(function(v){ C128[v].split('').forEach(function(w){ widths.push(+w); }); });
+    return widths;
+  }
+  function barcodeSvg(text, height){
+    var w = code128B(text), total = w.reduce(function(a,b){return a+b;},0), quiet = 10, x = quiet, d='';
+    for (var i=0;i<w.length;i++){ if (i%2===0) d += 'M'+x+' 0h'+w[i]+'v'+(height||40)+'h-'+w[i]+'z'; x += w[i]; }
+    return '<svg viewBox="0 0 '+(total+quiet*2)+' '+(height||40)+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código de barras '+esc(text)+'"><path d="'+d+'" fill="#111827"/></svg>';
+  }
+  function splitYear(y){ y = String(y); var h = Math.ceil(y.length/2); return '<span>'+esc(y.slice(0,h))+'</span><span>'+esc(y.slice(h))+'</span>'; }
+  function header(cfg){
+    var t = String(cfg.eventName||'').split(/\s+/);
+    return '<div class="hdr"><div class="ed">'+esc(cfg.edition)+'</div><div class="ttl">'+t.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'<small>'+esc(cfg.eventSub)+'</small></div><div class="yr"><div>'+splitYear(cfg.year)+'</div></div></div>'+
+      '<div class="city">'+esc(cfg.city)+'</div><div class="dates">'+esc(cfg.dates)+'</div>';
+  }
+  function footer(cfg){
+    return '<div class="foot">'+(cfg.logos||[]).map(function(l,i){ return '<div class="lg'+(i===0||i===3?' w':'')+'">'+esc(l)+'</div>'; }).join('')+'</div>';
+  }
+  function accessFor(cfg, role){
+    if (cfg.accessText && cfg.accessText[role.code]) return cfg.accessText[role.code];
+    return role.access || 'Zonas autorizadas';
+  }
+  function front(cfg, role, p, token){
+    var band = (cfg.bandText && cfg.bandText[role.code]) || role.name;
+    var fields = '<div class="f"><b>Nombre completo</b><span>'+esc(p.name)+'</span></div>'+
+      (cfg.showDoc ? '<div class="f"><b>Documento</b><span>'+esc(p.doc||'—')+'</span></div>' : '')+
+      '<div class="f long"><b>Academia</b><span>'+esc(p.club)+'</span></div>'+
+      '<div class="f ac"><b>Delegación</b><span>'+esc(p.delegation||'—')+'</span></div>';
+    return deco()+(cfg.showTower!==false?tower():'')+'<div class="inner">'+header(cfg)+
+      '<div class="idrow"><div class="photo">'+SIL+'</div><div class="fields">'+fields+'</div></div>'+
+      '<div class="band'+(band.length>11?' sm':'')+'">'+(ICON[role.code]||ICON.GEN)+'<span>'+esc(band)+'</span></div>'+
+      '<div class="acc"><div class="col">'+
+        '<div class="c">'+LOCK+'<div style="min-width:0"><b>Acceso:</b><span>'+esc(accessFor(cfg,role))+'</span></div></div>'+
+        '<div class="c">'+HASH+'<div style="min-width:0"><b>Acreditación No.</b><div class="id">'+esc(p.id)+'</div></div></div>'+
+      '</div><div class="qrc">'+qrSvg(token)+'</div></div>'+
+      footer(cfg)+'</div>';
+  }
+  function back(cfg, role, p){
+    var info = (cfg.info||[]).map(function(t,i){ return '<li>'+(INFO_ICONS[i]||INFO_ICONS[0])+'<span>'+esc(t)+'</span></li>'; }).join('');
+    var two = '';
+    if (cfg.showEmergency) two += '<div class="c">'+PHONE+'<div style="min-width:0"><b>Contacto de emergencia</b><span>'+esc(p.emergency&&p.emergency.name||'—')+'<br>'+esc(p.emergency&&p.emergency.phone||'')+'</span></div></div>';
+    if (cfg.showEps) two += '<div class="c">'+PLUS+'<div style="min-width:0"><b>EPS</b><span>'+esc(p.eps&&p.eps.name||'—')+'<br>'+esc(p.eps&&p.eps.regime||'')+'</span></div></div>';
+    return deco()+(cfg.showTower!==false?tower():'')+'<div class="inner">'+header(cfg)+
+      '<div class="info"><h5><i>i</i>Información importante</h5><ul>'+info+'</ul></div>'+
+      (two?'<div class="two">'+two+'</div>':'')+
+      '<div class="spon"><b>'+STAR+'Patrocinadores</b><div class="row">'+(cfg.sponsors||[]).map(function(s){return '<div class="lg">'+esc(s)+'</div>';}).join('')+'</div></div>'+
+      '<div class="bar">'+barcodeSvg(p.id, 40)+'<span>'+esc(p.id)+'</span></div>'+
+      footer(cfg)+'</div>';
+  }
+  function applyVars(el, cfg, role){
+    el.style.setProperty('--p', cfg.primary); el.style.setProperty('--a', cfg.accent); el.style.setProperty('--g', cfg.gold||DEFAULT.gold); el.style.setProperty('--tower', cfg.tower||DEFAULT.tower);
+    el.style.setProperty('--role', role.code==='COMP' ? cfg.accent : role.color); el.style.setProperty('--role-ink', role.text||'#fff');
+  }
+  function varsStyle(cfg, role){
+    return '--p:'+cfg.primary+';--a:'+cfg.accent+';--g:'+(cfg.gold||DEFAULT.gold)+';--tower:'+(cfg.tower||DEFAULT.tower)+';--role:'+(role.code==='COMP'?cfg.accent:role.color)+';--role-ink:'+(role.text||'#fff');
+  }
+  function render(el, side, cfg, role, p, token){
+    el.classList.add('nb'); el.classList.toggle('nb-back', side==='back'); applyVars(el, cfg, role);
+    el.innerHTML = side==='back' ? back(cfg, role, p) : front(cfg, role, p, token);
+  }
+  return { DEFAULT:DEFAULT, clone:clone, ICON:ICON, render:render, varsStyle:varsStyle, front:front, back:back, applyVars:applyVars, barcodeSvg:barcodeSvg, code128B:code128B, qrSvg:qrSvg };
+})();
+</script>
+
+
+<script>
+(function(){
+  // ---------- datos ----------
+  var ZONES = {
+    G:{name:'Gradería',svg:'<path d="M5 11h14v6H5zM7 17v3M17 17v3M6 11V7h12v4"/>'},
+    W:{name:'Calentam.',svg:'<circle cx="15" cy="4.5" r="2"/><path d="M8 21l3-7 3 2v5M5 13l4-3 3 1 3 4 4 2M11 9l3-2"/>'},
+    T:{name:'Tatamis',svg:'<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 12h16M12 4v16"/>'},
+    P:{name:'Pesaje',svg:'<path d="M12 4v16M4 20h16M6 7l-3 6h6zM18 7l-3 6h6zM6 7h12"/>'},
+    J:{name:'Jueces',svg:'<path d="M4 20h10M9 7l6 6M13 3l6 6-3 3-6-6zM3 15l6-6"/>'},
+    V:{name:'Palco',svg:'<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'},
+    H:{name:'Hospital.',svg:'<path d="M5 8h11v6a5 5 0 0 1-10 0zM16 9h2a2 2 0 0 1 0 4h-2M4 21h14"/>'},
+    M:{name:'Prensa',svg:'<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>'},
+    S:{name:'Stands',svg:'<path d="M3 20h18M12 4L4 20M12 4l8 16M12 4V2M7 14h10"/>'}
+  };
+  var ALL = ['G','W','T','P','J','V','H','M','S'];
+  var ROLES = [
+    {code:'GEN',  name:'General',        zones:['G'],                 color:'#64748B', c2:'#475569', text:'#fff', id:'00502-8', num:'00502', person:'Laura Gómez',          doc:'34.567.890', club:'Público general',               delegation:'Popayán - Cauca', n:1, days:[true,false,false], notes:'Puede ser por día. Única que admite credencial digital.', zlabel:'Gradería (G)', access:'Gradería'},
+    {code:'COMP', name:'Competidor',     zones:['G','W','T','P'],     color:'#E6007E', c2:'#B8005F', text:'#fff', id:'00123-C', num:'00123', person:'Juan Pérez',           doc:'1.061.234.567', club:'Academia Gran Maestro',           delegation:'Bogotá D.C. - Cundinamarca', n:3, days:[true,true,true],   notes:'Se importa de SportData. Control de edad por categoría.', zlabel:'G, Calentamiento (W), Tatamis (T), Pesaje (P)', access:'Área de competencia\nZonas autorizadas'},
+    {code:'COACH',name:'Coach',          zones:['G','W','T'],         color:'#0F2A6B', c2:'#0A1C4A', text:'#fff', id:'00064-8', num:'00064', person:'María Ruiz',           doc:'52.998.114', club:'Academia Caucana de Taekwondo',           delegation:'Popayán - Cauca', n:1, days:[true,true,true],   notes:'Máximo N por club (configurable).', zlabel:'G, W, T', access:'Calentamiento y tatamis\nSin pesaje'},
+    {code:'JUR',  name:'Jurado',         zones:['G','W','T','J'],     color:'#111827', c2:'#1F2937', text:'#fff', id:'00019-3', num:'00019', person:'Carlos Andrade',       doc:'71.456.321', club:'Árbitro internacional', delegation:'Medellín - Antioquia', n:1, days:[true,true,true], notes:'Jurado y árbitros. Acceso a sala de jueces.', zlabel:'G, W, T, Sala de jueces (J)', access:'Tatamis y sala de jueces', gold:true},
+    {code:'VIP',  name:'VIP',            zones:['G','V','H'],         color:'#6D28D9', c2:'#4C1D95', text:'#fff', id:'00310-F', num:'00310', person:'Ana Lucía Torres',     doc:'25.113.908', club:'Invitada · Alcaldía de Popayán', delegation:'Popayán - Cauca', n:1, days:[true,true,true],  notes:'Palco y zona de hospitalidad.', zlabel:'G, Palco (V), Hospitalidad (H)', access:'Palco y hospitalidad', gold:true},
+    {code:'SPON', name:'Patrocinador',   zones:['G','H','S'],         color:'#9CCB2A', c2:'#7FAE12', text:'#0F172A', id:'00088-Y', num:'00088', person:'Diego Salazar',    doc:'10.299.456', club:'Dobok Store', delegation:'Cali - Valle del Cauca', n:1, days:[true,true,true],  notes:'Stands y hospitalidad.', zlabel:'G, Hospitalidad (H), Stands (S)', access:'Stands y hospitalidad'},
+    {code:'PRESS',name:'Prensa',         zones:['G','M','T'],         color:'#EA7A1C', c2:'#C2600E', text:'#fff', id:'00077-1', num:'00077', person:'Valentina Ocampo',     doc:'1.144.556.778', club:'Telepacífico',           delegation:'Cali - Valle del Cauca', n:1, days:[true,true,true],   notes:'Tatamis con restricción (borde, no área de combate).', zlabel:'G, Zona de prensa (M), T con restricción', access:'Zona de prensa\nBorde de tatamis'},
+    {code:'MED',  name:'Médico',         zones:ALL,                   color:'#16A34A', c2:'#15803D', text:'#fff', id:'00045-8', num:'00045', person:'Dr. Felipe Mejía',     doc:'76.321.654', club:'Cruz Roja Colombiana',             delegation:'Popayán - Cauca', n:1, days:[true,true,true],   notes:'Acceso a todas las zonas.', zlabel:'Todas', access:'Todas las zonas'},
+    {code:'STAFF',name:'Staff',          zones:ALL,                   color:'#E0323B', c2:'#B91C1C', text:'#fff', id:'00001-K', num:'00001', person:'Jhoan Burbano',        doc:'1.061.700.123', club:'Organización · Liga Caucana',   delegation:'Popayán - Cauca', n:2, days:[true,true,true],   notes:'Organización. Acceso a todas las zonas.', zlabel:'Todas', access:'Todas las zonas'},
+    {code:'ACOMP',name:'Acompañante',    zones:['G'],                 color:'#6B7F99', c2:'#4F607A', text:'#fff', id:'00611-2', num:'00611', person:'Rosa Elena Martínez',  doc:'31.222.987', club:'Acompañante de Sofía Martínez', delegation:'Cali - Valle del Cauca', n:1, days:[true,true,true], notes:'Acompañante de un participante. Gradería; admite credencial digital.', zlabel:'Gradería (G)', access:'Gradería'}
+  ];
+  var EMERG = {GEN:['Pedro Gómez','+57 300 111 2233'],COMP:['María Fernanda Pérez','+57 310 234 5678'],COACH:['Luis Ruiz','+57 315 777 1122'],JUR:['Marta Andrade','+57 301 555 0199'],VIP:['Jorge Torres','+57 320 444 8899'],SPON:['Carolina Salazar','+57 311 666 2211'],PRESS:['Andrés Ocampo','+57 312 888 3344'],MED:['Clara Mejía','+57 318 222 9911'],STAFF:['Diana Burbano','+57 317 333 7788'],ACOMP:['Sofía Martínez','+57 300 999 1234']};
+  var EPS = {GEN:['Nueva EPS','Régimen subsidiado'],COMP:['EPS Sura','Régimen contributivo'],COACH:['Sanitas','Régimen contributivo'],JUR:['Compensar','Régimen contributivo'],VIP:['Salud Total','Régimen contributivo'],SPON:['EPS Sura','Régimen contributivo'],PRESS:['Famisanar','Régimen contributivo'],MED:['Sanitas','Régimen contributivo'],STAFF:['Nueva EPS','Régimen contributivo'],ACOMP:['Emssanar','Régimen subsidiado']};
+  var DAYS = ['14','15','16'];
+  var SIL = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg>';
+
+  // ---------- utilidades ----------
+  function b64url(str){
+    var bytes = new TextEncoder().encode(str), bin='';
+    for (var i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  // firma de ejemplo: 64 bytes pseudoaleatorios deterministas → 86 chars base64url (misma longitud que Ed25519)
+  function fakeSig(seed){
+    var h = 2166136261, out = new Uint8Array(64);
+    for (var i=0;i<64;i++){ for (var j=0;j<seed.length;j++){ h ^= seed.charCodeAt(j); h = Math.imul(h,16777619)>>>0; } h ^= i*131; h = Math.imul(h,16777619)>>>0; out[i] = h & 255; }
+    var bin=''; for (var k=0;k<64;k++) bin += String.fromCharCode(out[k]);
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  function payloadFor(r, extra){
+    var p = {v:1,e:'nac2026',c:r.num,r:r.code,z:r.zones.slice(),f:'2026-11-14',t:'2026-11-16',n:r.n,k:'k1'};
+    if (extra) for (var k in extra) p[k]=extra[k];
+    return p;
+  }
+  function tokenFor(p){
+    var payload = b64url(JSON.stringify(p));
+    return {payload:payload, sig:fakeSig(payload), token:'TP1.'+payload+'.'+fakeSig(payload)};
+  }
+  function qrSvg(text, opts){
+    opts = opts||{};
+    if (typeof qrcode === 'undefined'){ return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#fff"/><text x="50" y="52" font-size="7" text-anchor="middle" fill="#64748B">QR (librería no cargada)</text></svg>'; }
+    var q = qrcode(0, opts.ec||'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), cell = 1, m = opts.margin==null?2:opts.margin, size = n+m*2;
+    var d='';
+    for (var r=0;r<n;r++) for (var c=0;c<n;c++) if (q.isDark(r,c)) d += 'M'+(c+m)+' '+(r+m)+'h1v1h-1z';
+    return '<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><rect width="'+size+'" height="'+size+'" fill="#fff"/><path d="'+d+'" fill="#0F172A"/></svg>';
+  }
+  function zonesHtml(role){
+    return ALL.map(function(z){
+      var on = role.zones.indexOf(z)>=0;
+      return '<li class="'+(on?'on':'off')+'"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ZONES[z].svg+'</svg></i><span>'+ZONES[z].name+'</span></li>';
+    }).join('');
+  }
+  // ---------- plantilla configurable (estado del panel "es una plantilla") ----------
+  var CFG = TPBadge.clone(TPBadge.DEFAULT);
+  function personFor(r){ return {name:r.person, doc:r.doc, club:r.club, delegation:r.delegation, id:'TP-2026-'+r.id, emergency:{name:EMERG[r.code][0], phone:EMERG[r.code][1]}, eps:{name:EPS[r.code][0], regime:EPS[r.code][1]}}; }
+  function roleCfg(r){ return {code:r.code, name:r.name, color:r.color, text:r.text, access:r.access}; }
+  function renderBadge(el, side, r){ TPBadge.render(el, side, CFG, roleCfg(r), personFor(r), tokenFor(payloadFor(r)).token); }
+  function applyRoleVars(el, r){ el.style.setProperty('--rc', r.color); el.style.setProperty('--rc2', r.c2); el.style.setProperty('--rt', r.text); }
+
+  // ---------- credencial principal + selector ----------
+  var current = 1;
+  var picker = document.getElementById('role-picker');
+  ROLES.forEach(function(r,i){
+    var b = document.createElement('button'); b.type='button'; b.setAttribute('aria-pressed', i===current?'true':'false');
+    b.style.setProperty('--rc', r.color); b.innerHTML='<span class="sw"></span>'+r.name;
+    b.addEventListener('click', function(){ selectRole(i); });
+    picker.appendChild(b);
+  });
+  function selectRole(i){
+    current = i; var r = ROLES[i];
+    Array.prototype.forEach.call(picker.children, function(b,j){ b.setAttribute('aria-pressed', j===i?'true':'false'); });
+    var el = document.getElementById('cred-main'); renderBadge(el, 'front', r);
+    var eb = document.getElementById('cred-back'); renderBadge(eb, 'back', r);
+    [el,eb].forEach(function(x){ x.classList.remove('fade'); void x.offsetWidth; x.classList.add('fade'); });
+    document.getElementById('tpl-role-name').textContent = r.name; document.getElementById('tpl-role-name-2').textContent = r.name;
+    document.getElementById('tpl-band').value = (CFG.bandText[r.code]||r.name).toUpperCase();
+    document.getElementById('tpl-access').value = (CFG.accessText[r.code]||r.access).replace(/\n/g,' / ');
+    if (grid) renderGrid();
+    var p = payloadFor(r), tk = tokenFor(p);
+    document.getElementById('ci-title').textContent = r.name;
+    document.getElementById('ci-notes').textContent = r.notes;
+    document.getElementById('ci-id').textContent = 'TP-2026-'+r.id;
+    document.getElementById('ci-zones').textContent = (CFG.accessText[r.code]||r.access).replace(/\n/g,' · ')+' — zonas '+r.zlabel;
+    document.getElementById('ci-days').textContent = DAYS.filter(function(d,k){return r.days[k];}).join(' · ')+' nov 2026';
+    document.getElementById('ci-n').textContent = 'n = '+r.n+(r.n>1?' (re-emisiones anteriores revocadas)':'');
+    document.getElementById('ci-token').innerHTML = '<i>TP1</i>.'+tk.payload+'.<u>'+tk.sig+'</u>';
+    document.getElementById('ci-payload').textContent = JSON.stringify(p);
+  }
+  selectRole(current);
+
+  // grid de los 10 roles (anverso)
+  var grid = document.getElementById('cred-grid');
+  ROLES.forEach(function(r,i){
+    var b = document.createElement('button'); b.className='mini'; b.type='button'; b.style.setProperty('--rc', r.code==='COMP'?CFG.accent:r.color);
+    b.innerHTML = '<div class="fit" data-w="378" data-h="567"><div class="nb"></div></div><div class="lab"><i></i>'+r.name+'<span>'+r.code+'</span></div>';
+    b.addEventListener('click', function(){ selectRole(i); document.getElementById('credencial').scrollIntoView({behavior:'smooth'}); });
+    grid.appendChild(b);
+  });
+  function renderGrid(){
+    Array.prototype.forEach.call(grid.children, function(b,i){ var r = ROLES[i]; b.style.setProperty('--rc', r.code==='COMP'?CFG.accent:r.color); renderBadge(b.querySelector('.nb'), 'front', r); });
+  }
+  renderGrid();
+
+  // ---------- panel "es una plantilla": cada control reescribe CFG y vuelve a dibujar ----------
+  var TPL = {primary:'tpl-primary',accent:'tpl-accent',edition:'tpl-edition',year:'tpl-year',eventName:'tpl-event',eventSub:'tpl-sub',city:'tpl-city',dates:'tpl-dates',showDoc:'tpl-doc',showEps:'tpl-eps',showEmergency:'tpl-emerg',showTower:'tpl-tower'};
+  function tplToForm(){
+    Object.keys(TPL).forEach(function(k){ var el = document.getElementById(TPL[k]); if (el.type==='checkbox') el.checked = !!CFG[k]; else el.value = CFG[k]; });
+    document.getElementById('tpl-primary-v').textContent = CFG.primary.toUpperCase(); document.getElementById('tpl-accent-v').textContent = CFG.accent.toUpperCase();
+  }
+  function tplApply(){
+    var r = ROLES[current];
+    var shown = {name:CFG.name, primary:CFG.primary, accent:CFG.accent, edition:CFG.edition, year:CFG.year, eventName:CFG.eventName, eventSub:CFG.eventSub, city:CFG.city, dates:CFG.dates, showDoc:CFG.showDoc, showEps:CFG.showEps, showEmergency:CFG.showEmergency, showTower:CFG.showTower, bandText:CFG.bandText, accessText:CFG.accessText, logos:CFG.logos, sponsors:CFG.sponsors};
+    document.getElementById('tpl-json').textContent = JSON.stringify(shown, null, 1).replace(/\n\s*(?=[^\s"{}\]\[])/g,' ');
+    var isPilot = JSON.stringify(CFG)===JSON.stringify(TPBadge.DEFAULT);
+    document.getElementById('tpl-status').textContent = isPilot ? 'Plantilla Nacional 2026 (piloto)' : 'Plantilla modificada · sin guardar';
+    renderBadge(document.getElementById('cred-main'), 'front', r); renderBadge(document.getElementById('cred-back'), 'back', r);
+    renderGrid();
+    document.getElementById('ci-zones').textContent = (CFG.accessText[r.code]||r.access).replace(/\n/g,' · ')+' — zonas '+r.zlabel;
+    document.getElementById('ci-back').textContent = [CFG.showEmergency?'contacto de emergencia':null, CFG.showEps?'EPS':null, 'código de barras Code 128 con el mismo ID'].filter(Boolean).join(', ')+'.';
+  }
+  Object.keys(TPL).forEach(function(k){
+    var el = document.getElementById(TPL[k]);
+    el.addEventListener('input', function(){ CFG[k] = el.type==='checkbox' ? el.checked : el.value; if (el.type==='color') document.getElementById(TPL[k]+'-v').textContent = el.value.toUpperCase(); tplApply(); });
+    el.addEventListener('change', function(){ CFG[k] = el.type==='checkbox' ? el.checked : el.value; tplApply(); });
+  });
+  document.getElementById('tpl-band').addEventListener('input', function(e){ var r = ROLES[current]; if (e.target.value.trim()) CFG.bandText[r.code] = e.target.value.trim(); else delete CFG.bandText[r.code]; tplApply(); });
+  document.getElementById('tpl-access').addEventListener('input', function(e){ var r = ROLES[current]; var v = e.target.value.trim().replace(/\s*\/\s*/g,'\n'); if (v) CFG.accessText[r.code] = v; else delete CFG.accessText[r.code]; tplApply(); });
+  document.getElementById('tpl-reset').addEventListener('click', function(){ CFG = TPBadge.clone(TPBadge.DEFAULT); tplToForm(); selectRole(current); tplApply(); });
+  tplToForm(); tplApply();
+
+  // imprimir
+  document.getElementById('btn-print').addEventListener('click', function(){
+    var pr = document.getElementById('print-root'); var r = ROLES[current];
+    pr.innerHTML = '<div class="nb"></div><div class="nb nb-back"></div>'; renderBadge(pr.children[0], 'front', r); renderBadge(pr.children[1], 'back', r);
+    try { window.print(); } catch(e){}
+  });
+
+  // chips de rol (sistema)
+  ['role-chips','role-chips-2'].forEach(function(id){
+    var box = document.getElementById(id);
+    box.innerHTML = ROLES.map(function(r){ return '<span class="chip'+(r.text!=='#fff'?' light':'')+'" style="--rc:'+r.color+'"><span class="dot" style="'+(r.text!=='#fff'?'background:#0F172A':'')+'"></span>'+r.code+' · '+r.name+'</span>'; }).join('');
+  });
+
+  // ---------- scanner: QRs auxiliares, lista de zonas, puertas ----------
+  var enrol = tokenFor({v:1,e:'nac2026',typ:'enrol',dev:'tab-b',role:'control',z:'T',exp:'2026-11-20T08:12:00-05:00'});
+  document.getElementById('enrol-qr').innerHTML = qrSvg(enrol.token,{margin:0});
+  document.getElementById('cam-qr').innerHTML = qrSvg(tokenFor(payloadFor(ROLES[1])).token,{margin:0});
+  var zl = document.getElementById('zlist'), zopts = [['T','Tatamis','Puerta 3 · solo COMP, COACH, JUR, PRESS'],['W','Área de calentamiento','Puerta 2'],['G','Gradería','Puertas 1, 4 y 5']];
+  zl.innerHTML = zopts.map(function(o,i){ return '<label class="'+(i===0?'sel':'')+'"><span class="zi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ZONES[o[0]].svg+'</svg></span><span><b>'+o[1]+'</b><small>'+o[2]+'</small></span><span class="radio"></span></label>'; }).join('');
+
+  var doors = [
+    ['Puerta 1','Gradería',[3,5,6,4,7,6,5],6,'742',0,'ok','OK'],
+    ['Puerta 2','Calentamiento',[2,2,3,4,3,2,3],3,'188',0,'ok','OK'],
+    ['Puerta 3','Tatamis',[4,3,5,6,4,5,4],4,'214',12,'warn','12 pendientes'],
+    ['Puerta 4','Gradería',[2,4,5,3,2,4,3],3,'301',0,'ok','OK'],
+    ['Puerta 5','Palco · Hosp.',[1,0,1,2,1,1,1],1,'46',0,'ok','OK'],
+    ['Puerta 6','Pesaje',[2,1,0,0,0,0,0],0,'93',0,'off','Sin conexión 6 min'],
+    ['Puerta 7','Prensa',[0,1,0,1,1,0,1],1,'22',0,'ok','OK']
+  ];
+  document.getElementById('doors').innerHTML = doors.map(function(d){
+    var max = Math.max.apply(null,d[2])||1;
+    var sp = '<span class="spark">'+d[2].map(function(v){return '<i style="height:'+Math.max(3,Math.round(v/max*22))+'px"></i>';}).join('')+'</span>';
+    return '<tr><td><span class="door"><i class="'+(d[6]==='ok'?'':d[6])+'"></i>'+d[0]+'</span></td><td>'+d[1]+'</td><td>'+sp+'<b>'+d[3]+'</b></td><td>'+d[4]+'</td><td>'+(d[5]?'<span class="tag warn">'+d[5]+'</span>':'0')+'</td><td><span class="tag '+d[6]+'">'+d[7]+'</span></td></tr>';
+  }).join('');
+
+  // ---------- credencial digital rotativa ----------
+  var dqBox = document.getElementById('dq-box'), dqQr = document.getElementById('dq-qr'), ring = document.getElementById('dq-ring');
+  var left = 60, period = 60;
+  function regenDigital(){
+    var exp = Math.floor(Date.now()/1000)+period;
+    var tk = tokenFor(payloadFor(ROLES[0],{exp:exp,d:'2026-11-20'}));
+    dqQr.innerHTML = qrSvg(tk.token,{margin:0});
+    document.getElementById('dq-token').textContent = tk.token;
+    dqBox.classList.add('flash'); setTimeout(function(){ dqBox.classList.remove('flash'); }, 700);
+  }
+  function tickDigital(){
+    document.getElementById('dq-count').textContent = left; document.getElementById('dq-count2').textContent = left;
+    ring.style.strokeDashoffset = String(201*(1-left/period));
+    left--; if (left<0){ left = period-1; regenDigital(); }
+  }
+  regenDigital(); tickDigital(); setInterval(tickDigital, 1000);
+
+  // ---------- escalado de mockups ----------
+  function fitAll(){
+    document.querySelectorAll('.fit').forEach(function(box){
+      var w = parseFloat(box.dataset.w), h = parseFloat(box.dataset.h), max = parseFloat(box.dataset.max||'1');
+      var child = box.firstElementChild; if (!child) return;
+      var avail = box.clientWidth || w; var s = Math.min(max, avail / w);
+      child.style.transform = 'scale('+s+')'; var ch = child.offsetHeight || h; box.style.height = (ch*s)+'px';
+    });
+  }
+  window.addEventListener('resize', fitAll); fitAll(); setTimeout(fitAll, 50); setTimeout(fitAll, 600);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+
+  // ---------- nav activa + reveal ----------
+  var links = document.querySelectorAll('.nav-links a');
+  var secObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if (en.isIntersecting){ links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+en.target.id); }); } });
+  }, {rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('section.block').forEach(function(s){ secObs.observe(s); });
+  var rvObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add('rv'); rvObs.unobserve(en.target); } });
+  }, {threshold:.12});
+  document.querySelectorAll('.sec-head, .scanner-grid figure, .fact, .comp, .pair, .sw').forEach(function(el){ rvObs.observe(el); });
+})();
+</script>
+</body>
+</html>

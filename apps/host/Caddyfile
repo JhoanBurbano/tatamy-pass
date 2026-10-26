@@ -1,0 +1,9 @@
+# HTTPS en LAN con CA interna de Caddy. El certificado raíz queda en
+# /data/caddy/pki/authorities/local/root.crt (volumen caddy-data); instálalo
+# una vez en cada celular (Android: Ajustes > Seguridad > Certificado CA).
+# Cambia `host.tatami.local` por el nombre que resuelva tu router/mDNS.
+host.tatami.local, localhost {
+	tls internal
+	encode gzip
+	reverse_proxy host:8787
+}

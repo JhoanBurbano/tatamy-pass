@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Nightly (03:17 UTC): suite e2e completa + perf, aunque no haya cambios.
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      perf:
+        description: 'Correr también las pruebas de rendimiento (@perf)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 20
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  unit:
+    name: Unit + integración + build + audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Vitest (core con cobertura, host, scanner, nube)
+        run: npm test
+      - name: Build de todos los workspaces
+        run: npm run build
+      - name: Sample credentials PDF
+        run: npm run print:sample
+      - name: npm audit (alto o crítico)
+        run: npm audit --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-core
+          path: packages/core/coverage
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sample-credentials
+          path: apps/print/out/sample-credentials.pdf
+
+  simulate:
+    name: Simulación de carga (2.000 credenciales, 8 puertas, corte de red)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run simulate | tee simulate.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simulate-log
+          path: simulate.log
+
+  # Flujo maestro "día del evento" + inscripción de menor: en cada PR (≈ 3 min).
+  e2e-smoke:
+    name: E2E smoke (día del evento)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Build (core, host, print; el panel, el scanner y la nube los compila la propia suite)
+        run: npm run build -w packages/core && npm run build -w apps/print && npm run build -w apps/host
+      - name: Chromium de Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Preflight
+        run: bash scripts/preflight.sh
+      - name: Playwright · smoke
+        run: npm run e2e:smoke
+        env:
+          CI: 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-smoke-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7
+
+  # Suite completa: en main y cada noche (≈ 4–5 min).
+  e2e-full:
+    name: E2E completa (nube + host + panel + scanner)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build -w packages/core && npm run build -w apps/print && npm run build -w apps/host
+      - name: Chromium de Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Preflight
+        run: bash scripts/preflight.sh
+      - name: Playwright · suite completa
+        run: npm run e2e
+        env:
+          CI: 1
+      - name: Playwright · rendimiento (@perf, nightly o a petición)
+        if: github.event_name == 'schedule' || inputs.perf == true
+        run: npm run e2e:perf
+        env:
+          CI: 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: e2e/test-results
+          retention-days: 7

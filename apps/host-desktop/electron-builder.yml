@@ -1,0 +1,99 @@
+# electron-builder · Tatami Pass Host
+# Empaqueta esta app con el host (apps/host), core y print del monorepo.
+# Firma/notarización: sin firma por defecto. Para firmar:
+#   macOS   CSC_LINK=<ruta .p12> CSC_KEY_PASSWORD=… APPLE_ID=… APPLE_APP_SPECIFIC_PASSWORD=… APPLE_TEAM_ID=… npm run dist:mac
+#   Windows CSC_LINK=<ruta .pfx> CSC_KEY_PASSWORD=… npm run dist:win   (o WIN_CSC_LINK / WIN_CSC_KEY_PASSWORD)
+# Ver docs/86-APP-ESCRITORIO.md §4.
+appId: co.tatamipass.host
+productName: Tatami Pass Host
+copyright: © 2026 Tatami Pass
+executableName: tatami-pass-host
+directories:
+  output: release
+  buildResources: resources
+# No recompiles los nativos del monorepo: el binario de Electron viene de resources/native (scripts/fetch-native.mjs).
+npmRebuild: false
+buildDependenciesFromSource: false
+nodeGypRebuild: false
+asar: true
+# Sin auto-actualización ni publicación: los instaladores se reparten a mano (docs/86 §6).
+publish: null
+asarUnpack:
+  - "**/*.node"
+  - "node_modules/@tatami/host/migrations/**"
+  - "node_modules/@tatami/host/public/**"
+  - "node_modules/@tatami/host/event.config.json"
+files:
+  - "dist/**"
+  - "package.json"
+  - "!**/*.map"
+  - "!**/test/**"
+  - "!**/*.ts"
+  - "!**/tsconfig*.json"
+  - "!**/vitest.config.*"
+  - "!**/node_modules/**/{README,readme,CHANGELOG,changelog,LICENSE,license}*"
+  - "!**/node_modules/**/{test,tests,__tests__,docs,example,examples,bench,benchmark}/**"
+  - "!**/node_modules/@tatami/host/{src,test,data,backups,keys,node_modules/.cache}/**"
+  - "!**/node_modules/@tatami/host/{docker-compose.yml,Dockerfile,Caddyfile,.env.example,CLAUDE.md}"
+  - "!**/node_modules/@tatami/{core,print}/CLAUDE.md"
+  - "!**/node_modules/@tatami/print/out/**"
+  - "!**/node_modules/@tatami/core/{src,test,coverage}/**"
+  - "!**/node_modules/@tatami/print/src/**"
+extraResources:
+  - from: resources/native/${os}-${arch}
+    to: native/${os}-${arch}
+    filter: ["**/*"]
+  - from: resources/caddy/${os}-${arch}
+    to: caddy/${os}-${arch}
+    filter: ["**/*"]
+  - from: resources/icons
+    to: icons
+    filter: ["*.png"]
+icon: resources/icons/icon.png
+artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+mac:
+  category: public.app-category.utilities
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+  # Notarización solo si hay APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID en el entorno.
+  notarize: false
+dmg:
+  contents:
+    - { x: 130, y: 220 }
+    - { x: 410, y: 220, type: link, path: /Applications }
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  # Sin firma: SmartScreen avisará. Ver docs/86 §4.
+  signAndEditExecutable: true
+  verifyUpdateCodeSignature: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  language: "3082"
+  shortcutName: Tatami Pass Host
+  artifactName: "${productName}-${version}-win-x64-instalador.${ext}"
+portable:
+  artifactName: "${productName}-${version}-win-x64-portable.${ext}"
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+  category: Utility
+  desktop:
+    entry:
+      Name: Tatami Pass Host
+      StartupWMClass: tatami-pass-host
+  maintainer: Tatami Pass
+  synopsis: Host de acreditación y control de accesos

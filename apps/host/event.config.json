@@ -1,0 +1,358 @@
+{
+  "eventId": "nac2026",
+  "name": "Campeonato Nacional de Taekwondo ITF 2026",
+  "idPrefix": "TP-2026",
+  "startDate": "2026-11-20",
+  "endDate": "2026-11-22",
+  "utcOffsetMinutes": -300,
+  "zones": [
+    {
+      "code": "G",
+      "name": "Gradería",
+      "tracksExit": false
+    },
+    {
+      "code": "W",
+      "name": "Área de calentamiento",
+      "tracksExit": true
+    },
+    {
+      "code": "T",
+      "name": "Tatamis",
+      "tracksExit": true
+    },
+    {
+      "code": "P",
+      "name": "Pesaje",
+      "tracksExit": true
+    },
+    {
+      "code": "J",
+      "name": "Sala de jueces",
+      "tracksExit": true
+    },
+    {
+      "code": "V",
+      "name": "Palco",
+      "tracksExit": true
+    },
+    {
+      "code": "H",
+      "name": "Zona de hospitalidad",
+      "tracksExit": true
+    },
+    {
+      "code": "S",
+      "name": "Stands",
+      "tracksExit": false
+    },
+    {
+      "code": "M",
+      "name": "Zona de prensa",
+      "tracksExit": true
+    }
+  ],
+  "roles": [
+    {
+      "code": "GEN",
+      "name": "General",
+      "zones": [
+        "G"
+      ],
+      "days": null,
+      "capacity": 1500,
+      "requiresPhoto": false,
+      "color": "#64748B",
+      "allowsDigital": true,
+      "antiPassbackZones": []
+    },
+    {
+      "code": "COMP",
+      "name": "Competidor",
+      "zones": [
+        "G",
+        "W",
+        "T",
+        "P"
+      ],
+      "days": null,
+      "capacity": 1200,
+      "requiresPhoto": true,
+      "color": "#1C4FD1",
+      "allowsDigital": false,
+      "antiPassbackZones": [
+        "W",
+        "T",
+        "P"
+      ]
+    },
+    {
+      "code": "COACH",
+      "name": "Coach / Entrenador",
+      "zones": [
+        "G",
+        "W",
+        "T"
+      ],
+      "days": null,
+      "capacity": 300,
+      "requiresPhoto": true,
+      "color": "#0E7490",
+      "allowsDigital": false,
+      "antiPassbackZones": [
+        "W",
+        "T"
+      ]
+    },
+    {
+      "code": "JUR",
+      "name": "Jurado / Árbitro",
+      "zones": [
+        "G",
+        "W",
+        "T",
+        "J"
+      ],
+      "days": null,
+      "capacity": 80,
+      "requiresPhoto": true,
+      "color": "#0F172A",
+      "allowsDigital": false,
+      "antiPassbackZones": [
+        "J"
+      ]
+    },
+    {
+      "code": "VIP",
+      "name": "VIP",
+      "zones": [
+        "G",
+        "V",
+        "H"
+      ],
+      "days": null,
+      "capacity": 100,
+      "requiresPhoto": true,
+      "color": "#B45309",
+      "allowsDigital": false,
+      "antiPassbackZones": [
+        "V"
+      ]
+    },
+    {
+      "code": "SPON",
+      "name": "Patrocinador",
+      "zones": [
+        "G",
+        "H",
+        "S"
+      ],
+      "days": null,
+      "capacity": 60,
+      "requiresPhoto": true,
+      "color": "#7C3AED",
+      "allowsDigital": false,
+      "antiPassbackZones": []
+    },
+    {
+      "code": "PRESS",
+      "name": "Prensa",
+      "zones": [
+        "G",
+        "M",
+        "T"
+      ],
+      "days": null,
+      "capacity": 40,
+      "requiresPhoto": true,
+      "color": "#DB2777",
+      "allowsDigital": false,
+      "antiPassbackZones": [
+        "M"
+      ]
+    },
+    {
+      "code": "MED",
+      "name": "Médico",
+      "zones": [
+        "*"
+      ],
+      "days": null,
+      "capacity": 20,
+      "requiresPhoto": true,
+      "color": "#16A34A",
+      "allowsDigital": false,
+      "antiPassbackZones": []
+    },
+    {
+      "code": "STAFF",
+      "name": "Staff / Organización",
+      "zones": [
+        "*"
+      ],
+      "days": null,
+      "capacity": 150,
+      "requiresPhoto": true,
+      "color": "#E0323B",
+      "allowsDigital": false,
+      "antiPassbackZones": []
+    },
+    {
+      "code": "ACOMP",
+      "name": "Acompañante",
+      "zones": [
+        "G"
+      ],
+      "days": null,
+      "capacity": null,
+      "requiresPhoto": false,
+      "color": "#6B7F99",
+      "allowsDigital": true,
+      "antiPassbackZones": []
+    }
+  ],
+  "ageCategories": [
+    {
+      "code": "INF_A",
+      "name": "Infantil A",
+      "minAge": 6,
+      "maxAge": 9,
+      "capacity": null
+    },
+    {
+      "code": "INF_B",
+      "name": "Infantil B",
+      "minAge": 10,
+      "maxAge": 13,
+      "capacity": null
+    },
+    {
+      "code": "JUV",
+      "name": "Juvenil",
+      "minAge": 14,
+      "maxAge": 17,
+      "capacity": null
+    },
+    {
+      "code": "ADU",
+      "name": "Adulto",
+      "minAge": 18,
+      "maxAge": 35,
+      "capacity": null
+    },
+    {
+      "code": "SEN",
+      "name": "Senior",
+      "minAge": 36,
+      "maxAge": null,
+      "capacity": null
+    }
+  ],
+  "duplicateWindowSeconds": 120,
+  "digitalTokenWindowSeconds": 60,
+  "clockToleranceSeconds": 300,
+  "signingKeys": [],
+  "configVersion": 1,
+  "updatedAt": "2026-10-09T00:00:00.000Z",
+  "companions": {
+    "perParticipant": 2,
+    "total": null
+  },
+  "totalCapacity": 2000,
+  "radio": {
+    "channels": [
+      {
+        "id": "puertas",
+        "name": "Puertas",
+        "color": "#1C4FD1",
+        "talk": [
+          "*"
+        ],
+        "listen": [
+          "*"
+        ],
+        "priority": 0
+      },
+      {
+        "id": "supervisores",
+        "name": "Supervisores",
+        "color": "#0E7490",
+        "talk": [
+          "SUPERVISOR",
+          "ADMIN",
+          "COORDINATOR"
+        ],
+        "listen": [
+          "SUPERVISOR",
+          "ADMIN",
+          "COORDINATOR"
+        ],
+        "priority": 1
+      },
+      {
+        "id": "acreditacion",
+        "name": "Acreditación",
+        "color": "#7C3AED",
+        "talk": [
+          "ADMIN",
+          "COORDINATOR",
+          "PRINTER",
+          "REGISTRAR",
+          "SUPERVISOR"
+        ],
+        "listen": [
+          "ADMIN",
+          "COORDINATOR",
+          "PRINTER",
+          "REGISTRAR",
+          "SUPERVISOR"
+        ],
+        "priority": 1
+      },
+      {
+        "id": "emergencia",
+        "name": "Emergencia",
+        "color": "#E0323B",
+        "talk": [
+          "*"
+        ],
+        "listen": [
+          "*"
+        ],
+        "priority": 100,
+        "emergency": true
+      }
+    ],
+    "orders": [
+      {
+        "code": "OPEN_GATE",
+        "label": "Abrir Puerta {n}",
+        "requiresGate": true
+      },
+      {
+        "code": "CLOSE_GATE",
+        "label": "Cerrar Puerta {n}",
+        "requiresGate": true
+      },
+      {
+        "code": "PAUSE",
+        "label": "Pausar ingreso"
+      },
+      {
+        "code": "RESUME",
+        "label": "Reanudar ingreso"
+      },
+      {
+        "code": "SUPERVISOR_TO_GATE",
+        "label": "Supervisor a Puerta {n}",
+        "requiresGate": true
+      },
+      {
+        "code": "EVACUATE",
+        "label": "Evacuación",
+        "emergency": true
+      }
+    ],
+    "maxPerChannel": 10
+  }
+}

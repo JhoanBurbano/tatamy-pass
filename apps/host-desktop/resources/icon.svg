@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Tatami Pass Host · icono tipográfico: azul #1C4FD1, lima #C8F560 -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2A5FE6"/>
+      <stop offset="1" stop-color="#1C4FD1"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#g)"/>
+  <rect x="64" y="736" width="896" height="224" rx="0" fill="#163FA8" opacity="0.35"/>
+  <rect x="64" y="736" width="896" height="224" fill="none"/>
+  <text x="512" y="600" text-anchor="middle" font-family="Sora, Inter, Helvetica, Arial, sans-serif" font-weight="700" font-size="440" fill="#C8F560" letter-spacing="-10">TP</text>
+  <rect x="300" y="700" width="424" height="40" rx="20" fill="#C8F560"/>
+  <text x="512" y="880" text-anchor="middle" font-family="Sora, Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="112" fill="#FFFFFF" letter-spacing="8">HOST</text>
+</svg>

@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El campeonato como flujo</title>
+<meta name="description" content="El Campeonato Nacional de Taekwondo ITF 2026 visto como flujo de personas: mapa del coliseo, línea de tiempo, entradas y salidas, gestión del día y qué pasa si algo falla, con el lugar de Tatami Pass en cada punto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: hero con cifras → mapa interactivo del coliseo (SVG) → línea de tiempo → entradas/salidas con contador → panel del supervisor → "qué pasa si" → antes/después → pie. Misma familia que tatami-pass-demo.html. */
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#EEF2F8; --fg:#0F172A; --muted:#5B6B82; --line:#DDE3EC;
+  --blue:#1C4FD1; --blue-ink:#133A9C; --blue-soft:#E4EBFB;
+  --red:#E0323B; --red-soft:#FCE6E7; --green:#16A34A; --green-soft:#DEF7E6;
+  --amber:#D97706; --amber-soft:#FCEFD6; --lime:#C8F560; --lime-ink:#5B7A00;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 12px 32px -12px rgba(28,79,209,.18);
+  --shadow-lg:0 2px 4px rgba(15,23,42,.06),0 30px 60px -24px rgba(28,79,209,.30);
+  --font-display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:14px; --t:180ms;
+  --r-GEN:#64748B; --r-COMP:#1C4FD1; --r-COACH:#0F2A6B; --r-JUR:#111827; --r-VIP:#6D28D9; --r-SPON:#9CCB2A; --r-PRESS:#EA7A1C; --r-MED:#16A34A; --r-STAFF:#E0323B;
+  --who-insc:#0F2A6B; --who-coord:#1C4FD1; --who-oper:#EA7A1C; --who-ctrl:#16A34A; --who-sup:#6D28D9; --who-admin:#111827; --who-aud:#64748B; --who-pub:#5B7A00; --who-sys:#D97706;
+  --map-floor:#FFFFFF; --map-wall:#0F172A; --map-ink:#0F172A; --map-out:#EEF2F8;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 4px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.7);
+  --r-JUR:#9AA8BD; --r-COACH:#7C9BEA; --who-admin:#9AA8BD; --who-insc:#7C9BEA; --who-pub:#B5E04A;
+  --map-floor:#131B2C; --map-wall:#EEF2F8; --map-ink:#EEF2F8; --map-out:#0B1220;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#131B2C; --surface-2:#1B2538; --fg:#EEF2F8; --muted:#9AA8BD; --line:#26324A;
+  --blue:#5B86F0; --blue-ink:#9DB6FA; --blue-soft:#1A2A52;
+  --red:#F0636A; --red-soft:#3C1A1F; --green:#3DCB6E; --green-soft:#12331E;
+  --amber:#F0A33A; --amber-soft:#3A2A10; --lime:#C8F560; --lime-ink:#D5F77E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 4px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.7);
+  --r-JUR:#9AA8BD; --r-COACH:#7C9BEA; --who-admin:#9AA8BD; --who-insc:#7C9BEA; --who-pub:#B5E04A;
+  --map-floor:#131B2C; --map-wall:#EEF2F8; --map-ink:#EEF2F8; --map-out:#0B1220;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.5vw,3rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;letter-spacing:-.015em}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}
+button{font-family:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+section.block{padding-block:56px}
+.eyebrow{font-family:var(--font-display);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.lead{color:var(--muted);max-width:64ch;font-size:1.05rem}
+.sec-head{display:grid;gap:10px;margin-bottom:28px}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.belt{height:12px;background:repeating-linear-gradient(-55deg,var(--blue) 0 28px,var(--lime) 28px 36px,var(--red) 36px 64px,var(--surface) 64px 72px);opacity:.9}
+.belt.thin{height:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;border:1.5px solid transparent;font:600 .92rem var(--font-body);cursor:pointer;transition:transform var(--t),box-shadow var(--t),background var(--t),color var(--t),border-color var(--t);text-decoration:none;color:var(--fg)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 20px -8px rgba(28,79,209,.6)}
+.btn-primary:hover{background:var(--blue-ink)}
+.btn-secondary{background:var(--surface);color:var(--fg);border-color:var(--line)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-secondary[aria-pressed="true"]{border-color:var(--rc,var(--blue));background:color-mix(in srgb,var(--rc,var(--blue)) 14%,var(--surface));color:var(--fg);box-shadow:0 0 0 3px color-mix(in srgb,var(--rc,var(--blue)) 22%,transparent)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn .sw{width:12px;height:12px;border-radius:4px;background:var(--rc,var(--blue));flex:none}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;font-size:.74rem;font-weight:700;letter-spacing:.03em;color:#fff;background:var(--rc,var(--blue));white-space:nowrap}
+.chip.light{color:#0F172A}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.85}
+.who{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px;border-radius:999px;font-size:.76rem;font-weight:700;color:#fff;background:var(--wc,var(--blue));white-space:nowrap}
+.who i{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.9}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:14px;height:60px;min-width:0}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:-.01em;white-space:nowrap;color:inherit;text-decoration:none}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#4C7DF5);position:relative;overflow:hidden;box-shadow:0 4px 10px -4px rgba(28,79,209,.6);flex:none}
+.brand .mark::after{content:"";position:absolute;inset:-4px;background:linear-gradient(115deg,transparent 46%,var(--lime) 46%,var(--lime) 60%,transparent 60%)}
+.nav-links{display:flex;gap:4px;overflow-x:auto;min-width:0;flex:1;scrollbar-width:none;margin-left:auto;-webkit-overflow-scrolling:touch}
+.nav-links::-webkit-scrollbar{display:none}
+@media (min-width:900px){.nav-links{justify-content:flex-end}}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.84rem;font-weight:600;padding:8px 12px;border-radius:999px;white-space:nowrap;transition:background var(--t),color var(--t)}
+.nav-links a:hover,.nav-links a.active{background:var(--blue-soft);color:var(--blue)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:60px 48px;background:
+  radial-gradient(900px 420px at 10% -10%,color-mix(in srgb,var(--blue) 18%,transparent),transparent 60%),
+  radial-gradient(700px 360px at 95% 10%,color-mix(in srgb,var(--lime) 35%,transparent),transparent 60%),var(--bg)}
+.hero::before{content:"";position:absolute;right:-20%;top:-40%;width:70%;height:200%;background:linear-gradient(115deg,transparent 48%,color-mix(in srgb,var(--blue) 10%,transparent) 48%,color-mix(in srgb,var(--blue) 10%,transparent) 52%,transparent 52%,transparent 58%,color-mix(in srgb,var(--red) 9%,transparent) 58%,color-mix(in srgb,var(--red) 9%,transparent) 61%,transparent 61%);pointer-events:none}
+.hero .wrap{position:relative;display:grid;gap:22px}
+.hero .claim{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;max-width:640px}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);display:grid;gap:2px;transition:transform var(--t),box-shadow var(--t)}
+.fig:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.fig b{font-family:var(--font-display);font-size:2rem;letter-spacing:-.03em;line-height:1;color:var(--blue);font-variant-numeric:tabular-nums}
+.fig span{color:var(--muted);font-size:.85rem}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.legend div{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.4}
+.legend i{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-style:normal;font-weight:800;font-family:var(--font-display);color:#fff}
+.legend .in i{background:var(--green)}.legend .out i{background:var(--blue)}.legend .zone i{background:var(--amber)}
+.legend b{display:block;font-family:var(--font-display);font-size:.95rem}
+
+/* mapa */
+.map-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:22px;align-items:start}
+@media (max-width:900px){.map-grid{grid-template-columns:minmax(0,1fr)}}
+.map-box{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow);position:relative}
+.map-box svg{width:100%;height:auto;display:block;max-width:100%;font-family:var(--font-body)}
+@media (max-width:600px){.map-box{overflow-x:auto;padding:10px;-webkit-overflow-scrolling:touch}.map-box svg{min-width:720px}.map-hint{display:block}}
+.map-hint{display:none;font-size:.78rem;color:var(--muted);margin-top:6px}
+.map-box .z{cursor:pointer;transition:opacity var(--t)}
+.map-box .z rect{fill:var(--zc);fill-opacity:.14;stroke:var(--zc);stroke-width:1.6;stroke-opacity:.7;rx:8;transition:fill-opacity var(--t),stroke-width var(--t)}
+.map-box .z:hover rect,.map-box .z.on rect{fill-opacity:.32;stroke-width:3}
+.map-box .z text{fill:var(--map-ink);pointer-events:none}
+.map-box .z .zl{font:700 15px var(--font-display);letter-spacing:-.01em}
+.map-box .z .zc{font:800 12px var(--font-mono);fill:var(--zc)}
+.map-box .z .zs{font:500 10.5px var(--font-body);fill:var(--muted)}
+.map-box .d{cursor:pointer}
+.map-box .d circle{fill:var(--surface);stroke:var(--map-wall);stroke-width:2.5;transition:r var(--t),stroke var(--t),fill var(--t)}
+.map-box .d text{font:800 13px var(--font-display);fill:var(--map-ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;transition:fill var(--t)}
+.map-box .d:hover circle,.map-box .d.on circle{fill:var(--blue);stroke:var(--blue)}
+.map-box .d:hover text,.map-box .d.on text{fill:#fff}
+.map-box .d.lit circle{fill:var(--lime);stroke:var(--lime-ink)}
+.map-box .d.lit text{fill:#0F172A}
+.map-box .z.lit rect{fill-opacity:.4;stroke-width:3}
+.map-box .d .tag{font:600 9.5px var(--font-body);fill:var(--muted);text-anchor:middle;dominant-baseline:auto}
+.map-box .d.lit .tag,.map-box .d.on .tag{fill:var(--map-ink)}
+.map-box .wall{fill:var(--map-floor);stroke:var(--map-wall);stroke-width:4}
+.map-box .out{fill:var(--map-out)}
+.map-box .lbl{font:700 10px var(--font-body);fill:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.map-box .route{fill:none;stroke:var(--rc,var(--blue));stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 12;opacity:0;transition:opacity .25s}
+.map-box .route.on{opacity:.9}
+.map-box .walker{fill:var(--rc,var(--blue));stroke:#fff;stroke-width:3;opacity:0;transition:opacity .2s}
+.map-box .walker.on{opacity:1}
+.map-box .cam{fill:var(--surface);stroke:var(--map-wall);stroke-width:1.5}
+.map-note{font-size:.8rem;color:var(--muted);margin-top:8px;display:flex;flex-wrap:wrap;gap:12px}
+.map-note span{display:inline-flex;align-items:center;gap:6px}
+.map-note i{width:14px;height:14px;border-radius:50%;background:var(--surface);border:2.5px solid var(--map-wall)}
+.map-note i.lit{background:var(--lime);border-color:var(--lime-ink)}
+.info{display:grid;gap:12px;align-content:start;position:sticky;top:76px}
+@media (max-width:900px){.info{position:static}}
+.info .card{padding:18px 20px;display:grid;gap:12px;animation:rise .25s cubic-bezier(.2,.7,.2,1) both}
+.info .kicker{display:flex;align-items:center;gap:10px}
+.info .kicker .pin{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font:800 1rem var(--font-display);color:#fff;background:var(--kc,var(--blue));flex:none}
+.info .kicker b{font-family:var(--font-display);font-size:1.05rem;line-height:1.2}
+.info .kicker small{display:block;color:var(--muted);font-size:.78rem;font-weight:500}
+.info dl{display:grid;gap:10px;margin:0;font-size:.9rem}
+.info dt{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.info dd{margin:0;line-height:1.45}
+.info .mode{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:8px;padding:4px 9px;font-size:.78rem;font-weight:700}
+.info .mode i{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.info .mode.out i{background:var(--blue)}
+.info .mode.both i{background:linear-gradient(90deg,var(--green) 50%,var(--blue) 50%)}
+.info .mode.none i{background:var(--muted)}
+.routes{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.route-steps{display:grid;gap:6px;font-size:.86rem}
+.route-steps div{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:9px;background:var(--surface-2);transition:background var(--t),color var(--t)}
+.route-steps div.on{background:var(--rc,var(--blue));color:#fff}
+.route-steps div i{font-style:normal;font:800 .72rem var(--font-mono);width:26px;height:22px;border-radius:6px;background:var(--surface);color:var(--fg);display:grid;place-items:center;flex:none}
+@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+/* línea de tiempo */
+.tl-scroll{overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.tl{display:flex;gap:14px;min-width:max-content;padding:4px 2px 2px}
+.tl .ms{scroll-snap-align:start;width:300px;flex:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;gap:10px;padding:16px 18px;position:relative;transition:transform var(--t),box-shadow var(--t)}
+.tl .ms:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.tl .ms::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;border-radius:14px 14px 0 0;background:var(--mc,var(--blue))}
+.tl .ms.day::before{background:linear-gradient(90deg,var(--blue),var(--lime))}
+.tl .ms .when{font:800 .78rem var(--font-mono);color:var(--mc,var(--blue));letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.tl .ms .when span{font:600 .72rem var(--font-body);color:var(--muted);letter-spacing:0}
+.tl .ms h4{font-size:1rem;letter-spacing:-.01em}
+.tl .ms .blk{display:grid;gap:3px;font-size:.84rem;line-height:1.4}
+.tl .ms .blk b{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tl .ms .blk.tp{background:var(--blue-soft);border-radius:10px;padding:9px 11px}
+.tl .ms .blk.tp b{color:var(--blue)}
+.tl .ms .hours{display:grid;gap:5px;font-size:.8rem}
+.tl .ms .hours div{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:baseline}
+.tl .ms .hours div span:first-child{font:700 .74rem var(--font-mono);color:var(--muted)}
+.tl .ms .hours div.peak span:first-child{color:var(--red)}
+.tl .ms .who{margin-top:auto;justify-self:start}
+@media (max-width:900px){.tl-scroll{overflow:visible;padding:0}.tl{flex-direction:column;min-width:0}.tl .ms{width:100%}}
+.tl-nav{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
+@media (max-width:900px){.tl-nav{display:none}}
+
+/* entradas y salidas */
+.io-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.io{padding:18px 20px;display:grid;gap:12px;align-content:start}
+.io h3{font-size:1rem}
+.io .anim{height:150px;border-radius:12px;background:var(--surface-2);position:relative;overflow:hidden}
+.io .anim svg{width:100%;height:100%;display:block}
+.io p{font-size:.9rem;line-height:1.45}
+.io .why{background:var(--amber-soft);color:var(--fg);border-radius:10px;padding:10px 12px;font-size:.85rem;line-height:1.4}
+.io .why b{color:var(--amber);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:2px}
+.counter{margin-top:18px;padding:18px 20px;display:grid;gap:14px}
+.counter .top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.counter .clock{font:800 1.6rem var(--font-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:10px}
+.counter .clock i{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
+.counter .clock small{font:600 .8rem var(--font-body);color:var(--muted)}
+.zcount{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.zcount div{background:var(--surface-2);border-radius:12px;padding:12px 14px;display:grid;gap:2px;border-left:4px solid var(--zc,var(--blue))}
+.zcount span{font-size:.74rem;color:var(--muted);font-weight:600}
+.zcount b{font-family:var(--font-display);font-size:1.6rem;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;transition:color var(--t)}
+.zcount b.up{color:var(--green)}.zcount b.down{color:var(--blue)}
+.zcount small{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.counter .note{font-size:.85rem;color:var(--muted)}
+.counter .track{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.counter .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--lime));transition:width .4s linear}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}60%{box-shadow:0 0 0 8px rgba(22,163,74,0)}}
+
+/* gestión: tres columnas + mockup del panel */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:22px}
+.mg .card{padding:18px 20px;display:grid;gap:10px;align-content:start}
+.mg h3{display:flex;align-items:center;gap:10px;font-size:1rem}
+.mg h3 i{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);flex:none}
+.mg h3 i svg{width:18px;height:18px}
+.mg ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:.9rem;line-height:1.4}
+.mg li{position:relative;padding-left:16px}
+.mg li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.mg li b{font-weight:600}
+.fit{position:relative;width:100%;overflow:visible}
+.fit>*{transform-origin:top left;position:absolute;left:0;top:0}
+.browser{width:960px;height:600px;background:#fff;color:#0F172A;border-radius:14px;box-shadow:var(--shadow-lg);overflow:hidden;border:1px solid #DDE3EC;font-family:var(--font-body);display:flex;flex-direction:column;font-size:14px;line-height:1.45}
+.browser .top{height:40px;background:#EEF2F8;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid #DDE3EC;flex:none}
+.browser .top i{width:11px;height:11px;border-radius:50%;background:#CBD5E1}
+.browser .top .url{margin-left:12px;flex:1;max-width:440px;height:26px;background:#fff;border-radius:8px;font-size:12px;color:#5B6B82;display:flex;align-items:center;padding:0 12px;font-family:var(--font-mono);white-space:nowrap;overflow:hidden}
+.browser .top .url b{color:#16A34A;margin-right:6px}
+.browser .body{flex:1;min-height:0;position:relative;overflow:hidden;background:#F6F8FB;display:flex}
+.host{flex:1;display:grid;grid-template-columns:200px 1fr;min-height:0}
+.host .sb{background:#0F172A;color:#CBD5E1;padding:18px 14px;display:flex;flex-direction:column;gap:4px}
+.host .sb .brand{color:#fff;margin-bottom:10px;font-size:15px}
+.host .sb .brand .mark{width:24px;height:24px;border-radius:7px}
+.host .sb span{color:#CBD5E1;font-size:13px;font-weight:500;padding:8px 10px;border-radius:9px;display:flex;align-items:center;gap:10px}
+.host .sb span.on{background:#1C4FD1;color:#fff;font-weight:600}
+.host .sb span .bdg{margin-left:auto;background:#E0323B;color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px}
+.host .sb .st{margin-top:auto;font-size:11px;color:#94A3B8;line-height:1.5;padding-top:14px;border-top:1px solid #1E293B}
+.host .sb .st b{color:#fff;font-weight:600}
+.host .main{padding:18px 22px;display:grid;gap:14px;align-content:start;overflow:hidden;position:relative}
+.host .hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.host .hd h3{font-size:19px;letter-spacing:-.02em;font-family:var(--font-display)}
+.host .hd .live{display:inline-flex;align-items:center;gap:8px;background:#DEF7E6;color:#14532D;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600}
+.host .hd .live i{width:8px;height:8px;border-radius:50%;background:#16A34A;animation:pulse 1.6s infinite}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:#fff;border:1px solid #DDE3EC;border-radius:14px;padding:12px 14px;display:grid;gap:3px}
+.kpi span{font-size:11px;color:#5B6B82;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.kpi b{font-family:var(--font-display);font-size:24px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi small{font-size:12px;color:#5B6B82}
+.kpi.warn b{color:#D97706}.kpi.bad b{color:#E0323B}.kpi.ok b{color:#16A34A}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:12px;align-items:start}
+.tbl{background:#fff;border:1px solid #DDE3EC;border-radius:12px;overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{white-space:nowrap;text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:#5B6B82;padding:8px 10px;background:#F6F8FB;border-bottom:1px solid #DDE3EC;font-weight:700}
+.tbl td{white-space:nowrap;padding:8px 10px;border-bottom:1px solid #EEF2F8;vertical-align:middle;font-variant-numeric:tabular-nums}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.hl td{background:#FBFFE9}
+.tbl .door{font-weight:700;display:flex;align-items:center;gap:8px}
+.tbl .door i{width:9px;height:9px;border-radius:50%;background:#16A34A;flex:none}
+.tbl .door i.warn{background:#D97706}.tbl .door i.off{background:#94A3B8}
+.spark{display:inline-flex;gap:2px;align-items:flex-end;height:20px;margin-right:8px;vertical-align:middle}
+.spark i{width:3px;background:#1C4FD1;border-radius:2px;opacity:.85}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.tag.ok{background:#DEF7E6;color:#14532D}.tag.warn{background:#FCEFD6;color:#7C3A00}.tag.bad{background:#FCE6E7;color:#991B1B}.tag.off{background:#EEF2F8;color:#5B6B82}
+.scard{background:#fff;border:1px solid #DDE3EC;border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.scard h4{font-size:13px;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-display)}
+.line-item{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:4px 0;border-bottom:1px solid #EEF2F8;font-variant-numeric:tabular-nums}
+.line-item:last-child{border-bottom:0}
+.line-item .ok{color:#16A34A;font-weight:700}.line-item .warn{color:#D97706;font-weight:700}
+.alert-item{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.35;padding:8px 10px;border-radius:10px;background:#FCEFD6;color:#7C3A00}
+.alert-item.bad{background:#FCE6E7;color:#991B1B}
+.alert-item b{font-family:var(--font-mono);font-weight:500}
+.alert-item i{flex:none;width:20px;height:20px;border-radius:6px;background:#D97706;color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;font-style:normal}
+.alert-item.bad i{background:#E0323B}
+.ups{display:grid;gap:6px}
+.ups .bar{height:12px;border-radius:999px;background:#E2E8F0;overflow:hidden}
+.ups .bar i{display:block;height:100%;border-radius:999px;background:#16A34A}
+.ups .lbl{display:flex;justify-content:space-between;font-size:12px;color:#5B6B82}
+.ups .lbl b{color:#0F172A;font-family:var(--font-display);font-size:16px}
+.panel-cap{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.panel-cap i{width:8px;height:8px;border-radius:50%;background:var(--blue)}
+
+/* qué pasa si */
+.acc{display:grid;gap:10px}
+.acc details{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.acc summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;min-height:56px;padding:12px 18px;font-family:var(--font-display);font-weight:700;font-size:1rem;transition:background var(--t)}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary:hover{background:var(--surface-2)}
+.acc summary .n{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--amber-soft);color:var(--amber);font-size:.9rem;flex:none}
+.acc summary .ar{margin-left:auto;width:28px;height:28px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;transition:transform .2s;flex:none}
+.acc summary .ar svg{width:16px;height:16px}
+.acc details[open] summary .ar{transform:rotate(180deg)}
+.acc .ans{padding:0 18px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;animation:rise .22s cubic-bezier(.2,.7,.2,1) both}
+.acc .ans>div{background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:.88rem;line-height:1.45;display:grid;gap:6px;align-content:start}
+.acc .ans b.l{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.acc .ans .scr{display:flex;gap:10px;align-items:flex-start;border-radius:10px;padding:10px 12px;color:#fff;font-weight:600;font-size:.86rem;line-height:1.35}
+.acc .ans .scr i{font-style:normal;font-weight:800;font-family:var(--font-display);font-size:1.1rem;flex:none}
+.acc .ans .scr.ok{background:var(--green)}.acc .ans .scr.no{background:var(--red)}.acc .ans .scr.warn{background:#F59E0B;color:#0F172A}.acc .ans .scr.info{background:var(--blue)}
+
+/* antes vs con */
+.cmp-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.cmp{width:100%;border-collapse:collapse;font-size:.9rem;min-width:620px}
+.cmp th{text-align:left;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.cmp th.tp{color:var(--blue)}
+.cmp td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45}
+.cmp tr:last-child td{border-bottom:0}
+.cmp td:first-child{font-weight:600;font-family:var(--font-display);font-size:.88rem}
+.cmp td .no{color:var(--red);font-weight:700}
+.cmp td .si{color:var(--green);font-weight:700}
+.cmp tr.limit td{background:color-mix(in srgb,var(--amber) 8%,transparent)}
+.cmp tr.limit td:first-child::before{content:"No resuelve · ";color:var(--amber);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;display:block}
+footer{padding:36px 0 56px;color:var(--muted);font-size:.85rem}
+footer .docs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+footer .docs span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-family:var(--font-mono);font-size:.74rem;color:var(--fg)}
+.rv{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Secciones">
+  <div class="wrap">
+    <a class="brand" href="#inicio"><span class="mark"></span>Tatami Pass</a>
+    <div class="nav-links">
+      <a href="#mapa">Mapa</a><a href="#tiempo">Línea de tiempo</a><a href="#flujo">Entradas y salidas</a><a href="#gestion">Gestión</a><a href="#quepasa">Qué pasa si…</a><a href="#antes">Antes y después</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="inicio">
+  <div class="wrap">
+    <div class="eyebrow">Campeonato Nacional de Taekwondo ITF 2026 · Popayán · 20 al 22 de noviembre</div>
+    <h1>Un campeonato, visto como flujo de personas</h1>
+    <p class="claim">Durante tres días, hasta 2.000 personas entran, salen y cambian de zona dentro de un coliseo. Esta página muestra ese flujo punto por punto: qué pasa en el evento, dónde entra Tatami Pass, cómo ayuda y qué problema evita.</p>
+    <div class="figs">
+      <div class="fig"><b>3</b><span>días de competencia</span></div>
+      <div class="fig"><b>2.000</b><span>personas en el aforo máximo</span></div>
+      <div class="fig"><b>8</b><span>puertas con scanner</span></div>
+    </div>
+    <div class="legend">
+      <div class="in"><i>→</i><span><b>Entrada</b>Alguien cruza una puerta hacia dentro y el scanner lo registra: quién, dónde y a qué hora.</span></div>
+      <div class="out"><i>←</i><span><b>Salida</b>Alguien cruza hacia fuera. Se registra igual. Así sabemos quién sigue dentro y quién ya puede volver a entrar.</span></div>
+      <div class="zone"><i>Z</i><span><b>Zona</b>Un espacio con sus propias reglas de acceso: Gradería, Tatamis, Calentamiento… Cada credencial dice en cuáles puede estar.</span></div>
+    </div>
+  </div>
+</header>
+<div class="belt"></div>
+
+<!-- ===== MAPA ===== -->
+<section class="block" id="mapa">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">El coliseo</div>
+      <h2>Mapa de zonas y puertas</h2>
+      <p class="lead">Toca una zona o una puerta para ver quién pasa por ahí y qué hace el scanner. O elige un recorrido típico y míralo puerta por puerta.</p>
+    </div>
+    <div class="routes" id="routes" role="group" aria-label="Ver el flujo de"></div>
+    <div class="map-grid">
+      <div>
+        <div class="map-box" id="map-box"></div>
+        <p class="map-hint">Desliza el mapa hacia los lados para verlo completo.</p>
+        <div class="map-note"><span><i></i>Puerta con scanner</span><span><i class="lit"></i>Puerta del recorrido elegido</span><span>Entrada · Salida · Entrada+Salida según la puerta</span></div>
+      </div>
+      <div class="info" id="info" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ===== LÍNEA DE TIEMPO ===== -->
+<section class="block" id="tiempo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">De T-30 a T+90</div>
+      <h2>Línea de tiempo del evento</h2>
+      <p class="lead">Lo que pasa antes, durante y después. En cada hito: qué ocurre, qué hace Tatami Pass, por qué y quién lo opera.</p>
+    </div>
+    <div class="tl-nav"><button class="btn btn-secondary" type="button" id="tl-prev" aria-label="Hitos anteriores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button><button class="btn btn-secondary" type="button" id="tl-next" aria-label="Hitos siguientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <div class="tl-scroll" id="tl-scroll"><div class="tl" id="tl"></div></div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ===== ENTRADAS Y SALIDAS ===== -->
+<section class="block" id="flujo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">La idea central</div>
+      <h2>Entradas y salidas, explicado</h2>
+      <p class="lead">Registrar quién entra es lo obvio. Registrar quién sale es lo que convierte una lista en un conteo real de cuánta gente hay dentro, zona por zona.</p>
+    </div>
+    <div class="io-grid">
+      <div class="io card"><h3>a · Entrada simple</h3><div class="anim" id="anim-a"></div><p>La persona muestra su credencial, el scanner lee el QR, comprueba firma, zona y día en el mismo celular y responde en verde: "Adelante, Juan". El control compara la foto. Siguiente.</p><div class="why"><b>Qué evita</b>Filas largas por revisar listas en papel y colados con credenciales de otro evento o fotocopiadas sin foto.</div></div>
+      <div class="io card"><h3>b · Salida y re-ingreso</h3><div class="anim" id="anim-b"></div><p>A la hora del almuerzo, Juan sale por el scanner de salida y vuelve a entrar después. Sin la salida registrada, el segundo ingreso sería rojo: "ya entró a las 9:14".</p><div class="why"><b>Por qué registramos salidas</b>Aforo real por zona, anti-passback (una credencial no sirve para dos personas) y, en una emergencia, saber quién sigue dentro.</div></div>
+      <div class="io card"><h3>c · Movimiento entre zonas</h3><div class="anim" id="anim-c"></div><p>De Calentamiento a Tatamis pasan los competidores llamados y su coach. El público, aunque tenga credencial válida para Gradería, ve rojo en esa puerta: "no vale para Tatamis".</p><div class="why"><b>Qué evita</b>Padres, amigos y curiosos en el área de competencia, y coaches de más junto al tatami.</div></div>
+    </div>
+    <div class="counter card">
+      <div class="top">
+        <div class="clock"><i></i><span id="ck-time">8:00</span><small id="ck-label">Día 1 · viernes 20</small></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" id="ck-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg><span id="ck-play-txt">Reproducir el día</span></button><button class="btn btn-secondary" type="button" id="ck-reset">Reiniciar</button></div>
+      </div>
+      <div class="track"><i id="ck-bar"></i></div>
+      <div class="zcount" id="zcount"></div>
+      <p class="note" id="ck-note">Dentro ahora, por zona. Cada número sale de entradas menos salidas registradas por los scanners de esa zona. Pulsa Reproducir para ver cómo cambia a lo largo del día.</p>
+    </div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ===== GESTIÓN ===== -->
+<section class="block" id="gestion">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Durante el evento</div>
+      <h2>Qué mira, qué decide y cómo se comunica el supervisor</h2>
+      <p class="lead">El supervisor no escanea: observa el conjunto desde el computador central y toma pocas decisiones, pero a tiempo.</p>
+    </div>
+    <div class="mg">
+      <div class="card"><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></i>Qué mira</h3><ul><li><b>Ingresos por minuto en cada puerta.</b> Si Puerta 1 sube y las demás no, la fila está ahí.</li><li><b>Pendientes de envío.</b> Un scanner con muchos pendientes está sin red, no roto.</li><li><b>Alertas.</b> Misma credencial en dos puertas, muchos ingresos manuales, scanner sin reportar.</li><li><b>UPS y copia de seguridad.</b> Cuánta batería queda y cuándo fue la última copia.</li></ul></div>
+      <div class="card"><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></i>Qué decide</h3><ul><li><b>Abrir otra puerta</b> cuando una fila supera 40 personas o 5 minutos de espera: mueve un scanner de reserva y lo reasigna de zona desde el panel.</li><li><b>Anular y re-emitir</b> una credencial sospechosa o perdida. Tarda menos de un minuto en llegar a todas las puertas.</li><li><b>Autorizar una excepción</b> con motivo, en la puerta, con su PIN. Queda en la auditoría.</li><li><b>Promover el equipo de respaldo</b> si el principal no vuelve.</li></ul></div>
+      <div class="card"><h3><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v12H7l-3 3z"/><path d="M8 9h8M8 12h5"/></svg></i>Cómo se comunica</h3><ul><li><b>Tatami Radio: voz por la Wi-Fi del staff, por canales.</b> Va dentro del scanner. Canales Puertas, Supervisores, Acreditación y Emergencia; mantén pulsado para hablar, uno a la vez por canal. Lo urgente se dice por voz: "Puerta 4, retén a la persona de la credencial 00071". Sin internet; si cae el host, los que ya hablaban se siguen oyendo.</li><li><b>Órdenes con acuse.</b> El supervisor envía desde el panel una orden del catálogo ("Abrir Puerta 2", "Pausar ingreso", "Evacuación"); el scanner suena, vibra, la lee en voz alta y el control toca Recibido. El panel muestra quién confirmó y a qué hora.</li><li><b>Radios físicas de respaldo.</b> Dos o tres walkies para cuando un scanner esté en segundo plano, sin batería o fuera de la Wi-Fi. No sustituyen al canal Emergencia: lo complementan.</li><li><b>Alertas en la pantalla del scanner.</b> El control ve ámbar o rojo con el motivo y el siguiente paso, sin esperar a nadie.</li><li><b>Avisos del panel.</b> "Dispositivo sin reportar", "Copia atrasada", "Fila en Puerta 1". Lo que no cabe en una frase va a un incidente en el panel, con hora y responsable.</li></ul></div>
+    </div>
+    <div class="panel-cap"><i></i>Computador central · pantalla del supervisor a las 9:40 del día 1</div>
+    <div class="fit" id="fit-panel" data-w="960" data-h="600"><div class="browser"><div class="top"><i></i><i></i><i></i><div class="url"><b>https://</b>host.tatamipass.co/panel/dispositivos</div></div><div class="body" id="panel-body"></div></div></div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ===== QUÉ PASA SI ===== -->
+<section class="block" id="quepasa">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Situaciones reales</div>
+      <h2>Qué pasa si…</h2>
+      <p class="lead">Nueve situaciones que ocurren en cualquier campeonato. Para cada una: qué hace cada rol, qué muestra el sistema y por qué así.</p>
+    </div>
+    <div class="acc" id="acc"></div>
+  </div>
+</section>
+<div class="belt thin"></div>
+
+<!-- ===== ANTES VS CON ===== -->
+<section class="block" id="antes">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Comparación honesta</div>
+      <h2>Antes y con Tatami Pass</h2>
+      <p class="lead">Listas en papel y pulseras frente a credencial firmada y scanner que funciona sin red. Incluye lo que Tatami Pass no resuelve, para que nadie espere más de lo que es.</p>
+    </div>
+    <div class="cmp-wrap"><table class="cmp" id="cmp"><thead><tr><th>Situación</th><th>Listas en papel y pulseras</th><th class="tp">Con Tatami Pass</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><span class="mark"></span>Tatami Pass</div>
+    <p style="margin-top:10px">Todo lo que ves aquí sale de los documentos del proyecto. Delegaciones, nombres y cifras son de ejemplo.</p>
+    <div class="docs"><span>00 · Decisiones</span><span>10 · PRD</span><span>20 · RF y pruebas</span><span>30 · Arquitectura</span><span>40 · Seguridad ISO 27001</span><span>50 · Operación</span><span>60 · Manuales por rol</span><span>70 · UX writing</span><span>80 · Cómo probar</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var ROLES = {GEN:['General','--r-GEN'],COMP:['Competidor','--r-COMP'],COACH:['Coach','--r-COACH'],JUR:['Jurado','--r-JUR'],VIP:['VIP','--r-VIP'],SPON:['Patrocinador','--r-SPON'],PRESS:['Prensa','--r-PRESS'],MED:['Médico','--r-MED'],STAFF:['Staff','--r-STAFF']};
+function chip(code){ var r=ROLES[code]; return '<span class="chip'+(code==='SPON'?' light':'')+'" style="--rc:var('+r[1]+')"><span class="dot"></span>'+r[0]+'</span>'; }
+function chips(list){ return '<div class="chips">'+list.map(chip).join('')+'</div>'; }
+var WHO = {insc:['Inscriptor del club','--who-insc'],coord:['Coordinador','--who-coord'],oper:['Operador de impresión','--who-oper'],ctrl:['Control de entradas','--who-ctrl'],sup:['Supervisor','--who-sup'],admin:['Administrador','--who-admin'],aud:['Auditor','--who-aud'],pub:['Participantes','--who-pub'],sys:['El sistema, solo','--who-sys'],org:['Organización','--who-admin'],med:['Enfermería','--who-ctrl']};
+function who(k){ var w=WHO[k]; return '<span class="who" style="--wc:var('+w[1]+')"><i></i>'+w[0]+'</span>'; }
+
+// ---------- mapa ----------
+var ZONES = [
+  {id:'G', name:'Gradería', x:120,y:70,w:570,h:105, color:'#64748B', roles:['GEN','COMP','COACH','JUR','VIP','SPON','PRESS','MED','STAFF'], sub:'Público y todos los roles', who:'Público general y cualquier persona acreditada.', scan:'Se entra por Puerta 1 (público) o desde Calentamiento. Las salidas se registran en Puerta 1 y en la salida de emergencia.', wrong:'Nadie "sobra" en Gradería: es la zona de todos. El riesgo es al revés: que alguien salga de aquí hacia Tatamis sin permiso.'},
+  {id:'V', name:'Palco VIP', x:705,y:70,w:175,h:105, color:'#6D28D9', roles:['VIP','STAFF','MED'], sub:'Invitados', who:'Autoridades, invitados de la federación y patrocinadores oro.', scan:'Puerta 5 registra entrada y salida. Credencial VIP con franja morada y holograma.', wrong:'Un General que llega a Puerta 5 ve rojo: "no vale para Palco. Puede ir a Gradería".'},
+  {id:'W', name:'Calentamiento', x:60,y:200,w:215,h:225, color:'#1C4FD1', roles:['COMP','COACH','JUR','MED','STAFF'], sub:'Competidores y coaches', who:'Competidores esperando su llamado y sus coaches. Es la zona más llena en la mañana.', scan:'Puerta 2 (entrada de delegaciones) registra entrada y salida. Puerta 3 lleva a Tatamis; Puerta 4, a Pesaje.', wrong:'Un padre con credencial General ve rojo en Puerta 2. Un coach sobrante por club se frena desde la inscripción (máximo por club).'},
+  {id:'T', name:'Tatamis', x:300,y:200,w:395,h:225, color:'#E0323B', roles:['COMP','COACH','JUR','PRESS','MED','STAFF'], sub:'Área de competencia', who:'Solo quien compite, dirige o arbitra. Prensa en el borde, con restricción.', scan:'Puerta 3 (desde Calentamiento) registra entrada y salida. Es la puerta más estricta del coliseo.', wrong:'Rojo con motivo: "no vale para Tatamis. Puede ir a Gradería y Calentamiento". Si ya está dentro y vuelve a entrar sin salir, también rojo.'},
+  {id:'J', name:'Sala de jueces', x:730,y:200,w:210,h:100, color:'#111827', roles:['JUR','STAFF','MED'], sub:'Jurado y árbitros', who:'Árbitros y jurado entre combates. Aquí se guardan planillas y se hacen las reuniones técnicas.', scan:'Sin scanner propio en v1: se entra desde Tatamis. El control de Puerta 3 ya validó que es jurado.', wrong:'Un coach que quiera "hablar con el árbitro" tiene que hacerlo fuera: no tiene acceso a J.'},
+  {id:'M', name:'Zona de prensa', x:730,y:320,w:210,h:105, color:'#EA7A1C', roles:['PRESS','STAFF'], sub:'Medios acreditados', who:'Periodistas y fotógrafos acreditados antes del evento.', scan:'Puerta 6 registra entrada y salida. Desde aquí se accede al borde de Tatamis con restricción.', wrong:'Prensa no acreditada: la credencial no existe. "No reconozco esta credencial" y a la mesa de acreditación.'},
+  {id:'P', name:'Pesaje', x:60,y:450,w:215,h:195, color:'#0F2A6B', roles:['COMP','COACH','JUR','MED','STAFF'], sub:'Solo por la mañana', who:'Competidores en su turno de pesaje, con su coach, y el jurado que pesa.', scan:'Puerta 4 registra entrada. Solo abre de 7:00 a 8:45; fuera de ese horario, rojo con el horario.', wrong:'Un competidor fuera de horario ve "no tiene acceso a Pesaje en este horario. Puede entrar de 7:00 a 8:45".'},
+  {id:'S', name:'Stands', x:300,y:450,w:395,h:95, color:'#9CCB2A', roles:['GEN','COMP','COACH','JUR','VIP','SPON','PRESS','MED','STAFF'], sub:'Patrocinadores y venta', who:'Todo el mundo. Los patrocinadores montan y atienden aquí.', scan:'Sin scanner propio: es parte del recorrido del público desde Puerta 1.', wrong:'Nada que controlar aquí; el control está en las puertas que dan a zonas restringidas.'},
+  {id:'H', name:'Hospitalidad', x:730,y:450,w:210,h:195, color:'#D4A72C', roles:['VIP','SPON','STAFF','MED'], sub:'Invitados y patrocinadores', who:'VIP y patrocinadores entre eventos. Catering y reuniones.', scan:'Puerta 8 (carga y patrocinadores) registra entrada y salida de personal y proveedores.', wrong:'Un General no entra. Un proveedor sin credencial Staff entra con ingreso manual y motivo, autorizado por el supervisor.'},
+  {id:'A', name:'Acreditación', x:300,y:565,w:195,h:80, color:'#16A34A', roles:['STAFF'], sub:'Entrega de credenciales', who:'Mesa de entrega. Las delegaciones recogen sus credenciales el jueves; el público general que compró en línea muestra su celular.', scan:'El operador escanea cada credencial al entregarla y la marca como entregada. Aquí también se re-emiten las perdidas.', wrong:'Quien no esté en la lista no recibe credencial. La inscripción cerró en T-14.'},
+  {id:'E', name:'Enfermería', x:515,y:565,w:180,h:80, color:'#16A34A', roles:['MED','STAFF'], sub:'Atención médica', who:'Médico y paramédicos. Cualquier persona lesionada entra acompañada.', scan:'Sin scanner: acceso libre por emergencia. El rol Médico tiene todas las zonas para llegar a cualquier punto rápido.', wrong:'Nada que negar aquí. Lo que importa es que el médico pueda entrar a Tatamis sin que nadie lo frene.'}
+];
+var DOORS = [
+  {n:1, name:'Entrada principal · público', x:398,y:660, side:'b', zone:'A', kind:'both', roles:['GEN','VIP','SPON','PRESS','MED','STAFF'], who:'Público general con credencial digital o impresa, patrocinadores y prensa que llegan por la fachada.', what:'Entrada y salida. Dos scanners en la mañana del día 1 (pico de 8:00 a 9:00), uno el resto del día.', wrong:'Credencial de otro evento o fotocopia sin foto: rojo. Código digital vencido (pantallazo): rojo "este código ya venció".'},
+  {n:2, name:'Entrada de delegaciones', x:40,y:312, side:'l', zone:'W', kind:'both', roles:['COMP','COACH','JUR','MED','STAFF'], who:'Competidores, coaches y jurado con credencial física recogida en acreditación.', what:'Entrada y salida. Es donde se compara la foto con más cuidado, porque desde aquí se llega a Tatamis.', wrong:'Un padre con credencial General ve rojo: "no vale para Calentamiento. Puede ir a Gradería".'},
+  {n:3, name:'Calentamiento → Tatamis', x:287,y:312, side:'i', zone:'T', kind:'both', roles:['COMP','COACH','JUR','MED','STAFF'], who:'Competidores llamados a combate con su coach, y árbitros.', what:'Entrada y salida. Anti-passback activo: quien entró y no salió no puede volver a entrar.', wrong:'Público: rojo. Competidor que ya está dentro: rojo "ya entró a Tatamis a las 9:14". Credencial anulada: rojo.'},
+  {n:4, name:'Puerta de pesaje', x:167,y:437, side:'i', zone:'P', kind:'in', roles:['COMP','COACH','JUR','MED','STAFF'], who:'Competidores en su turno de pesaje, de 7:00 a 8:45.', what:'Solo entrada. Horario restringido por regla de rol.', wrong:'Fuera de horario: rojo con el horario. Público: rojo.'},
+  {n:5, name:'Acceso VIP · palco', x:792,y:50, side:'t', zone:'V', kind:'both', roles:['VIP','STAFF','MED'], who:'Invitados y autoridades. Suelen llegar en grupo y a horas fijas.', what:'Entrada y salida. Scanner atendido por staff de protocolo.', wrong:'General o patrocinador sin credencial VIP: rojo "no vale para Palco".'},
+  {n:6, name:'Prensa', x:960,y:372, side:'r', zone:'M', kind:'both', roles:['PRESS','STAFF'], who:'Medios acreditados con antelación.', what:'Entrada y salida. Desde la zona de prensa pasan al borde de Tatamis con restricción.', wrong:'Prensa no acreditada: "no reconozco esta credencial". Se la envía a acreditación, donde solo entra si la organización la aprueba ese día.'},
+  {n:7, name:'Salida de emergencia', x:40,y:122, side:'l', zone:'G', kind:'out', roles:['GEN','COMP','COACH','JUR','VIP','SPON','PRESS','MED','STAFF'], who:'Nadie en operación normal. Todo el mundo en una evacuación.', what:'Solo salida. Cerrada con barra antipánico; en evacuación el staff registra salidas a mano o con el scanner de reserva para saber quién falta.', wrong:'Si alguien la usa para salir a fumar y vuelve por Puerta 1, su credencial queda "dentro" y verá rojo: el supervisor lo resuelve con una salida manual.'},
+  {n:8, name:'Carga · patrocinadores', x:835,y:660, side:'b', zone:'H', kind:'both', roles:['SPON','STAFF','MED'], who:'Patrocinadores con material, proveedores de catering, staff de montaje.', what:'Entrada y salida. Muchos ingresos manuales con motivo (proveedores sin credencial) autorizados por el supervisor.', wrong:'Un General que intenta "entrar por atrás": rojo. Un proveedor sin credencial: ingreso manual con motivo y documento, nunca sin registro.'}
+];
+var ROUTES = [
+  {id:'comp', label:'un competidor', role:'COMP', steps:[['P2','Entra por Delegaciones a Calentamiento'],['P4','Pesaje a las 7:20'],['W','Vuelve a Calentamiento y espera su llamado'],['P3','Entra a Tatamis para su combate'],['P3','Sale de Tatamis al terminar'],['P2','Almuerzo fuera y re-ingreso por la tarde']], path:[[0,312],[120,312],[167,380],[167,437],[167,500],[167,437],[167,340],[287,312],[450,312],[287,330],[150,330],[0,330]]},
+  {id:'coach', label:'un coach', role:'COACH', steps:[['P2','Entra con su delegación'],['P4','Acompaña al pesaje'],['P3','Entra a Tatamis con cada competidor llamado'],['P3','Sale y vuelve a entrar con el siguiente'],['P2','Sale al final del día']], path:[[0,312],[130,312],[167,437],[167,470],[167,400],[287,312],[420,312],[287,300],[200,300],[287,312],[400,330],[287,340],[0,340]]},
+  {id:'gen', label:'un espectador', role:'GEN', steps:[['P1','Entra por la fachada con su credencial digital'],['A','Pasa por el hall de acreditación'],['S','Recorre los stands'],['G','Sube a Gradería'],['P1','Sale a almorzar y vuelve a entrar']], path:[[398,690],[398,605],[398,500],[712,500],[712,190],[600,120],[300,120],[600,120],[712,190],[712,500],[398,500],[398,690]]},
+  {id:'jur', label:'un juez', role:'JUR', steps:[['P2','Entra por Delegaciones'],['P4','Pesaje: pesa a los competidores'],['P3','Entra a Tatamis'],['J','Sala de jueces entre combates'],['P3','Sale al cierre']], path:[[0,312],[140,312],[167,437],[167,480],[167,400],[287,312],[500,250],[730,250],[830,250],[730,260],[500,312],[287,312],[0,312]]},
+  {id:'spon', label:'un patrocinador', role:'SPON', steps:[['P8','Entra por carga con su material'],['H','Hospitalidad: monta y desayuna'],['S','Atiende su stand'],['G','Ve las finales desde Gradería'],['P8','Sale al final']], path:[[835,690],[835,560],[835,500],[712,500],[450,500],[712,500],[712,190],[500,120],[712,190],[712,500],[835,560],[835,690]]}
+];
+function buildMap(){
+  var s='<svg viewBox="0 0 1000 700" role="img" aria-label="Plano esquemático del coliseo con zonas y 8 puertas">';
+  s+='<rect class="out" x="0" y="0" width="1000" height="700" rx="18"/>';
+  s+='<text class="lbl" x="60" y="36">Exterior · plaza y parqueadero</text>';
+  s+='<text class="lbl" x="60" y="690">Fachada · avenida principal</text>';
+  s+='<rect class="wall" x="40" y="50" width="920" height="610" rx="14"/>';
+  ZONES.forEach(function(z){
+    s+='<g class="z" data-z="'+z.id+'" style="--zc:'+z.color+'" tabindex="0" role="button" aria-label="Zona '+z.name+'"><rect x="'+z.x+'" y="'+z.y+'" width="'+z.w+'" height="'+z.h+'"/>';
+    s+='<text class="zc" x="'+(z.x+12)+'" y="'+(z.y+20)+'">'+z.id+'</text><text class="zl" x="'+(z.x+12)+'" y="'+(z.y+40)+'">'+z.name+'</text><text class="zs" x="'+(z.x+12)+'" y="'+(z.y+56)+'">'+z.sub+'</text></g>';
+  });
+  // tatamis dibujados
+  [[330,240],[470,240],[610,240],[330,330],[470,330],[610,330]].forEach(function(p){ s+='<rect x="'+p[0]+'" y="'+p[1]+'" width="60" height="60" rx="3" fill="none" stroke="#E0323B" stroke-opacity=".35" stroke-width="1.5"/><rect x="'+(p[0]+15)+'" y="'+(p[1]+15)+'" width="30" height="30" rx="2" fill="#1C4FD1" fill-opacity=".12"/>'; });
+  s+='<path id="route" class="route" d=""/><circle id="walker" class="walker" r="9"/>';
+  DOORS.forEach(function(d){
+    var tx=d.x, ty=d.y+26; if(d.side==='t') ty=d.y-18; if(d.side==='l'){ tx=d.x+6; ty=d.y+30; } if(d.side==='r'){ tx=d.x-6; ty=d.y+30; }
+    s+='<g class="d" data-d="'+d.n+'" tabindex="0" role="button" aria-label="Puerta '+d.n+': '+d.name+'"><circle cx="'+d.x+'" cy="'+d.y+'" r="18"/><text x="'+d.x+'" y="'+d.y+'">'+d.n+'</text><text class="tag" x="'+tx+'" y="'+ty+'">'+(d.kind==='in'?'entrada':d.kind==='out'?'salida':'entrada + salida')+'</text></g>';
+  });
+  s+='</svg>';
+  $('map-box').innerHTML=s;
+}
+buildMap();
+var mapBox=$('map-box'), info=$('info');
+function modeHtml(kind){ var t={in:'Solo entrada',out:'Solo salida',both:'Entrada y salida',none:'Sin scanner'}[kind]; return '<span class="mode '+kind+'"><i></i>'+t+'</span>'; }
+function showZone(id){
+  var z=ZONES.filter(function(x){return x.id===id;})[0]; if(!z) return;
+  var doors=DOORS.filter(function(d){ return d.zone===z.id; });
+  info.innerHTML='<div class="card" style="--kc:'+z.color+'"><div class="kicker"><span class="pin">'+z.id+'</span><div><b>'+z.name+'</b><small>Zona · '+z.sub+'</small></div></div>'+
+    '<dl><div><dt>Quién está aquí</dt><dd>'+z.who+'</dd></div><div><dt>Roles con acceso</dt><dd>'+chips(z.roles)+'</dd></div><div><dt>Qué hace el scanner</dt><dd>'+(doors.length?modeHtml(doors[0].kind)+' ':modeHtml('none')+' ')+z.scan+'</dd></div><div><dt>Si alguien no debería estar aquí</dt><dd>'+z.wrong+'</dd></div></dl></div>';
+  mark('z', id);
+}
+function showDoor(n){
+  var d=DOORS.filter(function(x){return x.n===n;})[0]; if(!d) return;
+  info.innerHTML='<div class="card" style="--kc:var(--blue)"><div class="kicker"><span class="pin">'+d.n+'</span><div><b>'+d.name+'</b><small>Puerta · da a '+ZONES.filter(function(z){return z.id===d.zone;})[0].name+'</small></div></div>'+
+    '<dl><div><dt>Quién pasa por aquí</dt><dd>'+d.who+'</dd></div><div><dt>Roles con acceso</dt><dd>'+chips(d.roles)+'</dd></div><div><dt>Qué hace el scanner</dt><dd>'+modeHtml(d.kind)+' '+d.what+'</dd></div><div><dt>Si alguien no debería pasar</dt><dd>'+d.wrong+'</dd></div></dl></div>';
+  mark('d', n);
+}
+function mark(type, id){
+  mapBox.querySelectorAll('.z,.d').forEach(function(el){ el.classList.remove('on'); });
+  var el = type==='z' ? mapBox.querySelector('.z[data-z="'+id+'"]') : mapBox.querySelector('.d[data-d="'+id+'"]');
+  if(el) el.classList.add('on');
+}
+var hoverT=null;
+function onPick(e){
+  var g=e.target.closest('.z,.d'); if(!g) return;
+  if(g.dataset.z) showZone(g.dataset.z); else showDoor(parseInt(g.dataset.d,10));
+}
+mapBox.addEventListener('click', onPick);
+mapBox.addEventListener('mouseover', function(e){ var g=e.target.closest('.z,.d'); if(!g||window.matchMedia('(hover: none)').matches) return; clearTimeout(hoverT); hoverT=setTimeout(function(){ onPick(e); }, 80); });
+mapBox.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onPick(e); } });
+
+// recorridos
+var routesBox=$('routes'), routeAnim=null, activeRoute=null;
+ROUTES.forEach(function(r){
+  var b=document.createElement('button'); b.type='button'; b.className='btn btn-secondary'; b.setAttribute('aria-pressed','false'); b.style.setProperty('--rc','var('+ROLES[r.role][1]+')');
+  b.innerHTML='<span class="sw"></span>Ver el flujo de '+r.label; b.dataset.r=r.id;
+  b.addEventListener('click', function(){ if(activeRoute===r.id) clearRoute(); else playRoute(r); });
+  routesBox.appendChild(b);
+});
+function clearRoute(){
+  activeRoute=null; if(routeAnim) cancelAnimationFrame(routeAnim);
+  mapBox.querySelectorAll('.lit').forEach(function(el){ el.classList.remove('lit'); });
+  $('route').classList.remove('on'); $('walker').classList.remove('on');
+  routesBox.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+  showZone('T');
+}
+function playRoute(r){
+  if(routeAnim) cancelAnimationFrame(routeAnim);
+  activeRoute=r.id;
+  routesBox.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.r===r.id?'true':'false'); });
+  mapBox.querySelectorAll('.lit,.on').forEach(function(el){ el.classList.remove('lit'); el.classList.remove('on'); });
+  mapBox.style.setProperty('--rc','var('+ROLES[r.role][1]+')');
+  var path=$('route'), walker=$('walker');
+  path.setAttribute('d', r.path.map(function(p,i){ return (i?'L':'M')+p[0]+' '+p[1]; }).join(' '));
+  path.classList.add('on'); walker.classList.add('on');
+  info.innerHTML='<div class="card" style="--kc:var('+ROLES[r.role][1]+')"><div class="kicker"><span class="pin">→</span><div><b>Recorrido típico de '+r.label+'</b><small>Rol: '+ROLES[r.role][0]+'</small></div></div><div class="route-steps" id="rsteps">'+r.steps.map(function(s,i){ return '<div data-k="'+i+'"><i>'+s[0]+'</i><span>'+s[1]+'</span></div>'; }).join('')+'</div><p class="small muted">Cada paso es un escaneo: entrada o salida en esa puerta.</p></div>';
+  var keys=r.steps.map(function(s){return s[0];});
+  function lit(k){
+    var key=keys[k]; if(!key) return;
+    var el = key.charAt(0)==='P' && key.length<=2 ? mapBox.querySelector('.d[data-d="'+key.slice(1)+'"]') : mapBox.querySelector('.z[data-z="'+key+'"]');
+    if(el) el.classList.add('lit');
+    var rs=$('rsteps'); if(rs) rs.querySelectorAll('div').forEach(function(d,i){ d.classList.toggle('on', i===k); });
+  }
+  if(REDUCED){ keys.forEach(function(_,k){ lit(k); }); walker.setAttribute('cx', r.path[0][0]); walker.setAttribute('cy', r.path[0][1]); return; }
+  var total=path.getTotalLength(), dur=9000, t0=null, lastStep=-1;
+  function frame(ts){
+    if(!t0) t0=ts; var p=Math.min(1,(ts-t0)/dur); var pt=path.getPointAtLength(p*total);
+    walker.setAttribute('cx',pt.x); walker.setAttribute('cy',pt.y);
+    var k=Math.min(keys.length-1, Math.floor(p*keys.length)); if(k!==lastStep){ lastStep=k; lit(k); }
+    if(p<1) routeAnim=requestAnimationFrame(frame); else { routeAnim=null; }
+  }
+  routeAnim=requestAnimationFrame(frame);
+}
+showZone('T');
+window.__routes=ROUTES.map(function(r){return r.id;});
+
+// ---------- línea de tiempo ----------
+var TL = [
+  {when:'T-30', date:'21 oct', title:'Abren las inscripciones', what:'La federación publica el enlace. Cada academia inscribe a su gente: Academia Caucana de Taekwondo (Popayán), Academia Internacional de Taekwondo ITF (Cali), Academia ITF Bogotá…', tp:'Formulario en línea con cupos por rol y categoría, edad calculada al 20 de noviembre y consentimiento de acudiente para menores.', why:'Sin cupos ni edad validada, el día del evento aparecen categorías sobrevendidas y menores sin autorización.', who:['insc','coord']},
+  {when:'T-14', date:'6 nov', title:'Cierre e importación de SportData', what:'SportData arma las llaves. La lista final de competidores sale como CSV.', tp:'Importación guiada: mapeo de columnas, vista previa, cero duplicados. Reimportar actualiza, no repite.', why:'Dos listas distintas (SportData y acreditación) son la fuente clásica de "yo sí estoy inscrito, mire".', who:['coord']},
+  {when:'T-7', date:'13 nov', title:'Simulacro', what:'La organización monta un host de prueba, 3 scanners y 50 credenciales de ejemplo. Se simula corte de red y de luz.', tp:'Script de carga: 2.000 credenciales, 8 puertas, pico de ingreso y promoción del equipo de respaldo.', why:'Lo que no se prueba 7 días antes se descubre el día 1 a las 8:00 con 600 personas en la fila.', who:['sup','admin']},
+  {when:'T-2', date:'18 nov', title:'Impresión de credenciales', what:'El Coordinador aprueba las últimas inscripciones y emite. El operador imprime por lotes y por delegación.', tp:'Cada QR se firma con la clave del evento. PDF a 100 × 150 mm con foto, zonas, ID corto y versión.', why:'Una credencial sin firma se fotocopia; una sin foto se presta. Las dos cosas juntas cierran la puerta al colado.', who:['coord','oper']},
+  {when:'T-1', date:'19 nov', title:'Montaje en el coliseo', what:'Se instala el computador central y el equipo de respaldo, Wi-Fi dedicada con repetidores, UPS, y se enrolan los 8 scanners más 2 de reserva. Las delegaciones recogen sus credenciales.', tp:'Enrolamiento por QR y PIN; cada scanner descarga la base completa. Se imprime la lista de respaldo por puerta (ID, nombre, foto miniatura).', why:'Un scanner enrolado el día 1 a las 6:30 es un scanner que falla a las 8:00. Y si todo se cae, la lista impresa es el plan C.', who:['sup','ctrl','oper']},
+  {when:'Día 1', date:'vie 20 nov', day:true, title:'Pesaje, apertura y primer pico', hours:[['6:30','Apertura para staff. Scanners encendidos, PIN, zona.'],['7:00','Pesaje por Puerta 4. Solo competidores con su coach.'],['8:00','Abre al público por Puerta 1. Dos scanners.'],['8:15','Pico: 25 personas/min. Fila bajo 5 min.',true],['9:00','Inicio de combates. Puerta 3 en modo estricto.'],['12:30','Almuerzo: salidas y re-ingresos por Puertas 1 y 2.'],['18:00','Cierre. Conteo: entradas, salidas, quién sigue dentro.']], tp:'Validación sin red en cada scanner; anti-passback en Tatamis; contador de "dentro ahora" por zona en el panel.', why:'El pico de la mañana es donde se decide si el evento se siente ordenado o caótico.', who:['ctrl','sup']},
+  {when:'Día 2', date:'sáb 21 nov', day:true, title:'Día de mayor afluencia', hours:[['7:00','Pesaje de categorías del día.'],['8:00','Apertura. Más público que el viernes.'],['10:00','Primera alerta real: credencial en dos puertas. Supervisor resuelve en 4 min.'],['14:00','Se cae el Wi-Fi 20 min. Nadie se entera en las puertas.'],['18:30','Cierre y conteo.']], tp:'Alertas de duplicado en tiempo real; modo sin conexión con pendientes que se envían al volver; copias cada 5 min.', why:'Los problemas del día 2 son los que se vieron en el simulacro. Por eso no son problemas.', who:['sup','ctrl','sys']},
+  {when:'Día 3', date:'dom 22 nov', day:true, title:'Finales, premiación y salida masiva', hours:[['9:00','Finales. Prensa en el borde de Tatamis.'],['15:00','Premiación. VIP en palco; público lleno.'],['16:30','Salida masiva: 1.500 personas en 25 min por Puertas 1, 7 y 8.'],['17:30','Cierre del evento. Turnos cerrados, scanners entregados.']], tp:'Las salidas se registran para dejar el conteo en cero. Cada control cierra turno con su resumen.', why:'Terminar con "dentro ahora: 0" es la prueba de que las cuentas cuadran.', who:['ctrl','sup']},
+  {when:'T+1', date:'23 nov', title:'Reportes y exportes', what:'La federación pide cifras: asistencia por día, por zona, por delegación, incidencias.', tp:'Reportes desde el registro de escaneos; cadena de auditoría verificada; exportes con contraseña.', why:'Cifras que salen de los escaneos y no de estimaciones. Y un registro que se puede verificar si alguien reclama.', who:['aud','coord']},
+  {when:'T+90', date:'20 feb 2027', title:'Purga de datos personales', what:'Vence el plazo de retención. Nombres, documentos, fotos y fechas de nacimiento se borran de forma definitiva.', tp:'Purga automática con confirmación del Administrador. Los conteos y reportes se conservan sin datos personales.', why:'Ley 1581 de 2012: los datos se guardan solo el tiempo necesario. Guardar de más es un riesgo, no un activo.', who:['admin']}
+];
+$('tl').innerHTML = TL.map(function(m){
+  return '<article class="ms'+(m.day?' day':'')+'"><div class="when">'+m.when+'<span>'+m.date+'</span></div><h4>'+m.title+'</h4>'+
+    (m.what?'<div class="blk"><b>Qué pasa</b><span>'+m.what+'</span></div>':'')+
+    (m.hours?'<div class="hours">'+m.hours.map(function(h){ return '<div class="'+(h[2]?'peak':'')+'"><span>'+h[0]+'</span><span>'+h[1]+'</span></div>'; }).join('')+'</div>':'')+
+    '<div class="blk tp"><b>Tatami Pass</b><span>'+m.tp+'</span></div><div class="blk"><b>Por qué</b><span>'+m.why+'</span></div><div class="chips">'+m.who.map(who).join('')+'</div></article>';
+}).join('');
+$('tl-prev').addEventListener('click', function(){ $('tl-scroll').scrollBy({left:-640,behavior:'smooth'}); });
+$('tl-next').addEventListener('click', function(){ $('tl-scroll').scrollBy({left:640,behavior:'smooth'}); });
+
+// ---------- mini animaciones (SVG + SMIL, con estado final visible si hay reduced motion) ----------
+function person(x,y,color){ return '<g transform="translate('+x+','+y+')"><circle r="7" cy="-10" fill="'+color+'"/><path d="M-9 12a9 9 0 0 1 18 0z" fill="'+color+'"/></g>'; }
+function doorSvg(x, label){ return '<rect x="'+(x-3)+'" y="30" width="6" height="90" rx="2" fill="var(--map-wall)" opacity=".85"/><text x="'+x+'" y="22" text-anchor="middle" font-size="10" font-weight="700" fill="var(--muted)">'+label+'</text>'; }
+function badge(x,y,kind,text){ var c={ok:'#16A34A',no:'#E0323B',warn:'#F59E0B'}[kind]; return '<g><rect x="'+(x-46)+'" y="'+(y-14)+'" width="92" height="28" rx="8" fill="'+c+'"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="11" font-weight="700" fill="'+(kind==='warn'?'#0F172A':'#fff')+'">'+text+'</text></g>'; }
+var AN = !REDUCED;
+$('anim-a').innerHTML='<svg viewBox="0 0 320 150">'+doorSvg(160,'Puerta 1')+'<text x="60" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">fuera</text><text x="260" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">Gradería</text>'+
+  '<g>'+person(0,0,'#64748B')+(AN?'<animateTransform attributeName="transform" type="translate" values="40,80;150,80;150,80;270,80;270,80" keyTimes="0;.35;.55;.85;1" dur="4s" repeatCount="indefinite"/>':'<animateTransform attributeName="transform" type="translate" values="270,80"/>')+'</g>'+
+  '<g>'+badge(160,56,'ok','✓ Adelante')+(AN?'<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.35;.42;.85;1" dur="4s" repeatCount="indefinite"/>':'')+'</g></svg>';
+$('anim-b').innerHTML='<svg viewBox="0 0 320 150">'+doorSvg(160,'Puerta 1 · entrada + salida')+'<text x="60" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">fuera</text><text x="260" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">dentro</text>'+
+  '<g>'+person(0,0,'#1C4FD1')+(AN?'<animateTransform attributeName="transform" type="translate" values="40,80;270,80;270,80;40,80;40,80;270,80;270,80" keyTimes="0;.2;.35;.55;.65;.85;1" dur="8s" repeatCount="indefinite"/>':'<animateTransform attributeName="transform" type="translate" values="270,80"/>')+'</g>'+
+  '<g>'+badge(160,56,'ok','✓ 9:14 entra')+(AN?'<animate attributeName="opacity" values="0;1;1;0;0;0;0" keyTimes="0;.1;.3;.36;.5;.9;1" dur="8s" repeatCount="indefinite"/>':'<animate attributeName="opacity" values="0"/>')+'</g>'+
+  '<g>'+badge(160,56,'ok','← 12:30 sale')+(AN?'<animate attributeName="opacity" values="0;0;0;1;1;0;0" keyTimes="0;.36;.4;.46;.62;.7;1" dur="8s" repeatCount="indefinite"/>':'<animate attributeName="opacity" values="0"/>')+'</g>'+
+  '<g>'+badge(160,56,'ok','✓ 13:40 vuelve')+(AN?'<animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;.7;.78;.86;1" dur="8s" repeatCount="indefinite"/>':'')+'</g></svg>';
+$('anim-c').innerHTML='<svg viewBox="0 0 320 150">'+doorSvg(160,'Puerta 3 · Calentamiento → Tatamis')+'<text x="60" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">Calentamiento</text><text x="260" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">Tatamis</text>'+
+  '<g>'+person(0,0,'#1C4FD1')+(AN?'<animateTransform attributeName="transform" type="translate" values="40,70;150,70;150,70;260,70;260,70" keyTimes="0;.3;.45;.7;1" dur="6s" repeatCount="indefinite"/>':'<animateTransform attributeName="transform" type="translate" values="260,70"/>')+'</g>'+
+  '<g>'+person(0,0,'#0F2A6B')+(AN?'<animateTransform attributeName="transform" type="translate" values="20,95;130,95;130,95;240,95;240,95" keyTimes="0;.3;.5;.75;1" dur="6s" repeatCount="indefinite"/>':'<animateTransform attributeName="transform" type="translate" values="240,95"/>')+'</g>'+
+  '<g>'+person(0,0,'#64748B')+(AN?'<animateTransform attributeName="transform" type="translate" values="40,120;130,100;130,100;130,100;60,120" keyTimes="0;.5;.6;.85;1" dur="6s" repeatCount="indefinite"/>':'<animateTransform attributeName="transform" type="translate" values="110,100"/>')+'</g>'+
+  '<g>'+badge(160,50,'ok','✓ Competidor + coach')+(AN?'<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.3;.37;.6;.66;1" dur="6s" repeatCount="indefinite"/>':'')+'</g>'+
+  '<g>'+badge(160,50,'no','✕ No vale para Tatamis')+(AN?'<animate attributeName="opacity" values="0;0;0;1;1;0" keyTimes="0;.6;.66;.72;.92;1" dur="6s" repeatCount="indefinite"/>':'<animate attributeName="opacity" values="0"/>')+'</g></svg>';
+
+// ---------- contador "dentro ahora" ----------
+var ZC=[['G','Gradería','#64748B'],['T','Tatamis','#E0323B'],['W','Calentamiento','#1C4FD1'],['P','Pesaje','#0F2A6B'],['V','Palco VIP','#6D28D9'],['H','Hospitalidad','#D4A72C']];
+// perfil del día 1, por hora (8:00 → 18:00), valores "dentro ahora"
+var DAY=[
+  [7.0,[0,0,60,45,0,0]],[7.5,[0,0,140,38,0,4]],[8.0,[120,0,210,20,0,6]],[8.5,[520,0,260,0,8,10]],[9.0,[812,64,120,0,22,12]],[10,[960,72,150,0,24,14]],[11,[1010,70,140,0,26,16]],[12,[990,66,120,0,20,18]],[12.5,[640,20,80,0,6,30]],[13,[480,8,70,0,2,36]],[13.5,[700,40,130,0,14,22]],[14,[930,68,150,0,24,16]],[15,[1040,72,140,0,28,14]],[16,[980,70,110,0,26,12]],[17,[720,48,60,0,18,10]],[17.5,[380,16,20,0,8,6]],[18,[40,0,0,0,0,2]],[18.3,[0,0,0,0,0,0]]
+];
+var ck={t:7.0, playing:false, raf:null, last:null};
+function lerpDay(t){
+  if(t<=DAY[0][0]) return DAY[0][1]; if(t>=DAY[DAY.length-1][0]) return DAY[DAY.length-1][1];
+  for(var i=0;i<DAY.length-1;i++){ var a=DAY[i], b=DAY[i+1]; if(t>=a[0]&&t<=b[0]){ var f=(t-a[0])/(b[0]-a[0]); return a[1].map(function(v,k){ return Math.round(v+(b[1][k]-v)*f); }); } }
+  return DAY[0][1];
+}
+var prevVals=null;
+function renderCk(){
+  var vals=lerpDay(ck.t), hh=Math.floor(ck.t), mm=Math.round((ck.t-hh)*60); if(mm===60){hh++;mm=0;}
+  $('ck-time').textContent=hh+':'+(mm<10?'0':'')+mm;
+  $('ck-bar').style.width=((ck.t-7)/(18.3-7)*100)+'%';
+  $('zcount').innerHTML=ZC.map(function(z,i){ var d=prevVals?vals[i]-prevVals[i]:0; return '<div style="--zc:'+z[2]+'"><span>'+z[1]+'</span><b class="'+(d>0?'up':d<0?'down':'')+'">'+vals[i].toLocaleString('es-CO')+'</b><small>'+(d>0?'+'+d+' entrando':d<0?d+' saliendo':'estable')+'</small></div>'; }).join('');
+  prevVals=vals;
+  var note = ck.t<8 ? 'Pesaje abierto. Solo competidores y coaches dentro.' : ck.t<9 ? 'Abrió el público. Pico de ingreso por Puerta 1: 25 personas por minuto.' : ck.t<12.3 ? 'Combates en curso. En Tatamis solo hay quien compite, dirige o arbitra.' : ck.t<13.5 ? 'Almuerzo: salidas registradas. Quien sale puede volver a entrar sin que el anti-passback lo frene.' : ck.t<17 ? 'Tarde de combates. El supervisor ve el conteo en vivo sin contar a nadie.' : ck.t<18.2 ? 'Cierre: las salidas dejan el conteo en cero.' : 'Día cerrado. Dentro ahora: 0. Las cuentas cuadran.';
+  $('ck-note').textContent=note;
+}
+function ckFrame(ts){
+  if(!ck.last) ck.last=ts; var dt=(ts-ck.last)/1000; ck.last=ts;
+  ck.t+= dt*(11.3/24); // 24 s para todo el día
+  if(ck.t>=18.3){ ck.t=18.3; renderCk(); ckStop(); return; }
+  renderCk(); ck.raf=requestAnimationFrame(ckFrame);
+}
+function ckStop(){ ck.playing=false; if(ck.raf) cancelAnimationFrame(ck.raf); ck.raf=null; ck.last=null; $('ck-play-txt').textContent= ck.t>=18.3 ? 'Ver de nuevo' : 'Reproducir el día'; }
+$('ck-play').addEventListener('click', function(){
+  if(ck.playing){ ckStop(); return; }
+  if(ck.t>=18.3) ck.t=7.0;
+  if(REDUCED){ ck.t=9.0; renderCk(); return; }
+  ck.playing=true; $('ck-play-txt').textContent='Pausar'; ck.raf=requestAnimationFrame(ckFrame);
+});
+$('ck-reset').addEventListener('click', function(){ ckStop(); ck.t=7.0; prevVals=null; renderCk(); $('ck-play-txt').textContent='Reproducir el día'; });
+ck.t=9.0; renderCk(); prevVals=null; $('ck-note').textContent='Dentro ahora, por zona, a las 9:00 del día 1. Cada número sale de entradas menos salidas registradas por los scanners de esa zona. Pulsa Reproducir para ver el día completo.';
+
+// ---------- panel del supervisor (mismo renderer que la demo, reducido) ----------
+function pill(k,t){ return '<span class="tag '+k+'">'+t+'</span>'; }
+function spark(a){ var m=Math.max.apply(null,a)||1; return '<span class="spark">'+a.map(function(v){return '<i style="height:'+Math.max(3,Math.round(v/m*20))+'px"></i>';}).join('')+'</span>'; }
+(function renderPanel(){
+  var nav=[['Inscripciones'],['Credenciales'],['Impresión'],['Dispositivos',true],['Alertas','1'],['Auditoría'],['Reportes'],['Salud del sistema']];
+  var sb='<div class="brand"><span class="mark"></span>Tatami Pass</div>'+nav.map(function(n){ return '<span class="'+(n[1]===true?'on':'')+'">'+n[0]+(typeof n[1]==='string'?'<span class="bdg">'+n[1]+'</span>':'')+'</span>'; }).join('')+'<div class="st"><b>Host principal · Coliseo</b><br>8 dispositivos conectados · 12 pendientes<br>Último backup hace 3 min</div>';
+  var doors=[
+    ['Puerta 1 · Público','Gradería',[9,14,22,25,19,12,8],'12','742','0','ok','Fila 3 min',''],
+    ['Puerta 2 · Delegaciones','Calentamiento',[6,8,5,4,3,2,3],'3','188','0','ok','OK',''],
+    ['Puerta 3 · W→T','Tatamis',[0,0,2,4,5,4,4],'4','214','12','warn','12 pendientes · sin red 2 min','hl'],
+    ['Puerta 4 · Pesaje','Pesaje',[7,9,6,2,0,0,0],'0','93','0','off','Cerrada desde 8:45',''],
+    ['Puerta 5 · VIP','Palco',[0,1,3,2,1,1,1],'1','24','0','ok','OK',''],
+    ['Puerta 6 · Prensa','Prensa',[0,1,0,1,1,0,1],'1','14','0','ok','OK',''],
+    ['Puerta 8 · Carga','Hospitalidad',[3,2,1,1,0,1,1],'1','31','0','ok','4 manuales con motivo','']
+  ];
+  var rows=doors.map(function(d){ return '<tr class="'+d[8]+'"><td><span class="door"><i class="'+(d[6]==='ok'?'':d[6])+'"></i>'+d[0]+'</span></td><td>'+d[1]+'</td><td>'+spark(d[2])+'<b>'+d[3]+'</b></td><td>'+d[4]+'</td><td>'+(d[5]!=='0'?pill('warn',d[5]):'0')+'</td><td>'+pill(d[6],d[7])+'</td></tr>'; }).join('');
+  var main='<div class="hd"><h3>Dispositivos</h3><span class="live"><i></i>9:40 · dentro ahora: 1.064</span></div>'+
+    '<div class="kpis"><div class="kpi"><span>Ingresos / min</span><b>22</b><small>Puerta 1 lleva el pico</small></div><div class="kpi warn"><span>Pendientes</span><b>12</b><small>Puerta 3 · sin red 2 min</small></div><div class="kpi bad"><span>Alertas</span><b>1</b><small>credencial en 2 puertas</small></div><div class="kpi ok"><span>UPS · backup</span><b>100 %</b><small>última copia hace 3 min</small></div></div>'+
+    '<div class="two"><div class="tbl"><table><thead><tr><th>Puerta</th><th>Zona</th><th>Ritmo / min</th><th>Hoy</th><th>Pendientes</th><th>Estado</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<div style="display:grid;gap:10px"><div class="scard"><h4>Alertas</h4><div class="alert-item bad"><i>!</i><span><b>TP-2026-00071-M</b> · Camilo Ortiz · Puerta 1 10:02 y Puerta 4 10:03. Posible copia.</span></div><div class="alert-item"><i>!</i><span>Puerta 1: fila estimada 3 min. Umbral para abrir Puerta 7 como entrada: 5 min.</span></div></div>'+
+    '<div class="scard"><h4>Energía y copias</h4><div class="ups"><div class="lbl"><span>UPS</span><b>100 %</b></div><div class="bar"><i style="width:100%"></i></div><div class="lbl"><span>Autonomía</span><span>45 min</span></div></div><div class="line-item"><span>Equipo de respaldo</span><span class="ok">al día</span></div><div class="line-item"><span>Copia en USB</span><span class="ok">hace 3 min</span></div></div></div></div>';
+  $('panel-body').innerHTML='<div class="host"><div class="sb">'+sb+'</div><div class="main">'+main+'</div></div>';
+})();
+function fitAll(){ document.querySelectorAll('.fit').forEach(function(box){ var w=parseFloat(box.dataset.w), h=parseFloat(box.dataset.h), child=box.firstElementChild; if(!child) return; var s=Math.min(1,(box.clientWidth||w)/w); child.style.transform='scale('+s+')'; box.style.height=(h*s)+'px'; }); }
+window.addEventListener('resize', fitAll); fitAll(); setTimeout(fitAll,300); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitAll);
+
+// ---------- qué pasa si ----------
+var WHATIF = [
+  {q:'Se cae internet', roles:[['ctrl','Sigue escaneando. Ve "Sin conexión · sigue escaneando" y un contador de pendientes. No cambia nada en la puerta.'],['sup','Ve en el panel qué scanners tienen pendientes. Revisa el router o el repetidor. No llama a nadie a "parar".'],['sys','Valida con lo que tiene en memoria; guarda cada escaneo con hora y orden; los envía solos al volver la red.']], screen:['info','○','Sin conexión · sigue escaneando. 37 pendientes por enviar.'], why:'Internet nunca fue necesario para validar. La nube solo sirve antes del evento. El host es local; y si tampoco está, el scanner se basta.'},
+  {q:'Se va la luz', roles:[['sup','Confirma por radio que la UPS tomó host y router. Si en 15 minutos no vuelve, promueve el portátil de respaldo.'],['ctrl','Nada. El celular tiene batería y power bank. Sigue escaneando.'],['oper','Verifica que la copia al USB cifrado siguió cada 5 minutos y que el portátil está al día.']], screen:['info','⚡','Sin energía · en UPS · 45 min. Copia hace 1 min.'], why:'Tres copias de todo (host, USB, respaldo) y 45 minutos de margen. El día no depende de un solo enchufe.'},
+  {q:'Un competidor perdió la credencial 10 minutos antes de competir', roles:[['coord','Busca por apellido en Credenciales, anula y re-emite en un paso. Imprime una sola credencial (30 segundos).'],['ctrl','Si llega al tatami antes que la credencial impresa: ingreso manual con ID corto y motivo "credencial sin imprimir todavía", con el documento en la mano.'],['sup','Autoriza el manual si el control tiene duda. Queda en auditoría.']], screen:['ok','✓','Adelante, Juan · Ingreso manual registrado · Credencial sin imprimir todavía.'], why:'La credencial vieja queda anulada en todas las puertas en menos de un minuto. El competidor compite. Nadie improvisa sin dejar registro.'},
+  {q:'Un coach quiere entrar a Tatamis sin credencial', roles:[['ctrl','No lo deja pasar y no discute: "Que vaya a la mesa de acreditación con su documento". Si insiste, llama al supervisor.'],['sup','Comprueba en el panel si el coach está inscrito. Si sí y falta su credencial: re-emisión. Si no: no entra. El cupo de coaches por academia ya se cerró en la inscripción.'],['coord','Re-emite o confirma que no existe inscripción.']], screen:['no','✕','No reconozco esta credencial · Que vaya a acreditación.'], why:'Quien decide no es la persona de la puerta ni el coach: es la lista de inscritos. Eso quita la presión del "déjame pasar, yo soy el coach".'},
+  {q:'Un padre quiere entrar a Calentamiento', roles:[['ctrl','Rojo con motivo: "no vale para Calentamiento. Puede ir a Gradería". Le indica dónde ver a su hijo.'],['sup','No interviene salvo escalada. No hay excepción para esto: Calentamiento es zona de competidores y coaches.'],['org','Lo comunica desde la inscripción: Gradería tiene vista a Calentamiento.']], screen:['no','✕','No puede entrar · Esta credencial no vale para Calentamiento. Puede ir a: Gradería.'], why:'El mensaje dice a dónde sí puede ir. Un "no" con alternativa se acepta; un "no" seco genera discusión.'},
+  {q:'Una credencial se ve en dos puertas', roles:[['ctrl','En la segunda puerta ve ámbar: "Revisa con el supervisor. Se usó en Puerta 1 hace 1 min". Pide que espere a un lado.'],['sup','Ve la alerta en el panel con las dos puertas y las horas. Compara documento y foto. Anula la credencial y re-emite para la persona real.'],['sys','Marca la v1 como anulada en todas las puertas; la v2 nace limpia.']], screen:['warn','!','Revisa con el supervisor · Esta credencial se usó en Puerta 1 hace 1 min.'], why:'Un QR fotocopiado es matemáticamente válido. Lo que lo delata es el tiempo, la foto y la versión. Las tres cosas juntas.'},
+  {q:'Llega prensa no acreditada', roles:[['ctrl','"No reconozco esta credencial" o, si no trae nada, le indica la mesa de acreditación. No la deja pasar "mientras tanto".'],['org','Decide si la acredita ese día. Si sí, el Coordinador crea la inscripción de Prensa y emite al momento.'],['coord','Emite y entrega. Si no hay cupo de prensa, no hay credencial.']], screen:['no','✕','No reconozco esta credencial · No está en mi lista. Puede ser muy reciente.'], why:'Prensa sin control termina en el borde del tatami. La zona M existe para que trabajen sin estorbar, y para eso tienen que estar acreditados.'},
+  {q:'Hay una evacuación', roles:[['sup','Da la orden por el canal Emergencia de Tatami Radio. Abre Puerta 7 y las de emergencia. Pide a cada control registrar salidas si puede, no detener a nadie.'],['ctrl','Prioridad: que la gente salga. Escanea salidas solo si no frena el flujo. Después, salida manual masiva por zona.'],['med','Sale con el botiquín hacia el punto de encuentro. Tiene acceso a todas las zonas para llegar a cualquier herido.'],['aud','Al terminar: "dentro ahora" por zona dice quién no ha salido. Esa lista va a bomberos.']], screen:['info','→','Dentro ahora · Tatamis 64 · Calentamiento 120 · Gradería 812'], why:'El conteo de "dentro ahora" existe para este momento. Sin salidas registradas, nadie sabe cuánta gente falta por salir.'},
+  {q:'Se necesita coordinar una evacuación', roles:[['sup','Mantiene pulsado el botón rojo Emergencia del scanner: entra al canal y pide la palabra en un gesto, e interrumpe cualquier otra conversación en todos los equipos. Dice una sola frase: "Evacuación. Todos por Puerta 7 y las de emergencia". Después envía desde el panel la orden "Evacuación" a todos y mira los acuses: quien no confirma en 30 segundos recibe llamada por radio física.'],['ctrl','Suena la sirena de dos tonos, vibra largo y el scanner salta solo al canal Emergencia: "Emergencia · Supervisor está hablando a todos". La orden llega leída en voz alta ("Emergencia. Evacuación"); toca Recibido y deja salir a todos sin escanear. No habla por Emergencia salvo para reportar un herido o una puerta bloqueada.'],['med','Oye la misma orden en su scanner. Responde por Emergencia solo si necesita ayuda en un punto: "Herido en Gradería norte".'],['sys','Un solo hablante a la vez también en Emergencia, con cola; 5 s después de que termine, cada equipo vuelve solo a su canal. Si el host cae en medio de la evacuación, los equipos ya conectados se siguen oyendo; los que no estaban en el canal usan las radios físicas. Queda registro de quién habló y de cada Recibido, sin grabar audio.']], screen:['no','!','Emergencia · Supervisor está hablando a todos · Orden: Evacuación · Recibido'], why:'En una evacuación nadie debe elegir canal ni esperar turno: Emergencia interrumpe todo y la orden escrita, leída en voz alta y confirmada, evita el "yo no oí". Las radios físicas cubren el hueco de los equipos que no estaban conectados.'}
+];
+$('acc').innerHTML = WHATIF.map(function(w,i){
+  return '<details'+(i===0?' open':'')+'><summary><span class="n">'+(i+1)+'</span><span>'+w.q+'</span><span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span></summary>'+
+    '<div class="ans">'+w.roles.map(function(r){ return '<div><b class="l">Qué hace</b>'+who(r[0])+'<span>'+r[1]+'</span></div>'; }).join('')+
+    '<div><b class="l">Qué muestra el sistema</b><div class="scr '+w.screen[0]+'"><i>'+w.screen[1]+'</i><span>'+w.screen[2]+'</span></div></div><div><b class="l">Por qué así</b><span>'+w.why+'</span></div></div></details>';
+}).join('');
+
+// ---------- antes vs con ----------
+var CMP = [
+  ['Filas en la entrada','Buscar el nombre en una lista impresa: 30 a 60 segundos por persona. Fila de 40 minutos en el pico.','Escaneo en menos de 1 segundo, sin red. 25 personas por minuto por puerta.'],
+  ['Colados y pulseras prestadas','La pulsera se pasa por debajo de la reja; la lista no tiene foto.','<span class="si">QR firmado</span> + foto en pantalla + anti-passback: una credencial, una persona, una entrada a la vez.'],
+  ['Credencial fotocopiada','Indistinguible. Nadie se entera.','Alerta cuando aparece en dos puertas; anulación y re-emisión con versión nueva en minutos.'],
+  ['Se cae internet o el Wi-Fi','Si el control era en línea, se para todo o se abre la puerta "mientras tanto".','<span class="si">No cambia nada</span> en las puertas. Los escaneos se envían después, en orden.'],
+  ['Se va la luz','Linternas y listas en papel. Lo registrado hasta ahí queda en cuadernos.','UPS 45 min, copias cada 5 min, equipo de respaldo con batería. Nada se pierde.'],
+  ['¿Cuánta gente hay dentro?','Estimación a ojo. En una emergencia, nadie sabe quién falta.','Conteo real por zona: entradas menos salidas. Lista de quién sigue dentro.'],
+  ['Padres en el área de calentamiento','Depende de cuánto insista y de quién esté en la puerta.','Rojo con alternativa: "Puede ir a Gradería". La regla la pone la credencial, no la persona de la puerta.'],
+  ['Reportes al final','Se cuentan pulseras sobrantes y se estima.','Cifras por día, zona y delegación salidas de los escaneos. Registro verificable.'],
+  ['Personal de puerta','Necesario.','<span class="no">Sigue siendo necesario.</span> Tatami Pass le dice qué pasa y qué hacer; no abre ni cierra puertas solo.','limit'],
+  ['Decisiones difíciles','Las toma quien está en la puerta.','<span class="no">Las sigue tomando una persona</span> (el supervisor), con mejor información. El sistema propone; no decide por ellos.','limit'],
+  ['Llaves, pesajes oficiales y resultados','SportData u hojas.','<span class="no">No los gestiona.</span> Solo recibe de SportData la lista de competidores para acreditarlos.','limit'],
+  ['Cobro de inscripciones','Transferencias y recibos.','<span class="no">No cobra.</span> Se marca "pagado" a mano o por importación.','limit']
+];
+$('cmp').querySelector('tbody').innerHTML = CMP.map(function(r){ return '<tr class="'+(r[3]||'')+'"><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>'; }).join('');
+
+// ---------- nav activa ----------
+var links=document.querySelectorAll('.nav-links a');
+var obs=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+en.target.id); }); } }); },{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section.block').forEach(function(s){ obs.observe(s); });
+
+window.TP_EVENTO={showZone:showZone, showDoor:showDoor, playRoute:function(id){ var r=ROUTES.filter(function(x){return x.id===id;})[0]; if(r) playRoute(r); }, clearRoute:clearRoute, zones:ZONES.map(function(z){return z.id;}), doors:DOORS.map(function(d){return d.n;}), routes:ROUTES.map(function(r){return r.id;}), tl:TL.length, ck:function(t){ ck.t=t; renderCk(); }};
+})();
+</script>
+</body>
+</html>

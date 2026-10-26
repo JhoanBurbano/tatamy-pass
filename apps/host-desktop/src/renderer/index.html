@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>Tatami Pass Host</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">TP</span>
+      <div>
+        <div class="brand-title">Tatami Pass Host</div>
+        <div class="brand-sub" id="siteName">—</div>
+      </div>
+    </div>
+    <div class="status" id="statusPill"><span class="dot"></span><span id="statusText">Arrancando…</span></div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" id="btnOpenPanel">Abrir panel</button>
+      <button class="btn" id="btnSettings">Ajustes</button>
+    </div>
+  </header>
+
+  <main class="grid" id="main">
+    <section class="card span2" id="cardHost">
+      <div class="card-head"><h2>Este equipo</h2><span class="badge" id="modeBadge">Principal</span></div>
+      <div class="host-error hidden" id="hostError"></div>
+      <div class="kv">
+        <div><span class="k">Dirección para los scanners</span><div class="urls" id="urls"></div></div>
+        <div><span class="k">Evento cargado</span><div class="v" id="eventName">—</div><div class="muted" id="eventDates"></div></div>
+      </div>
+      <div class="row gap">
+        <button class="btn btn-ghost" id="btnChangeEvent">Cambiar archivo de evento</button>
+        <button class="btn btn-ghost" id="btnOpenData">Abrir carpeta de datos</button>
+        <span class="muted" id="counts"></span>
+      </div>
+      <div class="standby hidden" id="standbyBox">
+        <div class="v" id="replicaMsg"></div>
+        <button class="btn btn-danger" id="btnPromote">Promover a principal</button>
+      </div>
+    </section>
+
+    <section class="card" id="cardEnroll">
+      <div class="card-head"><h2>Enrolar un scanner</h2><span class="muted" id="enrollExpires"></span></div>
+      <div class="enroll">
+        <div class="qr" id="qrBox"><div class="qr-empty">Genera un código y escanéalo desde el celular (Enrolar este dispositivo).</div></div>
+        <form class="enroll-form" id="enrollForm">
+          <label>Nombre del scanner<input name="name" placeholder="Puerta G1" required /></label>
+          <label>Zona<select name="zone" id="enrollZone"></select></label>
+          <label>Rol<select name="role"><option value="CONTROL">Control</option><option value="SUPERVISOR">Supervisor</option></select></label>
+          <button class="btn btn-primary" type="submit">Generar código (10 min)</button>
+          <div class="muted small" id="enrollToken"></div>
+          <div class="error" id="enrollError"></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="card" id="cardDevices">
+      <div class="card-head"><h2>Scanners</h2><span class="muted" id="devicesSummary"></span></div>
+      <ul class="devices" id="devices"></ul>
+    </section>
+
+    <section class="card" id="cardBackups">
+      <div class="card-head"><h2>Copias de seguridad</h2></div>
+      <div class="v" id="backupLast">—</div>
+      <div class="muted small" id="backupDirs"></div>
+      <div class="row gap">
+        <button class="btn" id="btnBackupNow">Hacer copia ahora</button>
+        <button class="btn btn-lime" id="btnBackupUsb">Copia a USB ahora</button>
+      </div>
+      <div class="muted small" id="backupMsg"></div>
+    </section>
+
+    <section class="card" id="cardCloud">
+      <div class="card-head"><h2>Nube</h2></div>
+      <div class="v" id="cloudLast">—</div>
+      <div class="muted small" id="cloudMsg"></div>
+      <div class="row gap"><button class="btn" id="btnCloudPull">Traer ahora</button></div>
+      <div class="muted small" id="cloudResult"></div>
+    </section>
+
+    <section class="card" id="cardHttps">
+      <div class="card-head"><h2>HTTPS en la red</h2><span class="badge" id="httpsBadge">—</span></div>
+      <div class="muted small" id="httpsMsg"></div>
+      <div class="row gap">
+        <button class="btn" id="btnExportCert">Exportar certificado raíz</button>
+        <button class="btn btn-ghost" id="btnCertHelp">Cómo instalarlo en los celulares</button>
+      </div>
+      <div class="help hidden" id="certHelp">
+        <p><strong>Android:</strong> pasa el archivo <code>tatami-pass-root.crt</code> al celular (WhatsApp, cable o USB) › Ajustes › Seguridad › Cifrado y credenciales › Instalar un certificado › Certificado de CA › acepta el aviso y elige el archivo. Luego abre la dirección https de arriba en Chrome: el candado debe salir sin avisos.</p>
+        <p><strong>iPhone / iPad:</strong> envía el archivo por AirDrop o correo y ábrelo › Ajustes › Perfil descargado › Instalar. Después Ajustes › General › Información › Ajustes de confianza de certificados › activa "Tatami Pass / Caddy Local Authority". Luego abre la dirección https en Safari.</p>
+        <p class="muted">Si no quieres instalar certificados, los scanners funcionan igual por http://. La cámara del celular exige https o localhost en algunos modelos: por eso recomendamos instalarlo.</p>
+      </div>
+    </section>
+
+    <section class="card span2" id="cardLogs">
+      <div class="card-head"><h2>Qué está pasando</h2><span class="muted">últimas 200 líneas</span></div>
+      <pre class="logs" id="logs"></pre>
+    </section>
+  </main>
+
+  <!-- Promover: doble confirmación -->
+  <div class="modal hidden" id="promoteModal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3>Promover este equipo a principal</h3>
+      <p id="promoteText">Paso 1 de 2: ¿el principal no responde? Si responde, no promuevas: habría dos fuentes de verdad. Escribe <strong>SI</strong> para seguir.</p>
+      <input id="promoteInput" autocomplete="off" />
+      <div class="error" id="promoteError"></div>
+      <div class="row gap end">
+        <button class="btn btn-ghost" id="promoteCancel">Cancelar</button>
+        <button class="btn btn-danger" id="promoteOk">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ajustes -->
+  <div class="modal hidden" id="settingsModal" role="dialog" aria-modal="true">
+    <div class="modal-box wide">
+      <h3>Ajustes</h3>
+      <form id="settingsForm" class="form2">
+        <label>Nombre de la sede<input name="siteName" /></label>
+        <label>Puerto del host<input name="port" type="number" min="1024" max="65535" /></label>
+        <label>Modo<select name="mode"><option value="primary">Principal</option><option value="standby">Equipo de respaldo</option></select></label>
+        <label>Dirección del principal (solo respaldo)<input name="primaryUrl" placeholder="http://10.10.0.2:8787" /></label>
+        <label>Clave de replicación<input name="replicaKey" type="password" /></label>
+        <label>Carpeta de copias secundaria (USB)<span class="row"><input name="backupsDir2" /><button class="btn btn-ghost" type="button" id="pickBackups2">Elegir</button></span></label>
+        <label>Dirección de la nube (TP_CLOUD_URL)<input name="cloudUrl" placeholder="https://tu-nube.vercel.app" /></label>
+        <label>Clave de la nube (TP_CLOUD_KEY)<input name="cloudKey" type="password" /></label>
+        <label>Actualizar desde la nube cada (min, 0 = solo manual)<input name="cloudIntervalMinutes" type="number" min="0" max="1440" /></label>
+        <label>Archivo de evento (vacío = el de la carpeta de datos)<span class="row"><input name="eventConfigPath" /><button class="btn btn-ghost" type="button" id="pickEvent">Elegir</button></span></label>
+        <label class="check"><input name="httpsEnabled" type="checkbox" /> HTTPS activado (Caddy)</label>
+        <label>Puerto HTTPS<input name="httpsPort" type="number" min="1" max="65535" /></label>
+        <label class="check"><input name="launchAtLogin" type="checkbox" /> Arrancar al iniciar sesión</label>
+        <div></div>
+        <fieldset class="span2">
+          <legend>Passphrase de las claves</legend>
+          <div class="row gap">
+            <input id="passInput" type="password" placeholder="Nueva passphrase (20+ caracteres)" />
+            <button class="btn" type="button" id="btnSetPass">Guardar passphrase</button>
+          </div>
+          <div class="muted small" id="passInfo"></div>
+        </fieldset>
+        <div class="error span2" id="settingsError"></div>
+        <div class="row gap end span2">
+          <button class="btn btn-ghost" type="button" id="btnRestart">Reiniciar host</button>
+          <button class="btn btn-ghost" type="button" id="settingsCancel">Cerrar</button>
+          <button class="btn btn-primary" type="submit">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Primera ejecución -->
+  <div class="wizard hidden" id="wizard">
+    <div class="wizard-box">
+      <div class="wizard-head">
+        <span class="mark" aria-hidden="true">TP</span>
+        <div><div class="brand-title">Primera vez: vamos a dejar el host listo</div><div class="muted" id="wizardStep">Paso 1 de 4</div></div>
+      </div>
+      <div class="wizard-steps">
+        <div class="step" data-step="1">
+          <h3>¿Dónde está este equipo?</h3>
+          <label>Nombre de la sede<input id="wSite" placeholder="Coliseo La Estancia" /></label>
+          <label>Modo
+            <select id="wMode"><option value="primary">Principal: aquí viven los datos del evento</option><option value="standby">Equipo de respaldo: copia al principal cada 10 s</option></select>
+          </label>
+          <div id="wStandby" class="hidden">
+            <label>Dirección del principal<input id="wPrimaryUrl" placeholder="http://10.10.0.2:8787" /></label>
+            <label>Clave de replicación (la misma del principal)<input id="wReplicaKey" type="password" /></label>
+          </div>
+        </div>
+        <div class="step hidden" data-step="2">
+          <h3>Passphrase de las claves</h3>
+          <p class="muted">Con ella se cifra la clave que firma los QR y los datos personales. Sin ella no se puede firmar ni leer la base. Guárdala en el sobre del Administrador. Si este es el equipo de respaldo, usa la misma que el principal.</p>
+          <label>Passphrase (20 o más caracteres)<input id="wPass" type="password" /></label>
+          <label>Repítela<input id="wPass2" type="password" /></label>
+        </div>
+        <div class="step hidden" data-step="3">
+          <h3>¿Qué evento cargamos?</h3>
+          <label class="radio"><input type="radio" name="wSource" value="demo" checked /> Evento de demostración (2.000 credenciales de prueba, usuario admin / admin123, scanners con PIN 123456)</label>
+          <label class="radio"><input type="radio" name="wSource" value="file" /> Mi archivo <code>event.config.json</code> (exportado del panel o editado según docs/32)</label>
+          <div class="row gap"><input id="wEventPath" placeholder="Ruta del archivo" readonly /><button class="btn btn-ghost" type="button" id="wPickEvent">Elegir archivo</button></div>
+        </div>
+        <div class="step hidden" data-step="4">
+          <h3>Copias de seguridad</h3>
+          <p class="muted">Cada 5 minutos se hace una copia en la carpeta de datos de la app. Si quieres, añade una segunda carpeta (la USB cifrada): si no está conectada, la copia principal se hace igual.</p>
+          <div class="row gap"><input id="wBackups2" placeholder="Carpeta de la USB (opcional)" readonly /><button class="btn btn-ghost" type="button" id="wPickBackups">Elegir carpeta</button><button class="btn btn-ghost" type="button" id="wClearBackups">Quitar</button></div>
+        </div>
+      </div>
+      <div class="error" id="wError"></div>
+      <div class="row gap end">
+        <button class="btn btn-ghost" id="wBack">Atrás</button>
+        <button class="btn btn-primary" id="wNext">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+  <script type="module" src="./renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "tatami-host": {
+      "command": "npx",
+      "args": ["tsx", "scripts/mcp/host-server.ts"],
+      "env": {
+        "TP_HOST_URL": "http://127.0.0.1:8787",
+        "TP_HOST_USER": "audit",
+        "TP_HOST_PASSWORD": "audit123",
+        "TP_HOST_INSECURE": "0",
+        "TP_MCP_ALLOW_WRITE": "0"
+      }
+    }
+  }
+}
