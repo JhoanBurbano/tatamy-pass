@@ -21,3 +21,7 @@ e2e/playwright-report/
 apps/host/public/admin/
 docs-site/dist/
 docs-site/.cache/
+
+# locales de Claude Code y capturas de verificación
+.claude/settings.local.json
+design/screenshots/
